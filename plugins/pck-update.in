@@ -1,0 +1,3198 @@
+#!/bin/bash
+# pck-update -- plugin for @package@
+# Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
+ { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+[ $(id -u) -eq 0 ] &&
+ { echo "$me: "$"you're running $me as root" 1>&2 && exit 1; }
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+[ -r @libdir@/libspec.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libspec.lib" 1>&2
+   exit 1; }
+. @libdir@/libspec.lib
+
+[ -r @libdir@/libnetwork.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libnetwork.lib" 1>&2
+   exit 1; }
+. @libdir@/libnetwork.lib
+
+[ -r @libdir@/libapse.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libapse.lib" 1>&2
+   exit 1; }
+. @libdir@/libapse.lib
+
+# default values:
+# colorized output (disabled by default)
+let "colorize = 0"
+# output verbosity
+let "verbose = 1"
+#
+let "cleanup = 0"
+let "spec_format = 0"
+let "rebuild = 0"
+let "force = 0"
+let "force_update = 0"
+let "force_build = 0"
+let "force_install = 0"
+let "force_download = 0"
+let "force_upload = 0"
+# do not enable logging by default
+let "logging = 0"
+# do upload srpms packages
+let "nosrpm = 0"
+# do upload rpms packages
+let "norpms = 0"
+# do not use rpm variables for unix tools
+let "format_unix_tools = 0"
+
+unset ignore_test_list
+
+# load the configuration file(s)
+[ -r @libdir@/libcfg.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
+   exit 1; }
+. @libdir@/libcfg.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="${me[0]}"; export TEXTDOMAIN
+
+function copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function version() {
+   echo "\
+${me[0]} ${me[1]}
+Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+# $1: optional exit code (default is '1')
+function usage() {
+   version
+   echo "\
+"$"Update the package <pck> to version <ver> and release <rel>"".
+
+"$"Usage"":
+ @frontend@ -u <pck> -a<lst> [<ver>] [<rel>] [-d v1=r1[,v2=r2,...]] \\
+             [-l usr:pswd] [-S <specfile>] [-A <arch>] \\
+             [--server-download <int>] [--server-upload <int>] \\
+             [--changelog \"msg\" ] [--nosrpm|--norpm] \\
+             [--force-update] [--force-build] [--force-install] \\
+             [--force-download] [--ignore-test t1[,t2,...]] \\
+             [-c] [-f] [-L] [-R]
+
+"$"where the above options mean"":
+ -u, --update       "$"Update the package <pck> to version <ver> and release <rel>""
+ -a, --action       "$"Do the actions specified in the comma separated list <lst>""
+                      0. "$"check for available versions in the $DISTRO repositories""
+                      1. "$"download and install the srpm package""
+                      2. "$"check if a new version is available""
+                      3. "$"download new source files""
+                      4. "$"update and check the specfile""
+                      5. "$"build the rpm(s) and srpm packages""
+                      6. "$"build the list of the build requirements""
+                      7. "$"simulate the installation of the rpm package(s)""
+                      8. "$"perform some quality and security checks""
+                      9. "$"calculate the md5/sha1 hashing values""
+                     10. "$"upload the new packages to the ftp repository"",""
+                         "$"*remove* old packages from the ftp repository""
+                         "$"(move packages to \`\$ftp_rw_old_dir', if set)""
+                     11. "$"install the new rpm packages""
+     --force-update "$"Force the update of the rpm(s) and srpm packages""
+     --force-build  "$"Force the rebuild of the rpm(s) and srpm packages""
+     --force-install""
+                    "$"Install the new packages even if rpm complains for errors""
+     --force-download""
+                    "$"Download the source files even if found in SOURCE""
+     --force        "$"Try to execute the given action(s) bypassing errors""
+     --ignore-test  "$"Skip the given test number(s)"" (t1[,t2,...])""
+ -d, --define       "$"Define variables <v1>,<v2>,... with values <r1>,<r2>,...""
+     --server-download""
+                    "$"Select a server from where to download srpm packages""
+     --server-upload  ""
+                    "$"Select a server where to upload packages""
+     --server       "$"Select a server to be used for both download and upload""
+ -l, --login        "$"FTP user (usr) and password (pswd) for packages upload""
+ -S, --specfile     "$"Name of the specfile (default: <name>.spec)""
+ -A, --arch         "$"Force the architecture to a given value""
+     --changelog    "$"Set change information for the package""
+     --nosrpm       "$"action"" 5: "$"Only build the rpm packages""
+                    "$"action"" 10: "$"Do not upload the srpm package""
+     --norpm        "$"action"" 5: "$"Only build the srpm package""
+                    "$"action"" 10: "$"Do not upload the rpm packages""
+ -c, --clear        "$"Remove all the temporary files except (s)rpm packages""
+ -f, --format       "$"Enable specfile autoformatting""
+ -L, --log          "$"Unable logging to file (logging dir: \`\$logging_dir')""
+ -R, --rebuild      "$"Enable rebuilding mode and settings (action 4 only)""
+     --root         "$"Specify an alternative root directory to rpm""
+
+"$"Operation modes"":
+ -h, --help         "$"Print this help, then exit""
+ -V, --version      "$"Print version number, then exit""
+ -q, --quiet        "$"Run in quiet mode""
+ -r, --colorize     "$"Enable the colorized output""
+ -D, --debug        "$"Run in debugging mode (very verbose output)""
+
+"$"Samples"":
+ @frontend@ -u aPackage 0.1.2 -a4 -f --changelog \""$"changelog entry""\"
+ @frontend@ --log -u aPackage -a5,7:9 --force-build --define addons_ver=0.9
+ @frontend@ -c -u -l usr:pswd aPackage 0.1.2 -a10 --server-upload=1
+ @frontend@ -u aPackage -a1,4,5 --arch=noarch --rebuild --ignore-test=6,7
+ @frontend@ -u aPackage -a10 --norpm -S /var/tmp/specs/aPackage.spec
+ @frontend@ -u aPackage -a11 --force-install
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+
+   exit ${1:-1}
+}
+
+case $1 in
+   --autospec-args-file*)
+      if [[ "$1" =~ = ]]; then
+         argsfile=`echo $1 | sed 's/^--autospec-args-file=//'`
+      else
+         argsfile=$2
+      fi
+      [ -r "$argsfile" ] || notify.error $"cannot read"": \`$argsfile'"
+      . $argsfile && rm -f $argsfile
+   ;;
+esac
+
+for arg in $@; do
+   case $arg in
+   -h|--help) usage 0 ;;
+   -V|--version) version; echo; copying; exit 0 ;;
+   esac
+done
+
+exec_options=`LANG=C getopt \
+   -o ua:d:l:S:A:cfLRDqrhV \
+   --long \
+update,action:,define:,login:,specfile:,arch:,\
+server-download:,server-upload:,server:,\
+changelog:,nosrpm,norpm,\
+force-update,force-build,force-install,force-download,force,\
+ignore-test:,clear,format,log,rebuild,root:,\
+debug,quiet,colorize,help,version,\
+frontend_opts: \
+   -n "$me" -- "$@"`
+[ $? = 0 ] || exit 1
+
+eval set -- "$exec_options"
+
+while :; do
+   case $1 in
+      -u|--update) ;;
+      -a|--action)
+         steps=$2; shift ;;
+      -d|--define)
+         define_list=$2; shift ;;
+      -l|--login)
+         cl_ftp_rw_user=${2%%:*}
+         cl_ftp_rw_passwd=${2##*:}; shift ;;
+      -S|--specfile)
+         usrdef_spec=$2
+         spec_name="${usrdef_spec##*/}"
+         spec_dir_conf="$spec_dir"
+         spec_dir=$(echo "$usrdef_spec" | sed -n "s,[/]*$spec_name$,,p")
+         [ "$spec_dir" ] || spec_dir="$spec_dir_conf"
+         case "$spec_dir" in
+         \.) spec_dir="$(pwd)" ;;
+         \./*|\.\./*) # not an absolute paths
+            spec_dir="$(pwd)/$spec_dir" ;;
+         esac
+         shift ;;
+      -A|--arch)
+         target_cpu="$2"; shift ;;
+      --server-download)
+         ftp_server_download_id="$2"; shift ;;
+      --server-upload)
+         ftp_server_upload_id="$2"; shift ;;
+      --server)
+         ftp_server_download_id="$2"
+         ftp_server_upload_id="$2"
+         shift ;;
+      --changelog)
+         changelog_userdef="$2"; shift ;;
+      --nosrpm)
+         let "nosrpm = 1" ;;
+      --norpm)
+         let "norpms = 1" ;;
+      --force-update)
+         let "force_update = 1" ;;
+      --force-build)
+         let "force_build = 1" ;;
+      --force-install)
+         let "force_install = 1" ;;
+      --force-download)
+         let "force_download = 1" ;;
+      --force)
+         let "force_update = 1"
+         let "force_build = 1"
+         let "force_install = 1"
+         let "force_download = 1"
+         let "force_upload = 1" ;;
+      --ignore-test)
+         ignore_test_list=$2; shift ;;
+      -c|--clear)
+         cleanup=1 ;;
+      -f|--format)
+         let "spec_format = 1" ;;
+      -L|--log)
+         let "logging = 1" ;;
+      -R|--rebuild)
+         let "rebuild = 1" ;;
+      --root)
+         rpm_rootdir="$2"; shift
+         rpm_root_opts="--root=$rpm_rootdir" ;;
+      -D|--debug)
+         let "verbose = 2" ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -r|--colorize)
+         let "colorize = 1" ;;
+      -h|--help)
+         usage 0 ;;
+      -V|--version)
+         version; echo; copying; exit 0 ;;
+      --) shift; break ;;
+      *) notify.error $"unrecognized option"" -- \`$1'" ;;
+   esac
+   shift
+done
+
+for arg in $@; do
+   if [[ -z "$pck_name" ]]; then
+      pck_name=$arg
+   elif [[ -z "$pck_newver" ]]; then
+      pck_newver=$arg
+   elif [[ -z "$pck_newrel" ]]; then
+      pck_newrel=$arg
+   else
+      notify.error $"unrecognized option"" -- \`$arg'"
+   fi
+done
+
+notify.debug "${0} ${exec_options}"
+#echo -e "[ ${0} \\ \n    ${exec_options} ]\n"
+
+if [ -n "$rpm_rootdir" ]; then
+   [ -d "$rpm_rootdir" ] ||
+      notify.error $"no such file or directory"": $rpm_rootdir"
+fi
+
+[ "$logging" = "1" ] && let "colorize = 0"
+
+[ "$colorize" = "1" ] && notify.enable_colors
+# default values for non mandatory configuration variables
+[ "$logging_dir" ] || logging_dir="${tmppath_dir:-/var/tmp}/@package@"
+
+# check if all the needed tools are available
+for tool in cat chmod cpio date file find fold ftp getopt grep host \
+   mktemp objdump readlink rpm rpmbuild rpm2cpio sed seq sort strings; do
+   [ "$(type -p $tool)" ] ||
+      notify.error $"utility not found"": \`$tool'"
+done
+
+# check for configuration mistakes (in the configuration file(s))
+unset upload_ftpserver
+for i in `seq 1 1 ${#ftp_rw_server[@]}`; do
+   # if the entry is not a void string ("") check for mandatory
+   # related variables
+   if [ "${ftp_rw_server[$i-1]}" ]; then
+      [ "${ftp_rw_rpms_dir[$i-1]}" ] || notify.error $"\
+must be set in the configuration file"": \`ftp_rw_rpms_dir[$(($i-1))]'"
+      [ "${ftp_rw_srpms_dir[$i-1]}" ] || notify.error $"\
+must be set in the configuration file"": \`ftp_rw_srpms_dir[$(($i-1))]'"
+   fi
+done
+
+#case "$spec_backup_attr" in
+#   "hidden") ;; "visible") ;;
+#   *) notify.error $"\
+#unrecognized value for \`spec_backup_attr': $spec_backup_attr" ;;
+#esac
+
+[ "${#ftp_rw_server[@]}" = 0 ] && notify.error $"\
+must be set in the configuration file"": \`ftp_rw_server[]'"
+
+[ "${#ftpurl_ro_rpms[*]}"  = "${#ftp_rw_rpms_dir[*]}"  ] ||
+   notify.error "\
+\`ftpurl_ro_rpms', \`ftp_rw_rpms_dir': "$"must have the same size"
+
+[ "${#ftpurl_ro_srpms[*]}" = "${#ftp_rw_srpms_dir[*]}" ] ||
+   notify.error "\
+\`ftpurl_ro_srpms', \`ftp_rw_srpms_dir': "$"must have the same size"
+
+[ "${#ftpdir_rw_old[*]}"   = "${#ftp_rw_rpms_dir[*]}"  ] ||
+   notify.error "\
+\`ftpdir_rw_old', \`ftp_rw_rpms_dir': "$"must have the same size"
+
+[ "$ftp_rw_server_num_default" ] || notify.error $"\
+must be set in the configuration file"": \`ftp_rw_server_num_default'"
+# check if `ftp_rw_server_num_default' is a valid number
+
+[[ "$ftp_rw_server_num_default" =~ ^[0-9]+$ ]] ||
+   notify.error "\`ftp_rw_server_num_default': "\
+$"illegal value"": \"$ftp_rw_server_num_default\""
+[ "$ftp_rw_server_num_default" -lt ${#ftp_rw_rpms_dir[*]} ] ||
+   notify.error "\`ftp_rw_server_num_default': "\
+$"illegal value"": \"$ftp_rw_server_num_default\""
+
+# display users and passwords in the debug messages (default: '0')
+debug_print_private_user_infos=0
+
+infofile=$(mktemp -q -t infofile.XXXXXXXX)
+[ $? -eq 0 ] || notify.error $"can't create temporary files"
+
+# preprocessed specfile generated by 'rpm --specfile --specedit'
+specfile_preprocessed=$(mktemp -q -t specpreproc.XXXXXXXX)
+[ $? -eq 0 ] || notify.error $"can't create temporary files"
+
+trap "rm -f $infofile $specfile_preprocessed" 0 1 2 3 6 7 9 13 15
+notify.debug "infofile = $infofile"
+
+# function infofile.create()
+#    write in the ($temporary) file '$infofile' all the needed variables
+#    got from the package specfile
+# args:
+#    none
+function infofile.create() {
+   notify.debug "$FUNCNAME: creating info file ($infofile)..."
+
+   ( unset SPEC_NAME
+     unset SPEC_VERSION
+     unset SPEC_RELEASE
+     unset SPEC_GROUP
+     unset SPEC_FILENAME
+     unset SPEC_URL
+     unset SPEC_PATCH
+     unset SPEC_SOURCE
+     unset SPEC_LICENSE
+     unset SPEC_TARGET
+     unset SPEC_OBSOLETES
+     unset SPEC_BUILDARCH
+     unset SPEC_BUILDREQUIRES
+     unset SPEC_BUILDROOT
+     #unset SRPM_SPECFILE
+     unset SRPM_SPECFILE_WITH_PATH
+     unset USER_RPMDEFINE_OPTS
+     unset SPECFILE_PREPROCESSED
+
+     # destroy the old infofile but use its data
+     [ -r $infofile ] && . $infofile
+     > $infofile
+
+     if [ -z "$SRPM_SPECFILE" ]; then
+        SRPM_SPECFILE="${spec_name:-$pck_name.spec}"
+        [ "$spec_name" ] || notify.warning $"\
+assuming as specfile"": \`$spec_dir/$SRPM_SPECFILE'"
+     fi
+
+     case "$SRPM_SPECFILE" in
+     */*)
+        if [ "$SRPM_SPECFILE" = "$spec_dir/${SRPM_SPECFILE##*/}" ]; then
+           # permit this syntax for backward compatibility
+           SRPM_SPECFILE="${SRPM_SPECFILE##*/}"
+        else
+           notify.error $"unsupported path for specfile"": \`$SRPM_SPECFILE'"
+        fi
+     ;;
+     esac
+
+     echo "SRPM_SPECFILE=\"$SRPM_SPECFILE\"" >> $infofile
+     notify.debug "SRPM_SPECFILE = \"$SRPM_SPECFILE\""
+
+     [ "$SRPM_SPECFILE_WITH_PATH" ] ||
+        SRPM_SPECFILE_WITH_PATH="$spec_dir/$SRPM_SPECFILE"
+
+     [ -f "$SRPM_SPECFILE_WITH_PATH" ] ||
+        notify.error $"specfile not found"": \`$SRPM_SPECFILE_WITH_PATH'"
+
+     echo "SRPM_SPECFILE_WITH_PATH=\"$SRPM_SPECFILE_WITH_PATH\"" >> $infofile
+     notify.debug "SRPM_SPECFILE_WITH_PATH = \"$SRPM_SPECFILE_WITH_PATH\""
+
+     if [ -z "$USER_RPMDEFINE_OPTS" ]; then
+        USER_RPMDEFINE_OPTS="\
+$(for i in `seq 1 1 ${#define_list_name[*]}`; do
+echo -n " --define=\"${define_list_name[$i-1]} ${define_list_value[$i-1]}\""
+done)"
+     fi
+     echo "USER_RPMDEFINE_OPTS='""$USER_RPMDEFINE_OPTS""'" >> $infofile
+     notify.debug "USER_RPMDEFINE_OPTS = \'$USER_RPMDEFINE_OPTS\'"
+
+     # create the specfile_preprocessed only once
+     if [ ! -s "$specfile_preprocessed" ]; then
+        notify.debug "running: \
+rpm -q $USER_RPMDEFINE_OPTS --specfile --specedit $SRPM_SPECFILE_WITH_PATH ..."
+        eval "\
+rpm -q $USER_RPMDEFINE_OPTS --specfile --specedit $SRPM_SPECFILE_WITH_PATH \
+           2>/dev/null >> $specfile_preprocessed" ||
+        notify.error $"rpm exited with error code \`$?'"
+     fi
+
+     SPECFILE_PREPROCESSED="$specfile_preprocessed"
+     notify.debug "SPECFILE_PREPROCESSED = \"$SPECFILE_PREPROCESSED\""
+     echo "SPECFILE_PREPROCESSED=\"$SPECFILE_PREPROCESSED\"" >> $infofile
+
+     # set the variables 'rpmvar_name[]', 'rpmvar_value[]', 'rpmvar_expr[]'
+     if [ "$SPEC_VERSION_FORCED" ]; then
+        # use 'SPEC_VERSION' instead of the version hardcoded in the specfile
+        # (needed when we want to upgrade to a more recent version of the package
+        # discovered by libapse)
+        rpmvars.init --pckver="$SPEC_VERSION_FORCED" "$SRPM_SPECFILE_WITH_PATH"
+     else
+        rpmvars.init "$SRPM_SPECFILE_WITH_PATH"
+     fi
+
+     if [ -r $SPECFILE_PREPROCESSED ]; then
+        # check for values not yet in the `infofile'
+        [ "$SPEC_NAME"          ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_NAME
+        [ "$SPEC_VERSION"       ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_VERSION
+        [ "$SPEC_RELEASE"       ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_RELEASE
+        [ "$SPEC_GROUP"         ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_GROUP
+        [ "$SPEC_FILENAME"      ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_FILENAME
+        [ "$SPEC_URL"           ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_URL
+        [ "$SPEC_PATCH"         ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_PATCH
+        [ "$SPEC_SOURCE"        ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_SOURCE
+        [ "$SPEC_LICENSE"       ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_LICENSE
+        [ "$SPEC_TARGET"        ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_TARGET
+        [ "$SPEC_OBSOLETES"     ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_OBSOLETES
+        [ "$SPEC_BUILDARCH"     ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_BUILDARCH
+        [ "$SPEC_BUILDREQUIRES" ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_BUILDREQUIRES
+        [ "$SPEC_BUILDROOT"     ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_BUILDROOT
+
+        echo "\
+SPEC_NAME=\"$SPEC_NAME\"
+SPEC_VERSION=\"$SPEC_VERSION\"
+SPEC_RELEASE=\"$SPEC_RELEASE\"
+SPEC_GROUP=(\
+$(for i in `seq 1 1 ${#SPEC_GROUP[*]}`; do
+   echo -n "\"${SPEC_GROUP[i-1]}\" "
+done))
+SPEC_FILENAME=\"$SPEC_FILENAME\"
+SPEC_URL=\"$SPEC_URL\"
+SPEC_PATCH=(${SPEC_PATCH[*]})
+SPEC_SOURCE=(${SPEC_SOURCE[*]})
+SPEC_LICENSE=(\
+$(for i in `seq 1 1 ${#SPEC_LICENSE[*]}`; do
+   echo -n "\"${SPEC_LICENSE[i-1]}\" "
+done))
+SPEC_TARGET=(${SPEC_TARGET[*]})
+SPEC_OBSOLETES=(${SPEC_OBSOLETES[*]})
+SPEC_BUILDARCH=\"$SPEC_BUILDARCH\"
+SPEC_BUILDROOT=\"$SPEC_BUILDROOT\"
+SPEC_BUILDREQUIRES=(\
+$(for i in `seq 1 1 ${#SPEC_BUILDREQUIRES[*]}`; do
+   echo -n "\"${SPEC_BUILDREQUIRES[i-1]}\" "
+done))
+BUILD_ARCH=\"$BUILD_ARCH\"
+TARGET_ARCH=\"$TARGET_ARCH\"" >> $infofile
+     else
+        notify.error $"specfile not found"": \`$SRPM_SPECFILE_WITH_PATH'"
+     fi
+   ) || exit 1  # exit with error if the specfile is not found
+
+   notify.debug "$(infofile.cat $infofile)"
+}
+
+# function infofile.cat()
+#    print the content of the infofile
+# args:
+#    $1 : infofile name
+function infofile.cat() {
+   local infofile="$1"
+
+   [ "$infofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ -e $infofile ] && echo "\
+[infofile]
+$( cat $infofile | \
+   sed '# indent and display the infofile
+      s,.*,   &,' )"
+}
+
+# function specfile.newrelease()
+#    calculate the new release versioning number
+# args:
+#    none
+function specfile.newrelease() {
+   [ -s "$infofile" ] || infofile.create
+
+   ( . $infofile
+
+     # NOTE: we only accept release strings in the format '<version><distroid>'
+     [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){0,}[^0-9\.]+.*$ ]] ||
+      { notify.debug "\
+$FUNCNAME: SPEC_RELEASE ($SPEC_RELEASE): unsupported format";
+        exit 1; }
+
+     if [ "$pck_newver" = $SPEC_VERSION ]; then
+        local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
+        local sr_distroid="${SPEC_RELEASE/$sr_relnum}"
+        notify.debug "$FUNCNAME: sr_relnum = \"$sr_relnum\""
+        notify.debug "$FUNCNAME: sr_distroid = \"$sr_distroid\""
+
+        [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}[^\.]*$ ]] &&
+         { echo "${sr_relnum%\.*}.$(( ${sr_relnum/*\./} + 1 ))${DISTRO_rpm}"
+           break; }
+
+        # '<[0-9]+><distroid>'
+        [[ "$SPEC_RELEASE" =~ ^[0-9]+[^0-9]+$ ]] &&
+         { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"; break; }
+
+        # this line should be never reached
+        notify.error $"\
+(bug)"" -- $FUNCNAME: "$"release number: unsupported format"": \"$SPEC_RELEASE\""
+     else
+        echo "1${DISTRO_rpm}"
+     fi ) || \
+notify.error $"release number: unsupported format"": \"$SPEC_RELEASE\""
+}
+
+# function specfile.checksintax()
+#    do some syntax checks in the specfile of the building package
+# args:
+#    $1 : specfile name
+#    $2, ... : execute these check numbers (optional, default = all checks)
+function specfile.checksintax() {
+   local i rpmvar specfile="$1"; shift
+
+   [[ "$specfile" ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   notify.debug "$FUNCNAME: specfile = \"$specfile\""
+
+   local arg args="${@:-"`seq -s" " 1 9`"}"   # default: all checks
+   notify.debug "$FUNCNAME: args = \"$args\""
+
+   local token ignore_test_list_value
+   ignore_test_list_value=()
+   OIFS="$IFS"; IFS=','
+   for token in $ignore_test_list; do
+      IFS='='; set -- $token
+      ignore_test_list_value[${#ignore_test_list_value[*]}]="$1";
+      IFS=','
+   done
+   IFS="$OIFS"
+   notify.debug "$FUNCNAME: \
+ignore_test_list_value = (${ignore_test_list_value[*]})"
+
+   function skip_test() {
+      local test n found
+
+      test="$1"
+      let "found = 0"
+
+      for n in ${ignore_test_list_value[*]}; do
+         [ "$n" = "$test" ] && let "found = 1"
+      done
+
+      return $found
+   }
+
+   notify.note $"checking"" \`${NOTE}$specfile${NORM}'..."
+   for arg in $args; do
+      notify.debug "$FUNCNAME: arg = \"$arg\""
+      case "$arg" in
+      1) # 1. checking if 'Source[0]' is a valid internet address
+         # (skip this test if no '%setup' section has been found)
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (source0)..."" "$"skipped"
+            continue; }
+
+         grep -q "^%setup[ \t]*$\|^%setup[ \t]\+" $specfile
+         if [ $? -eq 0 ]; then
+            notify.note " * "$"running test"" $arg (source0)..."
+            if [[ "$source0_name_structure" ]]; then
+               specfile.getvars -s $specfile --verbatim SPEC_SOURCE0
+               if [[ "$SPEC_SOURCE0_VERBATIM" ]]; then
+                  [[ "$(echo "$SPEC_SOURCE0_VERBATIM" | \
+                        grep -e "$source0_name_structure")" ]] || notify.warning "\
+\`Source[0]': "$"does not point to a valid internet address"
+               fi
+            fi
+         else
+            notify.note "\
+ * "$"running test"" $arg (source0)..."" "$"skipped"
+         fi
+      ;;
+      2) # 2. check if the patches have standard names
+         # (see the 'patch_name_structure' var in the configure file)
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (patch)..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg (patch)..."
+         specfile.getvars -s $specfile --verbatim SPEC_PATCH
+         echo "${SPEC_PATCH_VERBATIM[@]}" | \
+         for i in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
+            [[ "${SPEC_PATCH_VERBATIM[$i-1]}" =~ \
+               $patch_name_structure ]] ||
+             { notify.warning "\
+patch $i (\`${NOTE}${SPEC_PATCH_VERBATIM[$i-1]}${NORM}') "
+               notify.warning $"\
+not a standard structure (see config file)"; }
+         done
+      ;;
+      3) # 3. check if `%setup' have `-D' and/or `-T' options
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (%setup)..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg (%setup)..."
+         [[ "$(cat $specfile | \
+            sed -n "/%setup/{/-D /p;/-T /p;/-D$/p;/-T$/p}")" ]] &&
+            notify.warning $"\
+found \`-D' and/or \`-T' option(s) in the \`%setup' directive"
+      ;;
+      4) # 4. check if all the `%files' blocks have a `%defattr' line
+         #    note: skip commented out blocks
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (%defattr)..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg (%defattr)..."
+         [[ "$(sed -e '
+                  # print paragraph if it contains "%files" and "%defattr"
+                  /./{H;$!d;}' -e 'x;/%files/!d;/%defattr/!d' $specfile | \
+               grep "^[[:space:]]*%files")" != \
+            "$(grep "^[[:space:]]*%files" $specfile)" ]] &&
+            notify.error $"\
+missing at least one \`%defattr' directive"
+      ;;
+      5) # 5. check if the rpm macros %configure, %make are used
+         # - look in the block : `%build' to `%install'
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (%build, %install)..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg (%build, %install)..."
+         local token tokens
+         sed -n '/%build/,/%install/p' $specfile | \
+         while read -a tokens; do
+            for token in ${tokens[*]}; do
+               case "$token" in
+               configure|./configure)
+                  [[ "$rpm_macro_configure" ]] && notify.warning $"\
+use rpm macros if possible:"" \`$token' --> \`$rpm_macro_configure'" ;;
+               make)
+                  [[ "$rpm_macro_make" ]] && notify.warning $"\
+use rpm macros if possible:"" \`$token' --> \`$rpm_macro_make'" ;;
+               esac
+            done
+         done
+         # - look in the block : `%install' to `%changelog'
+         sed -n '/%install/,/%changelog/p' $specfile | \
+         while read -a tokens; do
+            for token in ${tokens[*]}; do
+               case "$token" in
+               make)
+                  [[ "$rpm_macro_make" ]] && notify.warning $"\
+use rpm macros if possible:"" $(
+[[ "$rpm_macro_makeinstall" ]] &&
+   echo -en "\n * \`make install' -> \`$rpm_macro_makeinstall'"
+[[ "$rpm_macro_makeoldinstall" ]] &&
+   echo -en "\n * \`make install' -> \`$rpm_macro_makeoldinstall'" )" ;;
+               esac
+            done
+         done
+      ;;
+      6) # 6. check if '%find_lang' is used when localization files
+         # are detected
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg (%find_lang)..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg (%find_lang)..."
+         # FIXME : the test should perhaps be improved...
+         grep -q "^[ ]*[^# ]*/share/locale/" $specfile || continue
+
+         notify.error $"\
+"$"localization files must be packaged via \`%find_lang'""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}
+%install
+...
+%find_lang %{name}
+
+%files -f %{name}.lang
+---------------------------------------
+"
+      ;;
+      7) # 7. check if the install/uninstall code is present
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg ("$"info pages"")..."" "$"skipped"
+            continue; }
+
+         notify.note " * "$"running test"" $arg ("$"info pages"")..."
+         local infopages errors
+         # FIXME: non LSB compliant systems are unsupported
+         infopages="$(\
+grep "/share/info/\|^[ ]*%_infodir\|^[ ]*%{_infodir}" $specfile | \
+grep -v "^[ ]*#\|^[a-zA-Z]")"
+         [[ "$infopages" ]] || continue
+
+         let "errors = 0"
+         if [ "$rpm_macro_installinfo" ]; then
+            grep -q "$rpm_macro_installinfo" $specfile ||
+             { let "errors += 1"
+               notify.debug "rpm_macro_installinfo check failed"; }
+         fi
+         if [ "$rpm_macro_uninstallinfo" ]; then
+            grep -q "$rpm_macro_uninstallinfoo" $specfile ||
+             { let "errors += 1"
+               notify.debug "rpm_macro_uninstallinfo check failed"; }
+         fi
+         if [ "$rpm_macro_installinfo_binary" ]; then
+            grep -q "\
+Requires(post)[ \t]*:[ \t]*${rpm_macro_installinfo_binary}" $specfile ||
+             { let "errors += 1"
+               notify.debug "rpm_macro_installinfo_binary check failed"; }
+         fi
+
+         [ "$errors" = "0" ] || notify.error "\
+"$"info pages are not installed/uninstalled in the correct way""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}
+$([[ "$rpm_macro_installinfo_binary" ]] &&
+   echo "Requires(post): $rpm_macro_installinfo_binary" ||
+   echo "Requires(post): ${path_installinfo:-/sbin/install-info}")
+
+%post [<subpackage>]
+$([[ "$rpm_macro_installinfo" ]] &&
+   echo "$rpm_macro_installinfo %{name}.info" ||
+   echo "${path_installinfo:-/sbin/install-info} %{name}.info")
+
+%preun [<subpackage>]
+$([[ "$rpm_macro_uninstallinfo" ]] &&
+   echo "$rpm_macro_uninstallinfo %{name}.info" ||
+   echo "${path_installinfo:-/sbin/install-info} --delete %{name}.info")
+exit 0
+---------------------------------------
+"
+      ;;
+      8) # 8. check for illegal 'Group's (see configuration file)
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg ("$"package Groups"")..."" "$"skipped"
+            continue; }
+
+         if [ "${#rpm_allowed_groups[*]}" = 0 ]; then
+            # 'rpm_allowed_groups' unset in the configuration files
+            notify.note "\
+ * "$"running test"" $arg ("$"package Groups"")..."" "$"skipped"
+            continue
+         fi
+
+         notify.note "\
+ * "$"running test"" $arg ("$"package Groups"")..."
+
+         local i j match
+         for j in `seq 1 1 ${#SPEC_GROUP[*]}`; do
+            notify.debug "\
+$FUNCNAME: checking if \"${SPEC_GROUP[$j-1]}\" is a known group ..."
+            let "match = 0"
+            for i in `seq 1 1 ${#rpm_allowed_groups[*]}`; do
+               notify.debug "\
+$FUNCNAME: current group: \"${rpm_allowed_groups[$i-1]}\""
+               [ "${rpm_allowed_groups[$i-1]}" = \
+                 "${SPEC_GROUP[$j-1]}" ] &&
+                { let "match = 1"; break; }
+            done
+            [ "$match" = 1 ] || notify.error "\
+"$"invalid \`Group'"" \"${SPEC_GROUP[$j-1]}\"""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}""
+"$"see configuration files"" (\`${NOTE}rpm_allowed_groups${NORM}')
+"$"or enter the command"":
+${NOTE}@package@ --eval=rpm_allowed_groups${NORM}
+---------------------------------------
+"
+         done
+      ;;
+      9) # 9. check for no approved 'License's (see configuration file)
+         skip_test $arg ||
+          { notify.note "\
+ * "$"running test"" $arg ("$"approved License"")..."" "$"skipped"
+            continue; }
+
+         if [ "${#rpm_approved_licenses[*]}" = 0 ]; then
+            # 'rpm_approved_licenses' unset in the configuration files
+            notify.note "\
+ * "$"running test"" $arg ("$"approved License"")..."" "$"skipped"
+            continue
+         fi
+
+         notify.note "\
+ * "$"running test"" $arg ("$"approved License"")..."
+
+         local i j match
+         for j in `seq 1 1 ${#SPEC_LICENSE[*]}`; do
+            notify.debug "\
+$FUNCNAME: checking if \"${SPEC_LICENSE[$j-1]}\" is an approved license ..."
+            let "match = 0"
+            for i in `seq 1 1 ${#rpm_approved_licenses[*]}`; do
+               notify.debug "\
+$FUNCNAME: current license: \"${rpm_approved_licenses[$i-1]}\""
+               [ "${rpm_approved_licenses[$i-1]}" = \
+                 "${SPEC_LICENSE[$j-1]}" ] &&
+                { let "match = 1"; break; }
+            done
+            [ "$match" = 1 ] || notify.warning "\
+"$"not approved \`License'"" \"${NOTE}${SPEC_LICENSE[$j-1]}${NORM}\"""
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}""
+"$"see configuration files"" (\`${NOTE}rpm_approved_licenses${NORM}')
+"$"or enter the command"":
+${NOTE}@package@ --eval=rpm_approved_licenses${NORM}
+---------------------------------------
+"
+         done
+      ;;
+      *) # if code reach this point, there is a bug
+         notify.error $"\
+(bug)"" -- $FUNCNAME: "$"illegal value for arg"" (#2): \"$2\"" ;;
+      esac
+   done
+
+   return 0
+}
+
+# function specfile.rotate_bck()
+#    create a backup copy of the current specfile and rotate the
+#    last '$spec_backup_numbers' (default = 5) saved specfiles
+# args
+#    specfile to rotate with path
+function specfile.rotate_bck() {
+   local specfile="$1"
+   [ "$specfile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   local v
+   local oldfext="${spec_backup_extension:-old}"
+   local specname="${specfile##*/}"
+   local specpath="${specfile%/*}"
+
+   #notify.debug "$FUNCNAME: oldfext    = $oldfext"
+   #notify.debug "$FUNCNAME: specname   = $specname"
+   #notify.debug "$FUNCNAME: specpath   = $specpath"
+
+   # create hidded files by default
+   local oldfprefix="."
+   [ "$spec_backup_attr" = "visible" ] && oldfprefix=""
+
+   #notify.debug "$FUNCNAME: oldfprefix = $oldfprefix"
+
+   for v in `seq $((${spec_backup_numbers:-5} - 2)) -1 0`; do
+      [[ -e "${specpath}/${oldfprefix}${specname}.$v.${oldfext}" ]] &&
+       { notify.debug "$FUNCNAME: \
+[${specpath}] ${specname}.$v.${oldfext}\
+ --> ${specname}.$(($v + 1)).${oldfext}"
+         mv -f ${specpath}/${oldfprefix}${specname}.$v.${oldfext} \
+               ${specpath}/${oldfprefix}${specname}.$(($v + 1)).${oldfext}; }
+   done
+
+   if [ -e "${specfile}" ]; then
+      notify.note $"\
+making a ${NOTE}backup copy${NORM} of the current specfile""
+   --> ${NOTE}${specpath}/${oldfprefix}${specname}.0.${oldfext}${NORM}"
+      cp -f ${specfile} \
+            ${specpath}/${oldfprefix}${specname}.0.${oldfext}
+   fi
+}
+
+# function target_cpu.set_and_check()
+#    check the user defined variable 'target_cpu' and set if unset
+# args:
+#    none
+function target_cpu.set_and_check() {
+   if [ ! "$target_cpu" ]; then
+      target_cpu="${SPEC_BUILDARCH:-$BUILD_ARCH}"
+      [ "$target_cpu" == "noarch" ] &&
+         target_cpu=`rpm --eval %{_host_cpu} 2>/dev/null`
+   fi
+   notify.debug "target_cpu = $target_cpu"
+
+   # check if the 'target_cpu' is an allowed architecture
+   local arch_list_curr bad_arch=1
+   for arch_list_curr in ${arch_list[@]}; do
+      [ "$arch_list_curr" = "$target_cpu" ] &&
+      { let "bad_arch = 0"; break; }
+   done
+   [ "$bad_arch" = 1 ] &&
+      notify.error $"unsupported architecture"": \`$target_cpu'"
+}
+
+# function package.update()
+#    do all the actions needed to update an rpm package
+# args:
+#     $1 : boolean variable: force specfile reformatting
+#     $2 : package name of the package to be upgraded
+#     $3 : new release of the package to be upgraded (optional in some step)
+#     $4 : new versione of the package to be upgraded (optional in some step)
+#     $5 : steps of the upgrading process
+#     $6 : ftp user with write permission
+#     $7 : ftp password with write permission
+#     $8 : specfile name
+#     $9 : list of specfile variables/values set by the user
+#    $10 : ftp server from where to download srpms packages
+#    $11 : ftp server where to upload packages
+declare -r update_steps=11   # total steps in the update process
+function package.update() {
+   local spec_format=$1
+
+   local pck_name="$2"
+   [[ "$pck_name" ]] || notify.error $"missing package name"
+
+   # remove the heading path if any
+   [[ "$pck_name" =~ .*/.* ]] && pck_name="${pck_name##*/}"
+   # remove the trailing ".spec" string if any
+   [[ "$pck_name" =~ \.spec$ ]] && pck_name="${pck_name%\.spec}"
+
+   local pck_newver="$3"
+   local pck_newrel="$4"
+
+   if [[ $logging -eq 1 ]]; then   # enable logging
+      logging_file="\
+$logging_dir/$(LC_ALL="C" date "+%Y%m%d_%H%M%S")-$pck_name.log"
+
+      mkdir -p $logging_dir &>/dev/null
+      [ $? -eq 0 ] || notify.error $"\
+cannot create logging directory"" (\`logging_file')"
+
+      > $logging_file
+      notify.note $"logging file"": \`"${NOTE}"$logging_file${NORM}'"
+
+      exec 3<&1   # link fd #3 with stdout; save stdout
+      exec 4<&2   # link fd #4 with stderr; save stderr
+      exec 1>>$logging_file
+      exec 2>>$logging_file
+
+      notify.note "[ ${0}${exec_options} ]\n"
+   fi
+
+   # note: leave here after the 'logging_file' stuff
+   notify.debug "pck_name = $pck_name"
+
+   # the arch on which autospec is being running
+   BUILD_ARCH="$(rpm --eval %_build_cpu 2>/dev/null)"
+   [[ "$BUILD_ARCH" ]] ||
+      notify.error $"cannot evaluate:"" \`BUILD_ARCH'"
+   notify.debug "BUILD_ARCH = $BUILD_ARCH"
+
+   unset steps
+   local user_steps="$5"
+   [[ "$user_steps" ]] ||
+      notify.error $"no action specified: set with \`--action'"
+
+   OIFS="$IFS"; IFS=','
+   for token in $user_steps; do
+      case $token in
+      *:*)
+         fromstep=${token%%:*}; tostep=${token##*:}
+         [[ -z "$fromstep" || -z "$tostep" ]] &&
+            notify.error $"sintax error in --action \`$4'"
+         steps=("${steps[*]}" $(seq $fromstep 1 $tostep))
+      ;;
+      *) steps[${#steps[*]}]="$token" ;;
+      esac
+   done
+   IFS="$OIFS"
+
+   notify.debug "steps = (`echo ${steps[*]} | sed 's,\n, ,'`)"
+   [[ -n "`echo "${steps[*]}" | sed 's,[0-9 ]*,,'`" ]] &&
+      notify.error $"\
+sintax error in the command"": \`--action'"" (\`${4:-"?"}')"
+
+   local ftp_rw_user_forced="$6"
+   local ftp_rw_passwd_forced="$7"
+#   [[ ( -n "$6" && -z "$7" ) || ( -z "$6" && -n "$7" ) ]] &&
+#      notify.error $"\
+#\`ftp_rw_user' and \`ftp_rw_passwd' must be both set or unset"
+
+   local spec_name
+   case "$8" in
+   "") spec_name="${pck_name/\.spec/}.spec" ;;
+   *.spec) spec_name="$8" ;;
+   *) spec_name="${8}.spec" ;;
+   esac
+
+   notify.debug "spec_name = $spec_name"
+   notify.debug "spec_dir = $spec_dir"
+
+   # note (workaround): we must set here all the args before '$9'
+   # because the command 'set --' called later will overwrite them
+
+   local ftp_server_download_id="${10}"
+   notify.debug "ftp_server_download_id = $ftp_server_download_id"
+   local ftp_server_download_num ftp_server_download_alias
+
+   # check whether `ftp_server_download_id' is valid
+   if [ "$ftp_server_download_id" ]; then
+      if [[ "$ftp_server_download_id" =~ ^[0-9]+$ ]]; then
+         ftp_server_download_num="$ftp_server_download_id"
+         ftp_server_download_alias=""
+         [ "$ftp_server_download_num" -lt ${#ftp_rw_rpms_dir[*]} ] ||
+         notify.error "\
+\`--server-download': "$"illegal value for arg"": \"$ftp_server_download_id\""
+      else
+         ftp_server_download_alias="$ftp_server_download_id"
+         notify.debug "ftp_server_download_alias = $ftp_server_download_alias"
+         local found_alias=0
+         for i in ${!ftp_alias[@]}; do
+            if [ "$ftp_server_download_alias" = "${ftp_alias[$i]}" ]; then
+               ftp_server_download_num="$i"
+               found_alias=1
+               break
+            fi
+         done
+         [ "$found_alias" = 0 ] && notify.error "\
+\`--server-download': "$"illegal value for arg"": \"$ftp_server_download_id\""
+      fi
+   fi
+
+   local ftp_server_upload_id="${11}"
+   notify.debug "ftp_server_upload_id = $ftp_server_upload_id"
+   local ftp_server_upload_num ftp_server_upload_alias
+
+   # check whether `ftp_server_upload_id' is valid
+   if [ "$ftp_server_upload_id" ]; then
+      if [[ "$ftp_server_upload_id" =~ ^[0-9]+$ ]]; then
+         ftp_server_upload_num="$ftp_server_upload_id"
+         ftp_server_upload_alias=""
+         [ "$ftp_server_upload_num" -lt ${#ftp_rw_rpms_dir[*]} ] ||
+         notify.error "\
+\`--server-upload': "$"illegal value for arg"": \"$ftp_server_upload_id\""
+      else
+         ftp_server_upload_alias="$ftp_server_upload_id"
+         notify.debug "ftp_server_upload_alias = $ftp_server_upload_alias"
+         local found_alias=0
+         for i in ${!ftp_alias[@]}; do
+            if [ "$ftp_server_upload_alias" = "${ftp_alias[$i]}" ]; then
+               ftp_server_upload_num="$i"
+               found_alias=1
+               break
+            fi
+         done
+         [ "$found_alias" = 0 ] && notify.error "\
+\`--server-upload': "$"illegal value for arg"": \"$ftp_server_upload_id\""
+      fi
+   fi
+
+   local token define_list_name define_list_value
+   define_list_name=()
+   define_list_value=()
+   define_list_rpm=""
+   OIFS="$IFS"; IFS=','
+   for token in $9; do
+      IFS='='; set -- $token
+      # '$2' can be null as in : --define cross_target_cpu=""
+      [[ "$1" ]] ||
+         notify.error $"sintax error in the command"": \`--define'"
+      define_list_name[${#define_list_name[*]}]="$1"
+      define_list_value[${#define_list_value[*]}]="$2"
+      define_list_rpm="${define_list_rpm} --define \"$1 $2\""
+      IFS=','
+   done
+   IFS="$OIFS"
+   notify.debug "\
+define_list_name  = [ \
+$(for i in `seq 0 1 $(( ${#define_list_name[*]} - 1 ))`; do
+echo -n "\"%${define_list_name[$i]}\" "; done)]"
+   notify.debug "\
+define_list_value = [ \
+$(for i in `seq 0 1 $(( ${#define_list_value[*]} - 1 ))`; do
+echo -n "\"${define_list_value[$i]}\" "; done)]"
+   notify.debug "\
+define_list_rpm = \"$define_list_rpm\""
+
+   if [ "$pck_newver" ]; then
+      notify.note $"updating package ${NOTE}${pck_name##*/}${NORM} \
+to version ${NOTE}${pck_newver}${NORM}""..."
+   else
+      notify.note $"updating package"" ${NOTE}${pck_name##*/}${NORM}..."
+   fi
+
+   for step in ${steps[*]}; do
+      case $step in
+      0) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+check for available versions in the $DISTRO repositories""${NORM}"
+
+         local srpm_pck_found=0
+         if [ "$ftp_server_download_num" ]; then
+            repository.get_SRPMS_name \
+               --urllist "${ftpurl_ro_srpms[$ftp_server_download_num]}" \
+               --urlnum "$ftp_server_download_num" \
+               --proxy "$proxy" \
+               --proxy-user "$proxy_user" \
+               "$pck_name"
+
+            if [[ "$got_SPEC_FILENAME" ]]; then
+               [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
+                  notify.warning $"found too many candidates"
+               notify.note \
+$"Repository"" : ${NOTE}(#$ftp_server_download_num) ${got_SPEC_FILENAME_URL}${NORM}"
+               notify.note $"Package(s)"" : ${NOTE}${got_SPEC_FILENAME[@]}${NORM}"
+            else
+               notify.warning $"\
+cannot find a matching SRPM package in the given repositories"
+            fi
+         else
+            for i in `seq 1 1 ${#ftp_rw_server[*]}`; do
+               [ "${ftp_enable[$(($i-1))]}" = 0 ] ||
+               repository.get_SRPMS_name \
+                  --urllist "${ftpurl_ro_srpms[$(($i-1))]}" \
+                  --urlnum "$(($i-1))" \
+                  --proxy "$proxy" \
+                  --proxy-user "$proxy_user" \
+                  "$pck_name"
+
+               if [[ "$got_SPEC_FILENAME" ]]; then
+                  [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
+                     notify.warning $"found too many candidates"
+                  notify.note \
+$"Repository"" : ${NOTE}(#$(($i-1))) ${got_SPEC_FILENAME_URL}${NORM}"
+                  notify.note $"Package(s)"" : ${NOTE}${got_SPEC_FILENAME[@]}${NORM}"
+
+                  let "srpm_pck_found += 1"
+               fi
+            done
+               [ "$srpm_pck_found" = 0 ] && notify.warning $"\
+cannot find a matching SRPM package in the given repositories"
+         fi
+      ;;
+
+      1) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+download and install the srpm package""${NORM}"
+
+#         notify.debug "\
+#repository.get_SRPMS_name \
+#--urllist \"${ftpurl_ro_srpms[$ftp_server_download_num]}\" \
+#--urlnum \"$ftp_server_download_num\" \
+#--proxy \"$proxy\" --proxy-user \"$proxy_user\" \"$pck_name\""
+
+         repository.get_SRPMS_name \
+            --urllist "${ftpurl_ro_srpms[$ftp_server_download_num]}" \
+            --urlnum "$ftp_server_download_num" \
+            --proxy "$proxy" \
+            --proxy-user "$proxy_user" \
+            "$pck_name"
+
+         [[ "$got_SPEC_FILENAME" ]] || notify.error $"\
+cannot find a matching SRPM package in the given repositories"
+
+         [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
+            notify.error $"\
+found too many candidates"": $(
+            for f in ${got_SPEC_FILENAME[*]}; do
+               echo -en "\n * $f"
+            done )"
+
+         # NOTE: always force the download of srpms files because non
+         # forcing behaviour causes issues (documented by Silvan).
+         curl.download --options "$curl_options" --force \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --destdir="$srpms_dir" "$got_SPEC_FILENAME_URL/$got_SPEC_FILENAME"
+
+         notify.note $"installing"" ${NOTE}$got_SPEC_FILENAME${NORM}..."
+         for filename in \
+            $(rpm -p -ql $srpms_dir/$got_SPEC_FILENAME 2>/dev/null); do
+            case "$filename" in
+            *.spec)
+               destdir="$spec_dir"
+             # echo "SRPM_SPECFILE=${spec_name:-$filename}" >> $infofile
+               echo "SRPM_SPECFILE=$filename" >> $infofile
+            ;;
+            *) destdir="$source_dir" ;;
+            esac
+            notify.note " * $destdir/${filename##*/}"
+         done
+
+         # provide 'SRPM_SPECFILE'
+         . $infofile
+
+         # do not overwrite the current specfile, if any
+         specfile.rotate_bck $spec_dir/$SRPM_SPECFILE
+
+         notify.debug "running: rpm -hiv $srpm_install_options \
+--define \"%_specdir $spec_dir\" --define \"%_sourcedir $source_dir\" \
+$srpms_dir/$got_SPEC_FILENAME"
+         rpm -hiv "$srpm_install_options" \
+             --define "%_specdir $spec_dir" \
+             --define "%_sourcedir $source_dir" \
+             $srpms_dir/$got_SPEC_FILENAME 2>&1 >/dev/null ||
+         notify.error $"\
+an error occurred while installing \`$got_SPEC_FILENAME'"
+
+         # remove the old SRPMS archive
+         # (NOTE: disabled because of incompatibilities with autodist)
+         #rm -f $srpms_dir/$got_SPEC_FILENAME
+
+         # overwrite the default value with the real value
+         echo "SPEC_FILENAME=$got_SPEC_FILENAME" >> $infofile
+      ;;
+      2) if [[ -n "$pck_newver" || "$rebuild" = 1 ]]; then
+            notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+check if a new version is available""${NORM}... "$"skipped"
+            continue
+         else
+            notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+check if a new version is available""${NORM}"
+         fi
+
+         infofile.create
+         . $infofile
+
+         unset SPEC_SOURCE0_PCKNAME
+         specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_SOURCE0_PCKNAME
+
+         unset SPEC_SOURCE0_VERBATIM
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE0
+
+         apse.scrapeversion \
+            --pckname "$SPEC_SOURCE0_PCKNAME" \
+            --pckurl "${SPEC_SOURCE[0]}" \
+            --pckurlverbatim "${SPEC_SOURCE0_VERBATIM}" \
+            --specname "$SPEC_NAME" \
+            ${proxy:+ --proxy $proxy} \
+            ${proxy_user:+ --proxy-user $proxy_user}
+
+         retval=$?
+
+         notify.debug "SPEC_VERSION = $SPEC_VERSION"
+         notify.debug "APSE_LAST_VERSION = $APSE_LAST_VERSION"
+
+         if [ "$force_update" = 0 ]; then
+            case $retval in
+               # package is already the latest version
+               "0") exit 4 ;;
+               # a newer version of the package is already installed (!?)
+               "1") exit 2 ;;
+               # a new version is available
+               "2") : ;;
+               # no information on latest available version
+               "3") exit 3 ;;
+                 *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"unknown retcode for apse.scrapeversion()"" ($retval)" ;;
+            esac
+         else
+            pck_newver="$SPEC_VERSION"
+         fi
+         if [ "$APSE_LAST_VERSION" ]; then
+            pck_newver="$APSE_LAST_VERSION"
+            notify.debug "pck_newver = $pck_newver"
+
+            echo "SPEC_VERSION_FORCED=\"$pck_newver\"" > $infofile
+            rpmvars.init --clear
+         fi
+      ;;
+      3) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+download new source files""${NORM}"
+
+         infofile.create
+         . $infofile
+
+         #[ -z "$pck_newver" ] &&
+         #   notify.error $"version for new package required"
+         if [ -z "$pck_newver" ]; then
+            pck_newver="$SPEC_VERSION"
+            notify.debug "pck_newver = $SPEC_VERSION (forced)"
+         fi
+
+         # the update to the same version got a skip download message
+
+         local filenum local fullURL fullURL_new sdflag
+
+         # get the list of URL of all the source files...
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE
+
+         [ "$force_download" = "1" ] && sdflag="--force"
+
+         for filenum in `seq 1 1 ${#SPEC_SOURCE_VERBATIM[@]}`; do
+            let "totfilenum += 1"
+            fullURL=${SPEC_SOURCE_VERBATIM[$filenum-1]}
+            notify.debug "fullURL = $fullURL"
+
+            fullURL_new=$(\
+echo $fullURL | sed "s,%[{]*version[}]*,$pck_newver,g")
+            notify.debug "fullURL_new = $fullURL_new"
+            fullURL_new=$(\
+rpmvars.solve "$fullURL_new" "$SRPM_SPECFILE_WITH_PATH")
+            notify.debug "fullURL_new = $fullURL_new"
+
+            curl.download --options "$curl_options" $sdflag \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL_new"
+         done
+
+         # get the list of URL of all the patches (usually local files)...
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_PATCH
+
+         for filenum in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
+            let "totfilenum += 1"
+            fullURL=${SPEC_PATCH_VERBATIM[$filenum-1]}
+            notify.debug "fullURL = $fullURL"
+            fullURL_new=$(\
+rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
+            notify.debug "fullURL_new = $fullURL_new"
+
+            curl.download --options "$curl_options" $sdflag \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL_new"
+         done
+      ;;
+      4) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+update and check the specfile""${NORM}"
+
+         infofile.create
+         . $infofile
+
+         if [ "$rebuild" = 1 ]; then
+            if [ -z "$pck_newver" ]; then
+               pck_newver="$SPEC_VERSION"
+               notify.debug "pck_newver = $SPEC_VERSION (forced)"
+            fi
+         else
+            [ "$pck_newver" ] ||
+               notify.error $"version for new package required"
+         fi
+
+         chmod ${rpm_specfile_mode:-644} $SRPM_SPECFILE_WITH_PATH
+
+         # check in the specfile for some (common) problems
+
+         notify.note "\
+${NOTE}"$"check the specfile for common mistakes""${NORM}"
+         specfile.checksintax $SRPM_SPECFILE_WITH_PATH || exit 1
+
+#         [[ "$rebuild" = 0 && ${#SPEC_PATCH[@]} -gt 0 ]] &&
+#            notify.warning $"\
+#found ${#SPEC_PATCH[@]} patch(es) in the specfile"
+
+         # create a backup copy for the specfile
+#        specfile.rotate_bck $SRPM_SPECFILE_WITH_PATH
+
+         notify.note $"${NOTE}updating${NORM} the new specfile \
+\`${NOTE}$spec_dir/$SRPM_SPECFILE${NORM}'""..."
+
+         # function apply_define_list_name()
+         #    modify the `%define' entries using the data from
+         #    `define_list_name[]' and `define_list_value[]'
+         # args:
+         #    $1 : the file to modify
+         function apply_define_list_name() {
+            local i infile=$1
+            [[ "$infile" ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+            for i in `seq 0 1 $(( ${#define_list_name[*]} - 1 ))`; do
+               sed -i "/%define[ \t]*${define_list_name[$i]}[ \t]*/{
+s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
+                  "$infile"
+            done
+         }
+
+         # set the changelog entry
+         local changelog_new
+         if [ "$changelog_userdef" ]; then
+            changelog_new="$changelog_userdef"
+         else
+            if [ "$pck_newver" = "$SPEC_VERSION" ]; then
+               [ "$rebuild" = 1 ] &&
+                  changelog_new="$changelog_rebuild_defvalue" ||
+                  changelog_new="$changelog_samever_defvalue"
+            else
+               #changelog_new="update to version $pck_newver by $me"
+               changelog_new="update to $pck_newver"
+            fi
+         fi
+
+         local specfile_newrelease="$(specfile.newrelease)"
+
+         if [ "$spec_format" = 1 ]; then
+            notify.debug $"specfile autoformattig enabled"
+
+            $(echo "" | sed "$format_extra_rules" 2>/dev/null) || \
+               notify.error $"\
+illegal \`format_extra_rules' (see configuration file(s))"
+
+            local bindir=`rpm --eval=%{_bindir}`
+            local datadir=`rpm --eval=%{_datadir}`
+            local includedir=`rpm --eval=%{_includedir}`
+            local infodir=`rpm --eval=%{_infodir}`
+            local libdir=`rpm --eval=%{_libdir}`
+            local libexecdir=`rpm --eval=%{_libexecdir}`
+            local localstatedir=`rpm --eval=%{_localstatedir}`
+            local mandir=`rpm --eval=%{_mandir}`
+            local prefix=`rpm --eval=%{_prefix}`
+            local sbindir=`rpm --eval=%{_sbindir}`
+            local sharedstatedir=`rpm --eval=%{_sharedstatedir}`
+            local sysconfdir=`rpm --eval=%{_sysconfdir}`
+
+            local tmpspec=$(mktemp -q -t $me.XXXXXXXX)
+            [ $? -eq 0 ] ||
+               notify.error $"can't create temporary files"
+            notify.debug "tmpspec = \`${NOTE}$tmpspec${NORM}'"
+
+            # build a formatting preamble
+            local spec_ids; spec_ids=(\
+               Name
+               Version
+               Release
+               Epoch
+               Serial
+               Summary
+               Group
+               Vendor
+               Distribution
+               Packager
+               URL
+               Source[0-9]*
+               Patch[0-9]*
+               NoSource
+               NoPatch
+               License
+               BuildArch
+               BuildArchitectures
+               BuildConflicts
+               BuildRequires
+               ExclusiveArch
+               ExclusiveOs
+               ExcludeArch
+               ExcludeOs
+               Obsoletes
+               Requires
+               Prefix
+               BuildRoot)
+
+            # check for missing specfile ids
+
+            local id
+            local spec_lines_missing  # missing lines automatically added
+            spec_lines_missing=()
+
+            for id in ${spec_ids[@]}; do
+               # note (sed "/%description/q") : only look in the preamble
+               [[ "`\
+sed -n "/%description/q;{/^[ \t]*$id[ \t]*:/p}" \
+                  $SRPM_SPECFILE_WITH_PATH`" ]] || \
+               case $id in
+                  # these are not mandatory ids
+                  Patch*|NoSource|NoPatch|\
+                  BuildArch|BuildArchitectures|BuildConflicts|BuildRequires|\
+                  Epoch|Serial|\
+                  ExclusiveArch|ExclusiveOs|ExcludeArch|ExcludeOs|\
+                  Obsoletes|Requires|Prefix)
+                  ;;
+                  # these values are overwritten, so are no mandatory
+                  Vendor)
+                     notify.warning $"\
+missing entry forced"": Vendor: $VENDOR"
+                     spec_lines_missing[${#spec_lines_missing[*]}]="\
+Vendor $VENDOR"
+                  ;;
+                  Distribution)
+                     notify.warning $"\
+missing entry forced"" : \"Distribution: $DISTRO\""
+                     spec_lines_missing[${#spec_lines_missing[*]}]="\
+Distribution $DISTRO"
+                     #eval "missing_${id}_id=1"
+                     #notify.debug "missing_${id}_id = 1"
+                  ;;
+                  *) notify.error $"\
+missing entry in the specfile:"" \`${id%%[[0-9]*}'" ;;
+               esac
+            done
+
+            local line linenum spec_lines
+            let "linenum = 0"
+            spec_lines=()
+
+            # line number where the 1st occurrence of a specfile id appears
+            local linenum_1stid
+            # last line numer of the specfile preamble
+            local linenum_preamble_end
+            # set to '1' if at least a '%if' directive has been found
+            local if_directive=0
+
+            # - save to '$tmpspec' the lines before the specfile preamble
+            # - set 'if_directive' if a conditional block is found
+            # - set 'linenum_1stid': line number of 1st specfile id
+            # - save in 'spec_lines[]' the lines of the preamble
+            while read -r line; do
+               let linenum+=1
+               case "$line" in
+               %description*) let linenum-=1; break ;;
+               %if\ *)
+                  [ "$linenum_1stid" ] &&
+                   { notify.debug "found \`%if' directive (line#$linenum)"
+                     let "if_directive = 1"; }
+               ;;
+               %if[a-z]*)
+                  notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (${line/ */})"
+                  let "if_directive = 1"
+               ;;
+               [A-Za-z]*:*|[A-Za-z]*:[\ \t]*|\
+               [A-Za-z]*:[\ \t]*|[\ \t]*[A-Za-z]*:[\ \t]*)
+                  [ "$linenum_1stid" ] ||
+                   { linenum_1stid=$linenum
+                     notify.debug "\
+linenum_1stid (start of preamble) = $linenum"; }
+               ;;
+               esac
+
+               # print the lines before the preamble
+               # (generally comments and/or '%define' directives)
+               [ "$linenum_1stid" ] &&
+                { notify.debug "spec_lines[${#spec_lines[*]}]=\"$line\""
+                  spec_lines[${#spec_lines[*]}]="$line"; } ||
+                  echo "$line" >> $tmpspec
+            done < $SRPM_SPECFILE_WITH_PATH
+
+            # last line number of the specfile preamble
+            linenum_preamble_end=$linenum
+            notify.debug "linenum (end of preamble) = $linenum_preamble_end"
+
+            # apply the user '--define' variable definitions
+            apply_define_list_name $tmpspec
+
+            notify.debug "[pre-preamble]\
+`cat $tmpspec | sed -n '1{s,.*,\n   &,p};2,${s,.*,   &,p}'`"
+
+            notify.debug "\
+[preamble -- original] line#$linenum_1stid$(\
+for i in $(seq 1 1 ${#spec_lines[@]}); do
+    echo -n "\n   ${spec_lines[$i-1]}"
+done)"
+
+            local tmppreamble=$(mktemp -q -t $me.XXXXXXXX)
+            [ $? -eq 0 ] ||
+               notify.error $"can't create temporary files"
+            notify.debug "tmppreamble = \`${NOTE}$tmppreamble${NORM}'"
+
+            # add missing ids and values that are automatically resolved
+            for i in $(seq 1 1 ${#spec_lines_missing[*]}); do
+               line="${spec_lines_missing[$i-1]}"
+               printf "\
+%-${format_preamble_tab:-14}s %s\n" "${line/ */}:" "${line/* /}" \
+                  >> $tmppreamble
+               notify.debug "\
+insertion forced for id : \`${line/ */}'"
+             # spec_lines[${#spec_lines[*]}]="${spec_lines_missing[$i-1]}"
+            done
+
+            # add the other ids and values
+            for i in $(seq 1 1 ${#spec_lines[@]}); do
+               line="${spec_lines[$i-1]}"
+               case "$line" in
+               Version*|[\ \t]*Version*)
+                  id="Version"
+                  notify.debug "forced : $id = \"$pck_newver\""
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "$id:" "$pck_newver"
+               ;;
+               Release*|[\ \t]*Release*)
+                  id="Release"
+                  notify.debug "\
+forced : $id = \"$specfile_newrelease\""
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "$id:" "$specfile_newrelease"
+               ;;
+               Distribution*|[\ \t]*Distribution*)
+                  notify.debug "forced : Distribution = \"$DISTRO\""
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "Distribution:" "$DISTRO"
+               ;;
+               Vendor*|[\ \t]*Vendor*)
+                  id="Vendor"
+                  notify.debug "forced : $id = \"$VENDOR\""
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "$id:" "$VENDOR"
+               ;;
+               BuildRoot*|[\ \t]*BuildRoot*)
+                  id="BuildRoot"
+                  notify.debug "\
+forced : $id = \"$format_buildroot_value\""
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "$id:" "$format_buildroot_value"
+               ;;
+               [a-zA-Z0-9\ \t]*:*)
+                  id="$(echo $line | sed "s,[ \t]*:.*,,")"
+                  [[ "$id" = Url ]] && id="URL"
+                  value="$(echo $line | sed "s,[A-Za-z0-9 \t]*:[ \t]*,,")"
+                  printf "\
+%-${format_preamble_tab:-14}s %s\n" "$id:" "$value"
+               ;;
+               *) # specfile commands, blank lines or unknown entries
+                  echo "$line"
+               ;;
+               esac
+            done >> $tmppreamble
+
+            # FIXME : the preamble lines ('$tmppreamble' file) should be
+            # reordered in a 'standard' way when possible
+            # **caution** when '$if_directive' is true
+
+            # FIXME : reordering should be performed in a better way
+            if [ "$if_directive" = 0 ]; then
+               for id in ${spec_ids[@]}; do
+                  sed -n "/^[ \t]*[# \t]*${id}[0-9]*/p" $tmppreamble \
+                     >> $tmpspec
+                  sed -i "/^[# \t]*${id}[0-9]*/d" $tmppreamble
+               done
+               cat $tmppreamble >> $tmpspec
+            else
+               notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (preamble sorting when %if)"
+               cat $tmppreamble >> $tmpspec
+            fi
+            rm -f $tmppreamble
+
+            notify.debug "[preamble -- formatted] line#$linenum_1stid\
+$(sed -n "$linenum_1stid,\$p" $tmpspec | \
+  sed -n '1{s,.*,\n   &,p};2,${s,.*,   &,p}')"
+
+            # writes the rest of the specfile until '%changelog'
+            let "linenum = linenum_preamble_end + 1"
+            local prep_section=0
+            local file_section=0
+            local install_section=0
+            while :; do
+               line="`sed -n "${linenum}p" $SRPM_SPECFILE_WITH_PATH`"
+               #notify.debug "line #${linenum} : \"$line\""
+               case "$line" in
+               %description*)
+                  let "file_section = 0"
+                  notify.debug "[description] line#$linenum (\`$line')"
+                  echo "$line" >> $tmpspec && let "linenum += 1"
+                  # 1st line of the %description block
+                  local startline=$linenum
+                  while :; do
+                     case "\
+`sed -n "${linenum}p" $SRPM_SPECFILE_WITH_PATH`" in
+                     %package*|%prep|%setup*|%build|%install|%post*|\
+%preun*|%clean|%files*|%changelog)
+                         [[ "$linenum" = "$startline" ]] &&
+                            notify.error $"\`%description' has empty body"
+                         break ;;
+                      *) let "linenum += 1" ;;
+                     esac
+                  done
+                  if [ "${format_description_width:-0}" != 0 ]; then
+                     notify.debug "\
+format_description_width = \"$format_description_width\""
+                     sed -n "$startline,$(($linenum - 1)){
+# delete leading whitespace from front of each line
+:a /^[ \t]\+/s/^[ \t]*//
+# found a line starting by '*' or '-' (so it's a list):
+# format this line, goto end (label 'e')
+/^\(*\|-\)[ \t]*/{
+   s,^.[ ]*\(.*\),* \1,;be}
+# append next line if the current does not end with '.' nor ':'
+/[^(\.|:)]$/{
+   x;n   # save pattern space and get a new line
+   /^$/{H;x;be}   # find a blank line: restore, goto end
+   /^[ \t]\+/s/^[ \t]*//
+   # oops, the new line starts by '*' or '-'
+   /^\(*\|-\)[ \t]*/{
+      H;x  # take care of all the input lines we are processing,
+      # format the line starting by '*' or '-', goto end
+      s,[^a-zA-Z0-9][*-]\+[ ]*,\n* ,;be}
+   # replace the eol with a space and go to the begin of the script
+   H;x;s/\n/ /;ba}
+# cut lines with a trailing period inside
+s/\.[ ]\+\([A-Z]\)/.\n\1/g
+# and now print all we have processed and formatted
+:e;p}" $SRPM_SPECFILE_WITH_PATH | \
+                     fold - -s -w "$format_description_width" >> $tmpspec
+                  else
+                     sed -n "$startline,$(($linenum - 1)){
+s,\.[ \t]*\(.\+\)$,\.\n\1,g;p}" $SRPM_SPECFILE_WITH_PATH >> $tmpspec
+                  fi
+                  continue ;;
+               %package*)
+                  let "file_section = 0"
+                  notify.debug "[package] line#$linenum (\`$line')"
+                  echo "$line" >> $tmpspec && let "linenum += 1"
+                  local startline=$linenum   # one line after "%package"
+                  while :; do
+                     line="`sed -n "${linenum}p" $SRPM_SPECFILE_WITH_PATH`"
+                     case "$line" in
+                     *:*|\#*) let "linenum += 1" ;;
+                     *) break ;;
+                     esac
+                  done
+                  sed -n "${startline},$(($linenum-1))p" \
+                     $SRPM_SPECFILE_WITH_PATH | \
+                     while read -r line; do
+                        case "$line" in
+                        *:*) # note: the second sed expression is a bit more
+                             # complicated because it must support a line like
+                             # Requires: %{name} = %{?epoch:%epoch:}%{version}
+                             printf "%-14s %s\n" \
+                             "`echo $line | sed 's,[ \t]*:.*,,'`:" \
+                             "`echo $line | sed 's,[a-zA-Z0-9 \t]*:[ \t]*,,'`" \
+                                >> $tmpspec ;;
+                        \#*) echo "$line" >> $tmpspec ;;
+                        *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"parsing the \`%package' block" ;;
+                        esac
+                     done
+                  continue ;;
+               %prep*)
+                  let "file_section = 0"
+                  notify.debug "[prep] line#$linenum (\`$line')"
+                  echo "$line" >> $tmpspec
+                  let "prep_section += 1" ;;   # '%prep' section found
+               %setup*-q*)
+                  let "file_section = 0"
+                  notify.debug "[setup] line#$linenum (\`$line')"
+                  echo "$line" >> $tmpspec ;;
+               %setup*)
+                  let "file_section = 0"
+                  notify.debug "[setup] line#$linenum (\`$line' + \`-q')"
+                  # add the '-q' option to '%setup' if not present
+                  echo "$line" | sed 's,%setup\(.*\),%setup -q\1,' \
+                     >> $tmpspec ;;
+               %build)
+                  let "file_section = 0"
+                  notify.debug "[build] line#$linenum"
+                  echo "$line" >> $tmpspec && let "linenum += 1"
+                  local startline_configure startline_make configure
+                  let "configure = 0"
+                  while :; do
+                     line="$(sed -n "${linenum}p" $SRPM_SPECFILE_WITH_PATH)"
+                     case "$line" in
+                     %install*)
+                        let "linenum -= 1"
+                        break ;;
+                     *./configure*|*%configure*|*\ configure*)
+                        let "startline_configure = $linenum"
+                        notify.debug "startline_configure = $startline_configure"
+                        let "linenum += 1"
+                        let "configure = 1" ;;
+                     *[%\ \t]make|*[%\ \t]make[%\ \t]*|make|make[%\ \t]*)
+                        if [ -z "$startline_make" ]; then
+                           # this check is needed to support multiple calls to make
+                           #    %make
+                           #    make test || :
+                           let "startline_make = $linenum"
+                           notify.debug "startline_make = $startline_make"
+                           let "make = 1"
+                        fi
+                        let "linenum += 1" ;;
+                     *) if [[ "$configure" = 1 ]]; then
+                           notify.debug "configure == 1"
+                           case "$line" in
+                           *\\) let "linenum += 1" ;;
+                           *) echo "`\
+sed -n "$startline_configure,${linenum}p" $SRPM_SPECFILE_WITH_PATH`" | \
+sed -n ' # do format the configure lines
+   /^[ \t]*.\/configure\|[ \t]*%configure/{
+      :a /\\$/N; s/\\\n//; ta; s,[ \t]*--, \\\n   --,g}; p' >> $tmpspec
+                              let "configure = 0"
+                              let "linenum += 1" ;;
+                           esac
+                           echo "" >> $tmpspec
+                        elif [[ "$make" = 1 ]]; then
+                           case "$line" in
+                           *\\) let "linenum += 1" ;;
+                           *) echo "`\
+sed -n "$startline_make,${linenum}p" $SRPM_SPECFILE_WITH_PATH`" | \
+sed "$format_extra_rules" | \
+sed -n ' # do format the make lines
+   /^[ \t]*make[ \t]*\|[ \t]*%make[ \t]*/{:a /\\$/N; s/\\\n//; ta}; p' \
+                                 >> $tmpspec
+
+                              let "make = 0"
+                              let "linenum += 1" ;;
+                           esac
+                           echo "" >> $tmpspec
+                        else
+                           echo "$line" | sed "$format_extra_rules" \
+                              >> $tmpspec
+                           let "linenum += 1"
+                        fi ;;
+                     esac
+                  done ;;
+               %changelog*)
+                  let "file_section = 0"
+                  notify.debug "[changelog] line#$linenum"
+                  # exit the loop when %changelog is found
+                  break ;;
+               %files*)
+                  let "file_section = 1"
+                  notify.debug "[file] ($line) line#$linenum"
+                  echo "$line" >> $tmpspec ;;
+               %install*)
+                  let "install_section = 1"
+                  notify.debug "[%install] ($line) line#$linenum"
+                  echo "$line" >> $tmpspec ;;
+               *) if [[ "$prep_section" = 0 ]]; then
+                     # do not modify lines before `%prep' section
+                     echo "$line" >> $tmpspec
+                     let "linenum += 1"
+                     continue
+                  fi
+
+#                  if [ "$install_section" = 1 ]; then
+#                     case "$line" in
+#                     *[%\ \t]make|*[%\ \t]make[%\ \t]*|make|make[%\ \t]*)
+#                        let "make = 1"
+#echo "*startline = $startline -- $line"
+#                        let "startline = $linenum" ;;
+#                     esac
+#
+#                     if [ "$make" = 1 ]; then
+#                        while :; do
+#                           line="$(\
+#sed -n "${linenum}{s,\t,   ,g;p}" $SRPM_SPECFILE_WITH_PATH)"
+#                           case "$line" in
+#                           *\\) let "linenum += 1" ;;
+#                           *) echo "$(\
+#sed -n "$startline,${linenum}p" $SRPM_SPECFILE_WITH_PATH)" | \
+#                              sed -n ' # do format the make install lines
+#                                 /^[ ]*make\|[ ]*%make/{
+#                                 :a /\\$/N; s/\\\n//; ta
+#                                 s,\ , \\\n   ,g}; p' >> $tmpspec
+#                              let "make = 0"
+#                              let "linenum += 1"
+#echo "*linenum = $linenum -- $line"
+#                              break ;;
+#                           esac
+#                        done
+#                     fi
+#                  fi
+
+                  [ "$file_section" = 1 ] &&
+                     line="$(echo "$line" | sed "\
+s,$bindir/,%{_bindir}/,
+s,$sbindir/,%{_sbindir}/,
+s,$includedir/,%{_includedir}/,
+s,$libdir/,%{_libdir}/,
+s,$libexecdir/,%{_libexecdir}/,
+s,$mandir/,%{_mandir}/,
+s,$infodir/,%{_infodir}/,
+s,$datadir/,%{_datadir}/,
+s,$sysconfdir/,%{_sysconfdir}/,
+s,$localstatedir/,%{_localstatedir}/,
+s,$sharedstatedir/,%{_sharedstatedir}/,
+s,$prefix/,%{_prefix}/,")"
+
+                  line="$(echo "$line" | sed '
+s,^rm -rf $RPM_BUILD_ROOT,[ \"$RPM_BUILD_ROOT\" != / ] \&\& rm -rf $RPM_BUILD_ROOT,g
+s,^rm -rf %[{]*buildroot[}]*,[ \"%{buildroot}\" != / ] \&\& rm -rf %{buildroot},g
+s,\($[{]*RPM_BUILD_ROOT[}]*\)/\(%[{]*_[a-z]*dir[}]*\),\1\2,g
+s,\(%[{]*buildroot[}]*\)/\(%[{]*_[a-z]*dir[}]*\),\1\2,g')"
+
+                  [ "$format_buildroot" ] && line="$(echo "$line" | \
+                     sed 's,$[{]*RPM_BUILD_ROOT[}]*,%{buildroot},g')"
+                  [ "$format_builddir" ] && line="$(echo "$line" | \
+                     sed 's,$[{]*RPM_BUILD_DIR[}]*,%{_builddir},g')"
+
+                  [[ "$format_extra_rules" ]] && line="\
+$(echo "$line" | sed "$format_extra_rules" 2>/dev/null)"
+
+                  # do use rpm variables (see 'rpm --showrc') between'%prep'
+                  # and '%changelog', if 'format_unix_tools' is true
+                  [ "$format_unix_tools" = 1 ] &&
+                     line="$(echo "$line" | sed '
+s,^grep ,%{__grep} ,;s,\([&; ]\+\)grep ,\1%{__grep} ,g
+/\(%[{]\?__make[}]\?\|make\)[ ]*install/!s,\([&; ]*\)install ,\1%{__install} ,g
+s,ln -fs,%{__ln_s} -f,g
+s,ln -sf,%{__ln_s} -f,g
+s,ln -s, %{__ln_s},g
+s,^make\([^a-z]\),%{__make}\1,;s,\([&; ]\+\)make\([^a-z]\),\1%{__make}\2,g
+s,mkdir -p ,%{__mkdir_p} ,g
+s,mkdir ,%{__mkdir} ,g
+s,^mv,%{__mv},;s,\([&; ]\+\)mv ,\1%{__mv} ,g
+s,^rm,%{__rm},;s,\([&; ]\+\)rm ,\1%{__rm} ,g
+s,^sed,%{__sed},;s,\([&; ]\+\)sed ,\1%{__sed} ,g
+s,^tar,%{__tar},;s,\([&; ]\+\)tar ,\1%{__tar} ,g')"
+
+                  echo "$line" >> $tmpspec
+               ;;
+               esac
+               let "linenum += 1"
+            done
+
+            echo -e "\
+%changelog
+* `LC_ALL="C" date "+%a %b %d %Y"` $packager_fullname \
+<$packager_email> ${pck_newver}-$specfile_newrelease
+- ${changelog_new//\\n/\n  }
+" >> $tmpspec
+
+            sed -n '/%changelog/,${/^%changelog/d;p}' \
+               $SRPM_SPECFILE_WITH_PATH >> $tmpspec
+
+            cp -f $tmpspec $SRPM_SPECFILE_WITH_PATH 2>/dev/null
+            [[ $? -eq 0 ]] ||
+               notify.error $"cannot create \`$SRPM_SPECFILE_WITH_PATH'"
+
+            rm -f $tmpspec
+         else   # [ "$spec_format" = 0 ]
+            apply_define_list_name $SRPM_SPECFILE_WITH_PATH
+
+            # change package version and release
+            # update the %changelog
+            sed -i "\
+               s,\(^Version[ \t]*:[ \t]*\).*,\1$pck_newver,
+               s,\(^Release[ \t]*:[ \t]*\).*,\1$specfile_newrelease,
+               /%changelog.*/a\\
+* `LC_ALL="C" date "+%a %b %d %Y"` $packager_fullname \
+<$packager_email> $pck_newver-$specfile_newrelease\\
+- ${changelog_new//\\n/\n  }\\
+" $SRPM_SPECFILE_WITH_PATH
+         fi
+
+         # avoid using caching data out of sync in following steps
+         notify.debug "removing infofile ($infofile)"
+         rm -f $infofile
+         notify.debug "removing preprocessed specfile ($specfile_preprocessed)"
+         > $specfile_preprocessed
+
+         rpmvars.init --clear
+      ;;
+      5) if [ "$norpms" = 1 ]; then
+            notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+build the srpm package""${NORM}"
+         else
+            notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+build the rpm(s) and srpm packages""${NORM}"
+
+            # security check about LD_LIBRARY_PATH to catch misuse
+            [ "$LD_LIBRARY_PATH" ] && notify.warning "\
+LD_LIBRARY_PATH is set"" ($LD_LIBRARY_PATH)"
+
+            [ "$PYTHONDONTWRITEBYTECODE" ] && notify.warning "\
+PYTHONDONTWRITEBYTECODE is set"" ($PYTHONDONTWRITEBYTECODE)"
+         fi
+
+         infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         if [ "$force_build" = 0 ]; then
+            local pck filename pck_rpmversion pck_rpmrelease build_needed
+
+           # [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+           # [[ "$pck_newver" != $SPEC_VERSION ]] &&
+           #    notify.error $"release for new package required"
+           #
+           # # use the value provided by user via command line if available
+           # pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+           # pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+
+            [[ -n "$pck_newver" && "$pck_newver" != "$SPEC_VERSION" ]] &&
+               notify.error $"\
+the version entered at command line doesn't match the version set in the specfile"
+
+            [[ -n "$pck_newrel" && "$pck_newrel" != "$SPEC_RELEASE" ]] &&
+               notify.error $"\
+the release entered at command line doesn't match the version set in the specfile"
+
+            pck_rpmversion="$SPEC_VERSION"
+            pck_rpmrelease="${SPEC_RELEASE%%[^0-9\.]*}"
+            notify.debug "pck_rpmversion = $pck_rpmversion"
+            notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+            notify.debug "SPEC_TARGET = [${SPEC_TARGET[*]}]"
+
+            # check if the rpm file(s) has been already built
+            let "build_needed = 0"
+            for pck in ${SPEC_TARGET[*]}; do
+               # FIXME : we should check and complain if the package has
+               # been built for a different architecture
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               notify.debug "\
+filename = $filename ""\
+$([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
+               [ -f "$filename" ] || let "build_needed = 1"
+
+               ## rebuild the rpm package(s) if the specfile has been modified
+               #[ "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
+               #   let "build_needed = 1"
+            done
+            notify.debug "build_needed = $build_needed"
+            [ "$build_needed" = 1 ] && norpms=0 || norpms=1
+            notify.debug "norpms = $norpms (forced)"
+
+            # check if the srpm file already exists
+            filename="\
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            notify.debug "\
+filename = $filename ""\
+$([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
+            [ -f "$filename" ] && nosrpm=1 || nosrpm=0
+
+            #if [ "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ]; then
+            #   # rebuild the srpm package if the specfile has been modified
+            #   nosrpm=0
+            #   notify.debug "nosrpm = $nosrpm (forced)"
+            #fi
+         fi
+
+         [ -n "$pck_rpmversion" ] || pck_rpmversion="$SPEC_VERSION"
+         [ -n "$pck_rpmrelease" ] || pck_rpmrelease="${SPEC_RELEASE%%[^0-9\.]*}"
+
+         # nothing to do, we can exit
+         if [[ "$norpms" = 1 && "$nosrpm" = 1 ]]; then
+            notify.note "\
+${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
+            for pck in ${SPEC_TARGET[*]}; do
+               # FIXME : we should check and complain if the package has
+               # been built for a different architecture
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
+               notify.warning $"\
+specfile is newer than rpm package(s) (according to modification date)"
+               break
+            done
+
+            notify.note "\
+${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
+            filename="\
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
+               notify.warning $"\
+specfile is newer than srpm (according to modification date)"
+            continue
+         fi
+
+         # download and install all the needed build requirements...
+
+         # note: it's not possible to directly use the features provided by
+         # rpmlib because they'are bugged (at least in the version 4.0.4)
+         # so we install the necessary 'BuildRequirement's looking at the
+         # specfile preamble
+         [ "$(sed -n '/^BuildRequires/p' $SRPM_SPECFILE_WITH_PATH)" ] &&
+            notify.debug "\
+[BuildRequires]
+$(sed -n '/^BuildRequires/{s,.*,   &,p}' $SRPM_SPECFILE_WITH_PATH)"
+
+         local f rpm_provided_by buildrequirements_to_install
+         for f in ${SPEC_BUILDREQUIRES[@]}; do
+            rpm_provided_by="$(rpm -q $rpm_root_opts --whatprovides $f)"
+            [ $? -eq 0 ] || unset rpm_provided_by
+
+            notify.note " * "$"\
+build requirement found"": \`${NOTE}$f${NORM}' ""\
+(${NOTE}$rpm_provided_by${NORM})"
+
+            # the build requirement is already installed
+            [[ "$rpm_provided_by" ]] && continue
+
+            buildreqs_to_install[${#buildreqs_to_install[*]}]="$f"
+         done
+
+         # remove duplicates
+         buildreqs_to_install=(
+$(for f in ${buildreqs_to_install[@]}; do echo $f; done | sort -u))
+
+         # install missing build requirements
+         if [[ "${buildreqs_to_install[@]}" ]]; then
+            if [ -n "$rpm_download_and_install" ]; then
+               for f in ${buildreqs_to_install[@]}; do
+                  notify.note " * "$"\
+installing missing build requirement"": \`${NOTE}$f${NORM}'"
+               done
+
+               if [ -n "$proxy" ]; then
+                  [[ "$debug_print_private_user_infos" = "1" ||
+                     -z "$proxy_user" ]] && notify.debug "\
+{http,ftp}_proxy=\"{http,ftp}://${proxy_user:+${proxy_user}@}${proxy}\""
+
+                  http_proxy="http://${proxy_user:+${proxy_user}@}${proxy}" \
+                  ftp_proxy="ftp://${proxy_user:+${proxy_user}@}${proxy}" \
+                  $rpm_download_and_install ${buildreqs_to_install[*]}
+               else
+                  $rpm_download_and_install ${buildreqs_to_install[*]}
+               fi
+               [ $? -eq 0 ] || notify.error $"\
+cannot install the needed build requirements"
+            else
+               notify.error $"\
+found ${NOTE}missing BuildRequirement${NORM} \`${NOTE}$f${NORM}'"
+            fi
+         fi
+
+         # automatically download the missing source and patch files...
+
+         # get the list of URLs for the source files to download
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE
+
+         local filenum totfilenum fullURL sdflag
+
+         [ "$force_download" = 1 ] && sdflag="--force"
+
+         let "totfilenum = 0"
+         for filenum in `seq 1 1 ${#SPEC_SOURCE_VERBATIM[@]}`; do
+            let "totfilenum += 1"
+            fullURL=${SPEC_SOURCE_VERBATIM[$filenum-1]}
+            notify.debug "fullURL = $fullURL"
+
+            fullURL=$(\
+rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
+            notify.debug "fullURL = $fullURL"
+
+            curl.download --options "$curl_options" $sdflag \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL"
+         done
+
+         # get the list of URLs for the patch files to download
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_PATCH
+
+         for filenum in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
+            let "totfilenum += 1"
+            fullURL=${SPEC_PATCH_VERBATIM[$filenum-1]}
+            notify.debug "fullURL = $fullURL"
+
+            fullURL=$(\
+rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
+            notify.debug "fullURL = $fullURL"
+
+            curl.download --options "$curl_options" $sdflag \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL"
+         done
+
+         local rpmbuild_opts="\
+--define=\"%_srcrpmdir $srpms_dir\" \
+--define=\"%_rpmdir $rpms_dir\" \
+--define=\"%_specdir $spec_dir\" \
+--define=\"%_sourcedir $source_dir\" \
+--define=\"%_builddir $build_dir\" \
+--define=\"%_tmppath $tmppath_dir\""
+
+       # [ "$rpm_rootdir" ] &&
+       #    rpmbuild_opts="$rpmbuild_opts $rpm_root_opts"
+
+         # check if we are cross-compiling
+         [ "$BUILD_ARCH" != "$target_cpu" ] &&
+            rpmbuild_opts="--target $target_cpu $rpmbuild_opts"
+
+         [ "$cleanup" = "1" ] && rpmbuild_opts="$rpmbuild_opts --clean"
+
+         # note: exit with error when build requirements are missing
+         notify.note "${NOTE}"$"testing out specfile""${NORM}..."
+         eval "rpmbuild --nobuild \
+$rpmbuild_opts $rpm_root_opts $USER_RPMDEFINE_OPTS \
+$SRPM_SPECFILE_WITH_PATH 2>&1" ||
+            notify.error $"rpmbuild exited with error code \`$?'"
+
+         notify.debug "define_list_name = (${define_list_name[*]})"
+         notify.debug "define_list_value = (${define_list_value[*]})"
+
+         if [ "$norpms" = 1 ]; then
+            notify.note "\
+${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
+
+            for pck in ${SPEC_TARGET[*]}; do
+               # FIXME : we should check and complain if the package has
+               # been built for a different architecture
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
+               notify.warning $"\
+specfile is newer than rpm package(s) (according to modification date)"
+               break
+            done
+         fi
+
+         if [ "$nosrpm" = 1 ]; then
+            notify.note "\
+${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
+
+            filename="\
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
+               notify.warning $"\
+specfile is newer than srpm (according to modification date)"
+         fi
+
+         if [[ "$norpms" = 1 && "$nosrpm" = 1 ]]; then
+            :
+         elif [ "$norpms" = 1 ]; then
+            notify.note "${NOTE}"$"building the srpm package""${NORM}..."
+            # as the dependencies check is done before, it is safe to pass
+            # --nodeps to non-simulated build commands.
+            eval "\
+rpmbuild -bs $rpmbuild_opts --nodeps $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+         elif [ "$nosrpm" = 1 ]; then
+            notify.note "${NOTE}"$"building the rpm packages""${NORM}..."
+            eval "\
+rpmbuild -bb $rpmbuild_opts --nodeps $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+         else
+            notify.note "${NOTE}"$"building rpm and srpm packages""${NORM}..."
+            eval "\
+rpmbuild -ba $rpmbuild_opts --nodeps $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+         fi
+         [ $? -eq 0 ] ||
+            notify.error $"rpmbuild exited with error code \`$?'"
+      ;;
+      6) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+build the list of the build requirements""${NORM}"
+
+#         notify.warning $"\
+#deprecated option"": "$"use"" -a5 --norpm [--force-build]"
+
+         infofile.create
+         . $infofile
+
+#         rpmbuild -bs $SRPM_SPECFILE_WITH_PATH 2>&1
+#         [[ $? -eq 0 ]] ||
+#            notify.error $"rpmbuild exited with error code \`$?'"
+
+         local frequires=$(mktemp -q -t frequires.XXXXXXXX) ||
+            notify.error $"can't create temporary files"
+
+         target_cpu.set_and_check
+
+         local i pck filename pck_rpmversion pck_rpmrelease
+
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [[ "$pck_newver" != $SPEC_VERSION ]] &&
+            notify.error $"release for new package required"
+
+         # use the value provided by user via command line if available
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         notify.debug "SPEC_TARGET = [${SPEC_TARGET[*]}]"
+
+         PERL_PREFIXES=`perl -V | grep "^    /usr/lib/perl5"`
+
+         unset provides
+         for pck in ${SPEC_TARGET[*]}; do
+            # FIXME : we should check and complain if the package has
+            # been built for a different architecture
+            if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+               filename="$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+            else
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+            fi
+            #notify.note " * $filename"
+            [ -e $filename ] ||
+               notify.error $"package not found"": \`$filename'"
+
+            # look for RPMs provides
+            provides="$provides `rpm -p -q $filename --provides | \
+               while read line; do echo -n "${line/ */} "; done`"
+         done
+
+         for pck in ${SPEC_TARGET[*]}; do
+            # FIXME : we should check and complain if the package has
+            # been built for a different architecture
+            if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+               filename="$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+            else
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+            fi
+            notify.note " * $filename"
+            #[ -e $filename ] ||
+            #   notify.error $"package not found"": \`$filename'"
+
+            # display all the build requirements
+            rpm -p -q $filename --requires | \
+            while read line; do
+               buildreq=""
+               req=${line/ */}
+               if [ "`echo \"$provides\" | grep ${req}`" ]; then
+                  # self-provided requirement
+                  :
+               elif [ "${req:0:1}" = "/" ]; then
+                  # file requirement; ignore
+                  :
+               elif [ "${req:0:5}" = "perl(" ]; then
+                  # a perl requirement
+                  preq=`echo $req | sed "s|perl(\(.*\))|\1|g"`
+                  preq="`echo $preq | sed 's|::|/|g'`.pm"
+                  for p in $PERL_PREFIXES; do
+                     [ -e ${p}/${preq} ] &&
+                        buildreq=`rpm -qf ${p}/${preq} 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+                     [ "$buildreq" ] && break
+                  done
+                  [ ! "$buildreq" ] &&
+                     echo "# $req: perl requirement not resolved" >> $frequires
+               elif [ "${req:0:7}" = "rpmlib(" -o \
+                      "${req:0:7}" = "config(" -o \
+                      "${req:0:11}" = "executable(" ]; then
+                  # not a build requirement
+                  :
+               elif [ "${req/.so*/}" != "$req" ]; then
+                  # requirement is a shared library
+                  req=${req/(*)/}
+                  lib=${req/.*/}.so
+                  libpath=`$path_ldconfig -p | grep $req`
+                  libpath=${libpath/\(*\)/}
+                  if [ "$libpath" ]; then
+                     libpath=${libpath/* => /}
+                     solibpath="${libpath/.so*/}.so"
+                     if [ ! -e $solibpath -a "${solibpath:0:5}" = "/lib/" ]; then
+                        solibpath="/usr$solibpath"
+                     fi
+                     eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
+                                    sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
+                     if [ ! "$buildreq" -o $? -ne 0 ]; then
+                        # let's try removing version extension in libname
+                        # (eg. liblber-2.2.so => liblber.so) 
+                        solibpath=`echo $solibpath | sed "s|-[0-9.]*\.so|.so|"`
+                        eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
+                                       sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
+                        [ ! "$buildreq" -o $? -ne 0 ] &&
+                           echo "#$req: .so link not found" >> $frequires
+                     fi
+                  else
+                     echo "\
+#$req: library not reported by ldconfig; run \`ldconfig' and try again" >> $frequires
+                  fi
+               elif [ "${req}" = "python(abi)" ]; then
+                     # python requirement
+                     buildreq=libpython-devel
+               else
+                  # unidentified requirement
+                  buildreq=`rpm -q --whatprovides $req 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+                  [ "$buildreq" ] || echo "#$req: not found; what is this?" >> $frequires
+               fi
+               if [ "${buildreq}" -a "${buildreq/%-devel/}" = "${buildreq}" ]; then
+                  # if a -devel exists for this package, use it
+                  develpkg=`rpm -q ${buildreq}-devel 2>/dev/null` &&
+                     buildreq=`echo $develpkg | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+               fi
+               # finally print buildrequires line
+               [ "$buildreq" ] && echo "BuildRequires: $buildreq" >> $frequires
+            done
+         done
+
+         notify.note "## AUTOBUILDREQ-BEGIN"
+         cat $frequires | sort -u
+         notify.note "## AUTOBUILDREQ-END"
+
+         rm -f $frequires
+      ;;
+      7) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+simulate the installation of the rpm package(s)""${NORM}"
+
+         infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         local i pck filename pck_rpmversion pck_rpmrelease
+
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [[ "$pck_newver" != $SPEC_VERSION ]] &&
+            notify.error $"release for new package required"
+
+         # use the value provided by user via command line if available
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         notify.debug "SPEC_TARGET = [${SPEC_TARGET[*]}]"
+
+         for pck in ${SPEC_TARGET[*]}; do
+            # FIXME : we should check and complain if the package has
+            # been built for a different architecture
+            if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+               filename="$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+            else
+               filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+            fi
+            notify.note " * $filename"
+            [ -e $filename ] ||
+               notify.error $"package not found"": \`$filename'"
+         done
+
+         notify.debug "rpm -U --test ${rpm_root_opts:+$rpm_root_opts }\
+$(for pck in ${SPEC_TARGET[*]}; do
+     if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+        echo -n "$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
+     else
+        echo -n "$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
+     fi
+done)"
+         rpm -U --test $rpm_root_opts \
+         $(for pck in ${SPEC_TARGET[*]}; do
+              if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+                 echo -n "$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
+              else
+                 echo -n "$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
+              fi
+           done) || notify.error $"rpm exited with error code:"" \`$?'"
+      ;;
+      8) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+perform some quality and security checks""${NORM}"
+
+         infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         notify.debug "\
+pck_newver = \"$pck_newver\", pck_newrel = \"$pck_newrel\""
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [[ "$pck_newver" != $SPEC_VERSION ]] &&
+            notify.error $"release for new package required"
+
+         local i
+
+         local pck_rpmversion
+         # use the value provided by user via command line when available
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+
+         local pck_rpmrelease
+         # use the value provided by user via command line when available
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         local tmpextractdir
+         tmpextractdir=$(mktemp -q -d -t rpm_extract.XXXXXXXX)
+         [[ $? -eq 0 ]] ||
+            notify.error $"can't create temporary files"
+         notify.debug "$FUNCNAME: tmpextractdir = $tmpextractdir"
+
+         # create the info file 'rpmpkg.info' in '$tmpextractdir'
+         # data:
+         #  - rpmpkg_name[] : name of the rpm packages
+         #  - data saved in '$infofile'
+
+         local pcknew_name
+         > $tmpextractdir/rpmpkg.info
+         i=0
+         for pck in ${SPEC_TARGET[@]}; do
+            if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+               pcknew_name="\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+               [[ -e $rpms_dir/noarch/$pcknew_name ]] ||
+                  notify.error $"package not found"": \`$pcknew_name'"
+               echo "rpmpkg_name[$i]=\"$rpms_dir/noarch/$pcknew_name\"" \
+                  >> $tmpextractdir/rpmpkg.info
+            else
+               pcknew_name="\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               [[ -e $rpms_dir/$target_cpu/$pcknew_name ]] ||
+                  notify.error $"package not found"": \`$pcknew_name'"
+               echo "rpmpkg_name[$i]=\"$rpms_dir/$target_cpu/$pcknew_name\"" \
+                  >> $tmpextractdir/rpmpkg.info
+            fi
+            notify.debug "$FUNCNAME: pcknew_name[$i] = $pcknew_name"
+            let "i += 1"
+         done
+
+         # function rpms.extract()
+         #     extract the files contained in all the rpm archives build by
+         #     by a single specfile
+         # args:
+         #     -i|--infofile  the file containing infos about packages to extract
+         #     -t|--tmpdir    the directory where the files will be extracted to
+         function rpms.extract() {
+            local rpminfofile tmpextractdir
+            TEMP=`LANG=C getopt \
+               -o i:t: --long infofile:,tmpdir: -n "$FUNCNAME" -- "$@"`
+            [[ $? = 0 ]] || return 1
+            eval set -- "$TEMP"
+
+            while :; do
+               case "$1" in
+               -i|--infofile)
+                  rpminfofile="$2"
+                  shift
+               ;;
+               -t|--tmpdir)
+                  tmpextractdir="$2"
+                  shift
+               ;;
+               --) shift; break ;;
+               *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
+               esac
+               shift
+            done
+
+            [ "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--infofile)"
+            [ -r "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"cannot read"" \`$rpminfofile'"
+
+            [ "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--tmpdir)"
+            [ -d "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"no such file or directory"" \`$tmpextractdir'"
+
+            . $rpminfofile
+
+            i=0
+            for pck in ${rpmpkg_name[@]}; do
+               [[ -e "$pck" ]] || notify.error $"\
+package not found"": \`$pck'"
+
+               mkdir -p $tmpextractdir/$i 2>/dev/null
+               [ $? -eq 0 ] || notify.error $"\
+can't create temporary directory"": $tmpextractdir/$i"
+
+               pushd $tmpextractdir/$i >/dev/null
+               rpm2cpio $pck > rpm_extract_tmp.cpio
+               [ $? -eq 0 ] ||
+                  notify --error $"cannot extract files from rpm archive"
+
+               cpio --quiet --extract --make-directories < rpm_extract_tmp.cpio
+               [ $? -eq 0 ] ||
+                   notify --error $"cannot extract files from cpio archive"
+
+               rm -f rpm_extract_tmp.cpio
+               popd >/dev/null
+               let "i += 1"
+            done
+         }
+
+         rpms.extract \
+            --infofile "$tmpextractdir/rpmpkg.info" \
+            --tmpdir "$tmpextractdir" || exit 1
+
+         # execute all the available tests...
+
+         [ -n "$testdir" ] ||
+            notify.error "\`testdir': "$"unset in the configuration files"
+         [ -d "$testdir" ] ||
+            notify.error $"no such file or directory"": \`$testdir'"
+
+         for fname in $testdir/*; do
+            notify.debug "$FUNCNAME: running test: \`$fname'"
+            ( . $fname
+              alltests --infofile "$tmpextractdir/rpmpkg.info" \
+                 --tmpdir "$tmpextractdir" )
+         done
+
+         # temporary files cleanup
+         rm -fr $tmpextractdir
+      ;;
+      9) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+calculate the md5/sha1 hashing values""${NORM}"
+
+         infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [[ "$pck_newver" != $SPEC_VERSION ]] &&
+            notify.error $"release for new package required"
+
+         # use the value provided by user via command line if available
+         local pck_rpmversion pck_rpmrelease
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         # ??? th md5sum values differ from the output of the ???
+         # ??? command `rpmsign -v --checksig <rpmfile>'      ???
+         for tool in md5sum sha1sum; do
+            local filename="\
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            [[ -e $filename ]] ||
+               notify.error $"package not found"": \`$filename'"
+
+            echo "[${tool/sum/}]"
+            $tool -b $filename | sed "s,*.*/\(.*\),\1,"
+            local i=0
+            for pck in ${SPEC_TARGET[@]}; do
+               if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+                  filename="$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+               else
+                  filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               fi
+               [ -e "$filename" ] ||
+                  notify.error $"package not found"": \`$filename'"
+               $tool -b $filename | sed "s,*.*/\(.*\),\1,"
+               let "i += 1"
+            done
+         done
+      ;;
+     10) [ -s "$infofile" ] || infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         # usefull when debugging (default value is '1')
+         local do_ftp_upload=1
+
+         local pck_rpmversion pck_rpmrelease
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [ "$pck_newver" != "$SPEC_VERSION" ] &&
+            notify.error $"release for new package required"
+
+         # use the value provided by user via command line if available
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         # WARNING: only works if SPEC_RELEASE = [0-9\.]*<distroid>
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         # repository.get_SRPMS_name( mbrowse )
+         #  --> got_SPEC_FILENAME_URL        (${ftpurl_ro_rpms[0]})
+         #       --> SPEC_FILENAME_URL_old
+         #  --> got_SPEC_FILENAME_URL_LEVEL  (0)
+         #       --> SPEC_FILENAME_URL_LEVEL_old
+         #  --> got_SPEC_FILENAME_old        (mbrowse-0.3.1-2qilnx.src.rpm)
+         #       --> SPEC_VERSION_old  (0.3.1)
+         #       --> SPEC_RELEASE_old  (2qilnx)
+
+         repository.get_SRPMS_name \
+            --urllist "${ftpurl_ro_srpms[$ftp_server_upload_num]}" \
+            --urlnum "$ftp_server_upload_num" \
+            --proxy "$proxy" \
+            --proxy-user "$proxy_user" \
+            "$pck_name" ${SPEC_OBSOLETES[@]}
+         # FIXME: `$?' is nonzero if the argument of `--urllist' is "";
+         # this generally happens with a buggy configuration file but we
+         # do not stop the execution here with an errors condition
+         # (this behaviour should be probably changed when the read-only
+         # access to repositories requiring a password will be supported)
+         #
+         #[ $? -eq 0 ] ||
+         # { notify.error $"repositories unreachable"; break; }
+
+         if [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]]; then
+            if [ "$force_upload" = 1 ]; then
+               # FIXME : add some extra checks
+               notify.warning $"found too many candidates"": $(
+               for f in ${got_SPEC_FILENAME[*]}; do
+                  echo -en "\n * \`$f' "
+               done )"
+            else
+               notify.error $"found too many candidates"": $(
+               for f in ${got_SPEC_FILENAME[*]}; do
+                  echo -en "\n * \`$f' "
+               done )"
+            fi
+         fi
+
+         if [[ "$got_SPEC_FILENAME" ]]; then
+            SPEC_FILENAME_old="$got_SPEC_FILENAME"
+            SPEC_FILENAME_URL_old="$got_SPEC_FILENAME_URL"
+            SPEC_FILENAME_URL_LEVEL_old="$got_SPEC_FILENAME_URL_LEVEL"
+         fi
+
+         notify.debug "SPEC_FILENAME_old = $SPEC_FILENAME_old"
+         notify.debug "SPEC_FILENAME_URL_old = $SPEC_FILENAME_URL_old"
+         notify.debug "\
+SPEC_FILENAME_URL_LEVEL_old = $SPEC_FILENAME_URL_LEVEL_old"
+
+         local SPEC_VERSION_old SPEC_RELEASE_old
+
+         if [ "$SPEC_FILENAME_old" ]; then
+            # version and release of the old packages
+            SPEC_VERSION_old=$(echo "$SPEC_FILENAME_old" | \
+               sed "s,^.*-\([^-]*\)-[^-]*,\1,")
+            # we use a distro name indipendent regexpr
+            SPEC_RELEASE_old=$(echo "$SPEC_FILENAME_old" | \
+               sed "s,^.*-[^-]*-\([^-]*\).src.rpm,\1,")
+
+            notify.debug "SPEC_VERSION_old = $SPEC_VERSION_old"
+            notify.debug "SPEC_RELEASE_old = $SPEC_RELEASE_old"
+         fi
+
+         # no repository for upload set by user...
+         if [ -z "$ftp_server_upload_num" ]; then
+            # ...so we select the repository where the old packages have been
+            # found or the default server, if no old packages exist
+            ftp_server_upload_num="\
+${SPEC_FILENAME_URL_LEVEL_old:-$ftp_rw_server_num_default}"
+            notify.debug "\
+ftp_server_upload_num = \"$ftp_server_upload_num\" (was unset)"
+
+            [ "$ftp_server_upload_num" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: ""ftp_server_upload_num = \"\""
+         fi
+
+         notify.debug "\
+ftp_server_upload_num = \"$ftp_server_upload_num\""
+
+         if [ "${ftp_rw_server[$ftp_server_upload_num]}" ]; then
+            repository.is_reachable "${ftp_rw_server[$ftp_server_upload_num]}"
+            # NOTE. notify.error --> notify.warning because host command fails
+            # in qemu-arm environment (1.4.18)
+            [ $? -eq 0 ] || notify.warning $"\
+server unreachable"": \`${ftp_rw_server[$ftp_server_upload_num]}'"
+         else
+            notify.error $"\
+you have no read write access to url#$ftp_server_upload_num"
+            break
+         fi
+
+         # NOTE : 'SPEC_FILENAME_URL_LEVEL_old' is unset the first time
+         # the package is uploaded to the ftp repository
+         if [ "$SPEC_FILENAME_URL_LEVEL_old" ]; then
+            [ "${arch_list[$SPEC_FILENAME_URL_LEVEL_old]}" ] ||
+               notify.error "\
+\`arch_list[$SPEC_FILENAME_URL_LEVEL_old]': "$"unset in the configuration files"
+
+            # find for RPM packages with same name but possibily with a
+            # different ver/rel by looking at
+            # ${ftpurl_ro_rpms[$SPEC_FILENAME_URL_LEVEL_old]}
+            repository.get_RPMS_name \
+               --archlist "${arch_list[$SPEC_FILENAME_URL_LEVEL_old]}" \
+               --target-cpu "$target_cpu" \
+               --exclude "-$SPEC_VERSION-$SPEC_RELEASE" \
+               --proxy "$proxy" \
+               --proxy-user "$proxy_user" \
+               "${ftpurl_ro_rpms[$SPEC_FILENAME_URL_LEVEL_old]}" \
+               ${SPEC_TARGET[@]} ${SPEC_OBSOLETES[@]}
+            # ... and save the list in 'RPM_FILENAME_old[]'
+            RPM_FILENAME_old=( ${got_RPM_FILENAME[@]} )
+         fi
+
+         # now saving the updated copy...
+
+         local ftp_opts="$curl_opts_netlink\
+${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+
+         [ "${ftp_rw_passive_mode[$ftp_server_upload_num]}" = "on" ] &&
+            ftp_opts="$ftp_opts --ftp-pasv"
+
+         local upload_ftp_server
+         local upload_ftp_rpms_dir
+         local upload_ftp_srpms_dir
+         local upload_ftp_port
+         local upload_ftp_user
+         local upload_ftp_passwd
+         local curr_srv_alias
+
+         # select the server where the new packages will be uploaded
+         upload_ftp_server=${ftp_rw_server[$ftp_server_upload_num]}
+         notify.debug "upload_ftp_server = \"$upload_ftp_server\""
+         [ "$upload_ftp_server" ] || notify.error "\
+\`ftp_rw_server[$ftp_server_upload_num]': "$"unset in the configuration files"
+
+         # get the folder where the new rpm packages will be uploaded
+         upload_ftp_rpms_dir=${ftp_rw_rpms_dir[$ftp_server_upload_num]}
+         notify.debug "upload_ftp_rpms_dir = \"$upload_ftp_rpms_dir\""
+         [ "$upload_ftp_rpms_dir" ] || notify.error "\
+\`ftp_rw_rpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
+
+         # get the folder where the new srpm package will be uploaded
+         upload_ftp_srpms_dir=${ftp_rw_srpms_dir[$ftp_server_upload_num]}
+         notify.debug "upload_ftp_srpms_dir = \"$upload_ftp_srpms_dir\""
+         [ "$upload_ftp_srpms_dir" ] || notify.error "\
+\`ftp_rw_srpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
+
+         upload_ftp_port=${ftp_rw_port[$ftp_server_upload_num]}
+         [ "$ftp_rw_user_forced" ] &&
+            upload_ftp_user="$ftp_rw_user_forced" ||
+            upload_ftp_user="${ftp_rw_user[$ftp_server_upload_num]}"
+         [ "$ftp_rw_passwd_forced" ] &&
+            upload_ftp_passwd="$ftp_rw_passwd_forced" ||
+            upload_ftp_passwd="${ftp_rw_passwd[$ftp_server_upload_num]}"
+
+         curr_srv_alias="${ftp_alias[$ftp_server_upload_num]}"
+         notify.note "\
+${NOTE}"$"upload the new packages to the ftp repository"" \
+#$ftp_server_upload_num ${curr_srv_alias:+($curr_srv_alias) }${NORM}: \
+${NOTE}$upload_ftp_server${NORM}..."
+
+         [ "$do_ftp_upload" = "0" ] &&
+            notify.warning $"\
+ftp upload has been disabled"" (do_ftp_upload = \"0\")"
+
+         if [ -z "$upload_ftp_user" ]; then
+            notify.note $"trying with the ${NOTE}anonymous login${NORM}""..."
+            upload_ftp_user="anonymous"
+            [ "$upload_ftp_passwd" ] || upload_ftp_passwd="$packager_email"
+         fi
+
+         notify.debug "upload_ftp_server    = \"$upload_ftp_server\""
+         # FIXME: the @arch@ string should be perhaps expanded here
+         notify.debug "upload_ftp_rpms_dir  = \"$upload_ftp_rpms_dir\""
+         notify.debug "upload_ftp_srpms_dir = \"$upload_ftp_srpms_dir\""
+         notify.debug "upload_ftp_port      = \"$upload_ftp_port\""
+         if [ "$debug_print_private_user_infos" = "1" ]; then
+            notify.debug "upload_ftp_user      = \"$upload_ftp_user\""
+            notify.debug "upload_ftp_passwd    = \"$upload_ftp_passwd\""
+         else
+            notify.debug "upload_ftp_user      = ***"
+            notify.debug "upload_ftp_passwd    = ***"
+         fi
+
+         # RPM package(s)...
+         if [ "$norpms" = "0" ]; then
+            let "i = 0"
+            for pck in ${SPEC_TARGET[@]}; do
+               # copy noarch packages to all the repository set in the
+               # configuration variable `arch_noarch_upload[]'
+               if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" = "noarch" ]; then
+                  filename="\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+
+                  for upload_arch in \
+                     ${arch_noarch_upload[$ftp_server_upload_num]}; do
+                     if [ "$upload_arch" == "@arch@" ]; then
+                        if [ "$target_cpu" != "noarch" ]; then
+                           currurl="\
+$(repository.resolveURL "$upload_ftp_rpms_dir" "${target_cpu}")"
+                        else
+                           set -- ${arch_list[*]}
+                           currurl="\
+$(repository.resolveURL "$upload_ftp_rpms_dir" "$1")"
+                        fi
+                     else
+                        currurl="\
+$(repository.resolveURL "$upload_ftp_rpms_dir" "$upload_arch")"
+                     fi
+
+                     [ "$do_ftp_upload" = "0" ] || curl.upload \
+$([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
+--exit-on-err \
+--user "$upload_ftp_user:$upload_ftp_passwd" \
+--options "$ftp_opts" \
+--upload-file "$rpms_dir/noarch/$filename" \
+$upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
+                  done
+               else
+                  filename="\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+                  currurl="\
+$(repository.resolveURL "$upload_ftp_rpms_dir" "$target_cpu")"
+
+                  [ "$do_ftp_upload" = "0" ] || curl.upload \
+$([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
+--exit-on-err \
+--user "$upload_ftp_user:$upload_ftp_passwd" \
+--options "$ftp_opts" \
+--upload-file "$rpms_dir/$target_cpu/$filename" \
+$upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
+               fi
+               let "i += 1"
+            done
+         fi
+
+         # SRPM package...
+         if [ "$nosrpm" = "0" ]; then
+            filename="\
+$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+
+            [ "$do_ftp_upload" = "0" ] || curl.upload \
+$([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
+--exit-on-err \
+--user="$upload_ftp_user:$upload_ftp_passwd" \
+--options="$ftp_opts" \
+--upload-file "$srpms_dir/$filename" \
+$upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/\
+$upload_ftp_srpms_dir/\
+$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm
+         fi
+
+         # do backup or erase old packages...
+
+         # NOTE: the backup is performed on the same server where old
+         # packages have been found and only if for this server the
+         # variable 'ftpdir_rw_old variable' has been set (is the variable
+         # is unset the old packages will just be removed)
+
+         # it was the first upload for these packages (no backup possible)
+         [ "$SPEC_FILENAME_URL_LEVEL_old" ] ||
+          { notify.note "${NOTE}"$"no old packages have been found.""${NORM}"
+            continue; }
+
+         local backup_ftp_server
+         local backup_ftp_port
+         local backup_ftp_user
+         local backup_ftp_passwd
+
+         backup_ftp_server=${ftp_rw_server[$SPEC_FILENAME_URL_LEVEL_old]}
+         backup_ftp_port=${ftp_rw_port[$SPEC_FILENAME_URL_LEVEL_old]}
+         [ "$ftp_rw_user_forced" ] &&
+            backup_ftp_user="$ftp_rw_user_forced" ||
+            backup_ftp_user="${ftp_rw_user[$SPEC_FILENAME_URL_LEVEL_old]}"
+         [ "$ftp_rw_passwd_forced" ] &&
+            backup_ftp_passwd="$ftp_rw_passwd_forced" ||
+            backup_ftp_passwd="${ftp_rw_passwd[$SPEC_FILENAME_URL_LEVEL_old]}"
+
+         if [ -z "$backup_ftp_user" ]; then
+            notify.note $"trying with the ${NOTE}anonymous login${NORM}""..."
+            backup_ftp_user="anonymous"
+            [ "$backup_ftp_passwd" ] || backup_ftp_passwd="$packager_email"
+         fi
+
+         notify.debug "backup_ftp_server    = \"$backup_ftp_server\""
+         notify.debug "backup_ftp_rpms_dir  = \"$backup_ftp_rpms_dir\""
+         notify.debug "backup_ftp_srpms_dir = \"$backup_ftp_srpms_dir\""
+         notify.debug "backup_ftp_port      = \"$backup_ftp_port\""
+         if [ "$debug_print_private_user_infos" = "1" ]; then
+            notify.debug "backup_ftp_user      = \"$backup_ftp_user\""
+            notify.debug "backup_ftp_passwd    = \"$backup_ftp_passwd\""
+         else
+            notify.debug "backup_ftp_user      = ***"
+            notify.debug "backup_ftp_passwd    = ***"
+         fi
+
+         local ftp_opts="$curl_opts_netlink"
+
+         local curl_ftp_command_opts="\
+${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+         [ "${ftp_rw_passive_mode[$ftp_server_upload_num]}" = "on" ] &&
+            curl_ftp_command_opts="$curl_ftp_command_opts --ftp-passive"
+
+         local backup_ftp_bckdir
+         if [ "${ftpdir_rw_old[$SPEC_FILENAME_URL_LEVEL_old]}" ]; then
+            notify.note "\
+${NOTE}"$"moving old packages to the remote backup folder""${NORM}..."
+            # generate a unique folder name (with P~=1)
+            backup_ftp_bckdir="\
+${ftpdir_rw_old[$ftp_server_upload_num]}/${SPEC_NAME}_$(date +%y%m%d.%H%M%S)"
+         else
+            curr_srv_alias="${ftp_alias[$SPEC_FILENAME_URL_LEVEL_old]}"
+            notify.note "
+${NOTE}"$"removing old packages from the repository"" \
+$backup_ftp_server${curr_srv_alias:+ ($curr_srv_alias)}${NORM}..."
+            unset backup_ftp_bckdir
+         fi
+         notify.debug "backup_ftp_bckdir = \"$backup_ftp_bckdir\""
+
+         # get the directories where the old packages reside...
+         local ftp_rpms_old_dir="\
+${ftp_rw_rpms_dir[$SPEC_FILENAME_URL_LEVEL_old]}"
+
+         local ftp_srpms_old_dir="\
+${ftp_rw_srpms_dir[$SPEC_FILENAME_URL_LEVEL_old]}"
+
+         # a backup should be performed? (boolean variables)
+         local rpm_pcks_to_backup=0
+         local srpm_pcks_to_backup=0
+
+         for pck in ${RPM_FILENAME_old[@]}; do
+            let "rpm_pcks_to_backup = 1"
+            notify.note "\
+ * $(repository.resolveURL "$ftp_rpms_old_dir/${pck##*:}" "${pck%:*}")"
+         done
+
+         # print the old SRPMS package...
+         [[ -n "$SPEC_FILENAME_old" && \
+            "$nosrpm" != "1" && \
+            "$SPEC_VERSION_old-$SPEC_RELEASE_old" != \
+            "$SPEC_VERSION-$SPEC_RELEASE" ]] &&
+          { let "srpm_pcks_to_backup = 1"
+            notify.note "\
+ * $ftp_srpms_old_dir/$SPEC_FILENAME_old"; }
+
+         notify.debug "rpm_pcks_to_backup = $rpm_pcks_to_backup"
+         notify.debug "srpm_pcks_to_backup = $srpm_pcks_to_backup"
+
+         [[ "$rpm_pcks_to_backup" = "0" && "$srpm_pcks_to_backup" = "0" ]] &&
+          { notify.note "${NOTE}"$"no old packages have been found.""${NORM}"
+            continue; }
+
+         # print the backup folder...
+         [ "${ftpdir_rw_old[$ftp_server_upload_num]}" ] &&
+            notify.note "\
+   --> ""\
+$backup_ftp_server${backup_ftp_port:+:$backup_ftp_port} :: $backup_ftp_bckdir"
+
+         if [ "$do_ftp_upload" = "1" ]; then
+            if [ "${ftpdir_rw_old[$SPEC_FILENAME_URL_LEVEL_old]}" ]; then
+               # make a backup copy of the old packages...
+               curl.ftp_command $curl_ftp_command_opts \
+                  --options "$ftp_opts" \
+                  --user "$upload_ftp_user:$upload_ftp_passwd" \
+                  --action mkdir --directory "$backup_ftp_bckdir" \
+                  $backup_ftp_server${backup_ftp_port:+:$backup_ftp_port} 
+
+               for pck in ${RPM_FILENAME_old[@]}; do
+                  curl.ftp_command $curl_ftp_command_opts \
+                     --options "$ftp_opts" \
+                     --user "$upload_ftp_user:$upload_ftp_passwd" \
+                     --action rename-file \
+                     --rename-from "\
+$(repository.resolveURL "$ftp_rpms_old_dir/${pck##*:}" "${pck%:*}")" \
+                     --rename-to "$backup_ftp_bckdir/${pck##*:}" \
+                     $backup_ftp_server${backup_ftp_port:+:$backup_ftp_port}
+               done
+               if [ "$srpm_pcks_to_backup" = "1" ]; then
+                  curl.ftp_command $curl_ftp_command_opts \
+                     --options "$ftp_opts" \
+                     --user "$upload_ftp_user:$upload_ftp_passwd" \
+                     --action rename-file \
+                     --rename-from "$ftp_srpms_old_dir/$SPEC_FILENAME_old" \
+                     --rename-to "$backup_ftp_bckdir/$SPEC_FILENAME_old" \
+                     $backup_ftp_server${backup_ftp_port:+:$backup_ftp_port}
+               fi
+            else
+               notify.debug "ftp_rpms_old_dir = $ftp_rpms_old_dir"
+
+               # just delete the old packages...
+               for pck in ${RPM_FILENAME_old[@]}; do
+                  currurl="\
+$(repository.resolveURL "$ftp_rpms_old_dir/${pck##*:}" "${pck%:*}")"
+                  notify.debug "currurl = $currurl"
+                  curl.ftp_command $curl_ftp_command_opts \
+                     --options "$ftp_opts" \
+                     --user "$upload_ftp_user:$upload_ftp_passwd" \
+                     --action delete \
+                     --delete "$currurl" \
+$backup_ftp_server${backup_ftp_port:+:$backup_ftp_port}
+               done
+               if [ "$srpm_pcks_to_backup" = "1" ]; then
+                  curl.ftp_command $curl_ftp_command_opts \
+                     --options "$ftp_opts" \
+                     --user "$upload_ftp_user:$upload_ftp_passwd" \
+                     --action delete \
+                     --delete "${ftp_srpms_old_dir}/$SPEC_FILENAME_old" \
+$backup_ftp_server${backup_ftp_port:+:$backup_ftp_port}
+               fi
+            fi
+         fi
+      ;;
+     11) [ -s "$infofile" ] || infofile.create
+         . $infofile
+
+         target_cpu.set_and_check
+
+         local pck_rpmversion pck_rpmrelease
+         [[ "$pck_newver" && -z "$pck_newrel" ]] &&
+         [ "$pck_newver" != $SPEC_VERSION ] &&
+            notify.error $"release for new package required"
+
+         # use the value provided by user via command line if available
+         pck_rpmversion=${pck_newver:-$SPEC_VERSION}
+         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         notify.debug "pck_rpmversion = $pck_rpmversion"
+         notify.debug "pck_rpmrelease = $pck_rpmrelease"
+
+         [ "$force_install" = 1 ] && notify.note "\
+${NOTE}"$"install the new rpm packages"" ("$"force enabled"")${NORM}..." ||
+            notify.note "${NOTE}"$"install the new rpm packages""${NORM}..."
+
+         if [ "$rpm_download_and_install" ]; then
+            local pck2install_list=""
+            for pck in ${SPEC_TARGET[@]}; do
+               if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
+                  filename="$rpms_dir/noarch/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+               else
+                  filename="$rpms_dir/$target_cpu/\
+$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               fi
+
+               [[ -n "$rpm_install_noinstall_mask" &&
+                  $filename =~ $rpm_install_noinstall_mask ]] && continue
+               if [[ -n "$rpm_install_l10n_pck_mask" &&
+                     $filename =~ $rpm_install_l10n_pck_mask ]]; then
+                  [[ $filename =~ $rpm_install_l10n_pck_allow_lang_mask ]] \
+                     || continue
+               fi
+
+               [ -e $filename ] && notify.note " * $filename" ||
+                  notify.error $"package not found"": \`$filename'"
+               pck2install_list="$pck2install_list $filename"
+            done
+
+            if [ "$force_install" = 1 ]; then
+               [ "$rpm_install_force" ] || notify.error "\
+\`rpm_install_force': "$"unset in the configuration files"
+               notify.debug "\
+$rpm_install_force ${rpm_root_opts:+$rpm_root_opts }$pck2install_list"
+               $rpm_install_force $rpm_root_opts $pck2install_list
+               #  || notify.error $"cannot install the new rpm packages"
+            else
+               [ "$rpm_install" ] || notify.error "\
+\`rpm_install': "$"unset in the configuration files"
+               notify.debug "\
+$rpm_install ${rpm_root_opts:+$rpm_root_opts }$pck2install_list"
+               $rpm_install $rpm_root_opts $pck2install_list ||
+                  notify.error $"cannot install the new rpm packages"
+            fi
+         fi
+      ;;
+      *) notify.warning $"unknown step \`$step'" ;;
+      esac
+   done
+
+   if [ "$cleanup" = 1 ]; then
+      notify.note "[${NOTE}"$"cleaning up temporary files""${NORM}]"
+      notify.note $"removing source packages and patches, if any""..."
+
+      # rpmbuild --rmsource $SRPM_SPECFILE_WITH_PATH
+
+      [ -s "$infofile" ] || infofile.create
+      . $infofile
+      for srpm_source in ${SPEC_SOURCE[@]}; do
+         notify.note "   "$"removing"" $srpm_source..."
+         rm -f $source_dir/$srpm_source
+      done
+      for srpm_patch in ${SPEC_PATCH[@]}; do
+         notify.note "   "$"removing"" $srpm_patch..."
+         rm -f $source_dir/$srpm_patch
+      done
+   fi
+
+   rm -f $infofile
+
+   #notify.note "[${NOTE}"$"end of updating process""${NORM}]"
+
+   if [ "$logging" = 1 ]; then
+      exec 1<&3 3<&-   # restore stdout and close fd#3
+      exec 2<&4 4<&-   # restore stderr and close fd#4
+   fi
+}
+
+# the user configuration file for @package@ is required
+config.check4user
+# make some security checks
+config.security
+
+package.update \
+   "$spec_format" "$pck_name" "$pck_newver" "$pck_newrel" \
+   "$steps" \
+   "$cl_ftp_rw_user" \
+   "$cl_ftp_rw_passwd" \
+   "$spec_name" \
+   "$define_list" \
+   "$ftp_server_download_id" \
+   "$ftp_server_upload_id"

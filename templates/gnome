@@ -1,0 +1,69 @@
+%define gnomever    n1.n2.n3
+
+%define gnomemajver %(echo %gnomever | cut -d. -f 1-2)
+%define gnomegroup  ...
+%define pkgname     ...
+
+Name:          %{pkgname}
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ...
+Group:         ...
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           http://www.gnome.org
+# bugfixes: http://ftp.acc.umu.se/pub/GNOME/sources/%{pkgname}-*.tar.bz2
+Source:        http://ftp.gnome.org/pub/GNOME/%{gnomegroup}/%{gnomemajver}/%{gnomever}/sources/%{pkgname}-%{version}.tar.bz2
+License:       GPL
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+BuildRequires: gtk-doc
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+@if:library_apidocs
+%package apidocs
+Summary:       %{pkgname} API documentation
+Group:         Documentation
+Requires:      gtk-doc
+
+%description apidocs
+%{pkgname} API documentation.
+@fi:library_apidocs
+
+%prep
+%setup -q -n %{pkgname}-%{version}
+
+%build
+@if:library_apidocs
+@configure@ --enable-gtk-doc
+@else:library_apidocs
+@configure@
+@fi:library_apidocs
+@make@
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+@makeinstall@
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%files
+%defattr(-,root,root)
+@standard_docs@
+
+@if:library_apidocs
+%files apidocs
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_datadir}/gtk-doc/html/%{name}
+@fi:library_apidocs
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@

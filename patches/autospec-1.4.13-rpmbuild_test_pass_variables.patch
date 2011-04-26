@@ -1,0 +1,50 @@
+--- pck-update	2010-03-07 17:26:00.653388973 +0100
++++ /usr/bin/pck-update	2010-03-07 17:25:45.000000000 +0100
+@@ -2117,12 +2117,12 @@
+          done
+ 
+          local rpmbuild_opts="\
+-             --define \"%_srcrpmdir $srpms_dir\" \
+-             --define \"%_rpmdir $rpms_dir\" \
+-             --define \"%_specdir $spec_dir\" \
+-             --define \"%_sourcedir $source_dir\" \
+-             --define \"%_builddir $build_dir\" \
+-             --define \"%_tmppath $tmppath_dir\""
++             --define=\"%_srcrpmdir $srpms_dir\" \
++             --define=\"%_rpmdir $rpms_dir\" \
++             --define=\"%_specdir $spec_dir\" \
++             --define=\"%_sourcedir $source_dir\" \
++             --define=\"%_builddir $build_dir\" \
++             --define=\"%_tmppath $tmppath_dir\""
+ 
+          # check if we are cross-compiling
+          [ "$BUILD_ARCH" != "$target_cpu" ] &&
+@@ -2130,20 +2130,21 @@
+ 
+          [ "$cleanup" = "1" ] && rpmbuild_opts="$rpmbuild_opts --clean"
+ 
++         local rpmdefine_opts="\
++$(for i in `seq 1 1 ${#define_list_name[*]}`; do
++echo -n " --define=\"${define_list_name[$i-1]} ${define_list_value[$i-1]}\""
++done)"
++         notify.debug "rpmdefine_opts = \"$rpmdefine_opts\""
++
+          # note: exit with error when build requirements are missing
+          notify.note "${NOTE}"$"testing out specfile""${NORM}..."
+-         rpmbuild --nobuild --define "%_sourcedir $source_dir" \
+-            $spec_dir/$SRPM_SPECFILE 2>&1 ||
++         eval "\
++rpmbuild --nobuild $rpmbuild_opts $spec_dir/$SRPM_SPECFILE  $rpmdefine_opts 2>&1" ||
+                notify.error $"rpmbuild exited with error code \`$?'"
+ 
+          notify.debug "define_list_name = (${define_list_name[*]})"
+          notify.debug "define_list_value = (${define_list_value[*]})"
+ 
+-         local rpmdefine_opts="\
+-$(for i in `seq 1 1 ${#define_list_name[*]}`; do
+-echo -n " --define=\"${define_list_name[$i-1]} ${define_list_value[$i-1]}\""
+-done)"
+-         notify.debug "rpmdefine_opts = \"$rpmdefine_opts\""
+ 
+          if [ "$norpms" = 1 ]; then
+             notify.note "\

@@ -1,0 +1,29 @@
+--- autospec.conf.in.orig	2009-02-24 01:58:37.000000000 +0100
++++ autospec.conf.in	2009-02-24 01:58:49.000000000 +0100
+@@ -418,7 +418,7 @@
+ apse_uri[1]="http://linux.softpedia.com/progSearch"
+ apse_put_fields[1]="src="
+ apse_error_msg[1]="No results found"
+-apse_grep[1]="<b[^<]*\${search_name} "
++apse_grep[1]="<b[^<]*\${search_name}[^a-zA-Z]"
+ apse_sed[1]="s,.*<b[^<]*\${search_name}[^<]*[ ]\([^ <]*\)</b>.*,\1,pi"
+ 
+ apse_site_name[2]="http://www.gnomefiles.org"
+@@ -439,14 +439,14 @@
+ apse_uri[4]="http://sourcewell.berlios.de/appsearch.php?by=Importance&search="
+ apse_put_fields[4]=""
+ apse_error_msg[4]="No Application found"
+-apse_grep[4]="appbyid.*\${search_name}.*Stable"
++apse_grep[4]="appbyid.*\${search_name}[^a-zA-Z].*Stable"
+ apse_sed[4]="s,.*<a href=\"appbyid.*\">\${search_name} \([^ <]*\)</a>.*,\1,pi"
+ 
+ apse_site_name[5]="http://distrowatch.com"
+-apse_uri[5]="http://distrowatch.com/packages.php ?"
++apse_uri[5]="http://distrowatch.com/packages.php?"
+ apse_put_fields[5]=""
+ apse_error_msg[5]="is currently being redesigned"
+-apse_grep[5]="td.*\${search_name}"
++apse_grep[5]="td.*[^a-zA-Z]\${search_name}[^a-zA-Z0-9]"
+ apse_sed[5]="s,.*td><[^>]*>\([^ <]*\)<.*,\1,pi"
+ 
+ #------------------------------------------------------------------------------

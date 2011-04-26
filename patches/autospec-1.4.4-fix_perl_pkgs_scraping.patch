@@ -1,0 +1,108 @@
+diff -Nru autospec-1.4.4.orig/lib/libapse.lib.in autospec-1.4.4/lib/libapse.lib.in
+--- autospec-1.4.4.orig/lib/libapse.lib.in	2009-01-03 14:12:01.000000000 +0100
++++ autospec-1.4.4/lib/libapse.lib.in	2009-01-03 14:13:26.000000000 +0100
+@@ -411,62 +411,64 @@
+        last_version="$new_version"
+    fi
+ 
+-   # check at the other supported web sites...
+-   for i in ${!apse_site_name[@]}; do
+-      notify.note \
++   # check at the other supported web sites.
++   # Skip Perl packages to prevent name confusion; these are checked above via Source0
++   if [ ! "$(echo $pckurl | grep "cpan.org")" ]; then
++      for i in ${!apse_site_name[@]}; do
++         notify.note \
+ $"looking at"" <${NOTE}${apse_site_name[$i]}${NORM}>..."
+ 
+-      for search_name in $src_name $specname; do
+-         [ "${apse_put_fields[$i]}" ] &&
+-            curr_curl_url="${apse_uri[$i]}" ||
+-               curr_curl_url="${apse_uri[$i]}${search_name}"
++         for search_name in $src_name $specname; do
++            [ "${apse_put_fields[$i]}" ] &&
++               curr_curl_url="${apse_uri[$i]}" ||
++                  curr_curl_url="${apse_uri[$i]}${search_name}"
+ 
+-         if [ "${apse_put_fields[$i]}" ]; then
+-            notify.debug "\
++            if [ "${apse_put_fields[$i]}" ]; then
++               notify.debug "\
+ curl \$curr_curl_proxy_opts -s -L -F ${apse_put_fields[$i]}${search_name} \"$curr_curl_url\""
+-            curl $curr_curl_proxy_opts -s -L -F \
+-               ${apse_put_fields[$i]}${search_name} "$curr_curl_url" > $fcurlout
+-         else
+-            notify.debug "\
++               curl $curr_curl_proxy_opts -s -L -F \
++                  ${apse_put_fields[$i]}${search_name} "$curr_curl_url" > $fcurlout
++            else
++               notify.debug "\
+ curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
+-            curl $curr_curl_proxy_opts -s -L "$curr_curl_url" > $fcurlout
+-         fi
++               curl $curr_curl_proxy_opts -s -L "$curr_curl_url" > $fcurlout
++            fi
+ 
+-         let "retval = $?"
+-         case "$retval" in
+-         0) ;;
+-         6) notify.warning $"couldn't resolve host" ;;
+-         7) notify.warning $"failed to connect to host" ;;
+-         *) notify.warning $"curl error (exit code: $retval)" ;;
+-         esac
++            let "retval = $?"
++            case "$retval" in
++            0) ;;
++            6) notify.warning $"couldn't resolve host" ;;
++            7) notify.warning $"failed to connect to host" ;;
++            *) notify.warning $"curl error (exit code: $retval)" ;;
++            esac
+ 
+-         [ "$retval" = "0" ] || continue
++            [ "$retval" = "0" ] || continue
+ 
+-         if [ "$(cat $fcurlout | sed -n "\
++            if [ "$(cat $fcurlout | sed -n "\
+ s,.*${apse_error_msg[$i]}.*,error,pi")" != \
+-         "error" ]; then
+-            current_grep="$(echo "${apse_grep[$i]}" | sed -e "s,\${search_name},${search_name},g")"
+-            current_sed="$(echo "${apse_sed[$i]}" | sed -e "s,\${search_name},${search_name},g")"
+-            notify.debug "\
++            "error" ]; then
++               current_grep="$(echo "${apse_grep[$i]}" | sed -e "s,\${search_name},${search_name},g")"
++               current_sed="$(echo "${apse_sed[$i]}" | sed -e "s,\${search_name},${search_name},g")"
++               notify.debug "\
+ grep -i -m1 \"$current_grep\" \$fcurlout | sed -n \"$current_sed\""
+-            new_version=$(grep -i -m1 "$current_grep" $fcurlout | sed -n "$current_sed")
+-            if [ "$new_version" ]; then
+-               notify.note "\
++               new_version=$(grep -i -m1 "$current_grep" $fcurlout | sed -n "$current_sed")
++               if [ "$new_version" ]; then
++                  notify.note "\
+  * "$"found version:"" \`${NOTE}$new_version${NORM}'"
+-               if [ "$last_version" ]; then
+-                  notify.debug "apse.cmpversion \"$last_version\" \"$new_version\""
+-                  apse.cmpversion "$last_version" "$new_version"
+-                  [ $? -eq 2 ] && last_version="$new_version"
+-               else
+-                  last_version="$new_version"
++                  if [ "$last_version" ]; then
++                     notify.debug "apse.cmpversion \"$last_version\" \"$new_version\""
++                     apse.cmpversion "$last_version" "$new_version"
++                     [ $? -eq 2 ] && last_version="$new_version"
++                  else
++                     last_version="$new_version"
++                  fi
+                fi
+             fi
+-         fi
++         done
+       done
+-   done
++   fi
+ 
+    unset APSE_LAST_VERSION
+-
+    if [ "$last_version" ]; then
+       APSE_LAST_VERSION="${last_version/-/.}"
+       notify.note $"\

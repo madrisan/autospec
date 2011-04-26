@@ -1,0 +1,71 @@
+#!/bin/bash
+# libmsgmng.lib -- @package@ library to manage debug/warning/error messages
+# Copyright (C) 2005,2006,2008 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="libmsgmng"; export TEXTDOMAIN
+
+# function notify.enable_colors
+#    enable if possible the colorized output
+# args:
+#    none
+function notify.enable_colors() {
+   if [[ -t 1 && "$TERM" != raw && "$TERM" != dumb ]]; then
+      ESC=$(echo -en "\033")  # ascii ESCape
+      CRIT="${ESC}[1;31m"     # switch on red
+      NOTE="${ESC}[1;33m"     # switch on yellow
+      WARN="${ESC}[1;31m"
+      EXIT="${ESC}[1;31m"
+      NORM=$(echo -en "${ESC}[m\017")
+   else
+      ESC= CRIT= NOTE= WARN= EXIT= NORM=
+   fi
+}
+
+# function notify.disable_colors
+#    disable the colorized output
+# args:
+#    none
+function notify.disable_colors() {
+   ESC= CRIT= NOTE= WARN= EXIT= NORM=
+}
+
+# notify family of message handling functions:
+#  - notify.warning
+#  - notify.error
+#  - notify.debug
+#  - notify.note
+# args:
+#    $1 : message to print
+# note:
+#    1. debug messages are only printed if 'verbose' is great then '0'
+#    2. error notifications are followed by a call to 'EXIT_FUNC'
+#       or 'exit' if this variable is unset
+#       (can set to 'return' for instance)
+
+notify_def_msg="<"$"no message"">"
+
+function notify.warning() {
+   echo -e "${WARN}WARNING${NORM}: ${1:-$notify_def_msg}" 1>&2
+}
+
+function notify.error() {
+   echo -e "${EXIT}ERROR${NORM}: ${EXIT}${1:-$notify_def_msg}${NORM}" 1>&2
+   ${EXIT_FUNC:-"exit"} 1
+}
+
+function notify.debug() {
+   [ ${verbose:-0} -gt 1 ] || return
+   echo -e "${WARN}DEBUG${NORM}: ${1:-$notify_def_msg}" 1>&2
+}
+
+function notify.note() {
+   [ ${verbose:-0} -ge 0 ] || return
+   echo -e "${1:-$notify_def_msg}"
+}

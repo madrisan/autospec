@@ -1,0 +1,110 @@
+*********************************
+* KNOWN BUGS / MISSING FEATURES *
+*********************************
+
+* pck-update plugin
+ [bug]      if the download fails, a HTML file is downloaded. See for instance:
+            http://kent.dl.sourceforge.net/sourceforge/inkscape/inkscape-0.44.tar.bz2
+ [security] evaluation of `%define' directives could lead to security issues
+            (the problem exists in the rpm itself)
+ [bug]      '/usr/share/linuxdoc-tools/dist/linuxdoc-tools/info/mapping'
+            should not be considered an info page
+            hint: grep '/info/' is a broken test; the `file' tool cannot be used
+                  because info pages are compressed
+ [bug]      [silvan@buddha SPECS]$ autospec -u apt -a3 0.5.15cnc7
+            aggiornamento del pacchetto apt alla versione 0.5.15cnc7...
+            [step 3] -- dowload dei nuovi file sorgente
+            [1] https://moin.conectiva.com.br/AptRpm/apt-0.5.15cnc7.tar.bz2
+                --> /usr/src/RPM/SOURCES/apt-0.5.15cnc7.tar.bz2
+
+            curl: (60) SSL certificate problem, verify that the CA cert is OK. Details:
+            error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify
+            failed
+            More details here: http://curl.haxx.se/docs/sslcerts.html
+
+            curl performs SSL certificate verification by default, using a "bundle"
+            of Certificate Authority (CA) public keys (CA certs). The default
+            bundle is named curl-ca-bundle.crt; you can specify an alternate file
+            using the --cacert option.
+            If this HTTPS server uses a certificate signed by a CA represented in
+            the bundle, the certificate verification probably failed due to a
+            problem with the certificate (it might be expired, or the name might
+            not match the domain name in the URL).
+            If you'd like to turn off curl's verification of the certificate, use
+            the -k (or --insecure) option.
+            autospec: impossibile scaricare: `apt-0.5.15cnc7.tar.bz2'
+
+            TRY USING THE CURL OPION "--no-check-certificate" (?) -- hint by Silvan Calarco
+
+ [bug]      Il seguente comando:
+               autospec -u bbpress -a1,5,10
+            causa l'errore:
+               ERROR: pacchetto non trovato:
+               `/usr/src/RPM/RPMS/noarch/%sitename-website-}bbpress-0.8.2.1-2mamba.noarch.rpm'
+            in fase di upload.
+            Causa: parsing non corretto della riga (se "sitename" non è definito?)
+               Name:          %{?sitename:%sitename-website-}bbpress
+ [feature]  autoformat "make install" if lines are too long (like "configure")
+ [feature]  action 8, test 4
+            should check if `/usr/lib/libpopt.so' --> `libpopt.so.0.0.0' is a valid link
+            should display a warning on broken symlinks
+ [feature]  support the gpg signatures of rpm packages
+
+* libspec
+ [feature]  specfile.getvars(): missing implementation for `%ifarch' and `%ifdef'
+ [feature]  add support for commands like:
+               %{expand:%%define kernel_minor_version %(echo %version | cut -d. -f3)}
+
+               example: lilo.spec
+               %{!?latex_doc: %define latex_doc 1}
+                  DEBUG: resolve_rpmvars: conditional block (%if) [level#1]  --  %if %latex_doc
+                  DEBUG: resolve_boolexpr: boolean expression [ %latex_doc ]
+                  DEBUG: resolve_boolexpr: expanding boolexpr using: name (lilo)
+                  DEBUG: resolve_boolexpr: expanding boolexpr using: version (22.7)
+                  DEBUG: resolve_boolexpr: boolexpr nullified -- [ %latex_doc ]
+                  DEBUG: resolve_boolexpr: set: $1 = "%latex_doc", $2 = "", $3 = ""
+                  expr: sintax error
+
+               example nagios.spec
+               %{!?EMBPERL: %define EMBPERL 0}
+                  DEBUG: : set: $1 = "%{EMBPERL}", $2 = "", $3 = ""
+                  expr: sintax error
+
+* spec-create plugin
+ [bug]      libmpcdec and http://www.directfb.org/download/DirectFB/DirectFB-0.9.22.tar.gz
+            do not properly detect headers path
+ [feature]  (python specfiles)
+            in the `%install' block, just after the lines
+               python setup.py install \
+                  --root=%{buildroot} \
+                  --install-headers=%{_includedir}/python \
+                  --install-lib=%{_libdir}/site-python
+            this command should be perhaps used
+               python -O %{_libdir}/python%{pyver}/compileall.py \
+                  %{buildroot}%{_libdir}/python%{pyver}/site-packages
+            to optimize the python compiled code
+ [feature]  check for non standard (/usr/lib) library files path
+ [feature]  man pages should be splitted between main and devel packages
+              o man1: User programs                       -- main
+              o man2: System calls                        -- (kernel related --> not in standard packages)
+              o man3: Library functions and subroutines   -- *** devel ***
+              o man4: Special files                       -- (system --> not in standard packages)
+              o man5: File formats                        -- main
+              o man6: Games                               -- main
+              o man7: Miscellaneous                       -- main (?)
+              o man8: System administration               -- main
+
+* missing english translation of `rpm4QiLinux-it-HOWTO', a tedious effort to
+  translate a doc that nobody is going to actually read.
+                                                     *** NEED EXTERNAL HELP ***
+
+******************
+* IMPORTANT NOTE *
+******************
+
+Have you found a bug not listed above?
+Please post a description and possibly a way to reproduce the bug to
+  <davide.madrisan(a)gmail.com>
+
+If you're feeling especially nice, you should make a patch to fix the flaw.
+Sending patches as attachments is preferred, but not required.

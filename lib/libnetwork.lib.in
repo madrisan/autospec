@@ -1,0 +1,783 @@
+#!/bin/bash
+# libnetwork.lib -- @package@ library to get info from internet repositories
+# Copyright (C) 2008,2010 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
+ { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="libnetwork"; export TEXTDOMAIN
+
+# function repository.is_reachable()
+#    check if the server '$1' is reachable (test = DNS lookup query)
+# args:
+#    $1 : server name
+function repository.is_reachable() {
+   local ftpserver="${1/[a-z]*\:\/\//}"
+   [ "$ftpserver" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   host -W3 $ftpserver >&/dev/null
+   return $?
+}
+
+# function repository.get_pckname_from_HTML()
+#    ... ADDME ...
+function repository.get_pckname_from_HTML() {
+   local pck_name="$1"
+   local infile="$2"
+
+   [ "$pck_name" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   [ "$infile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#2)"
+
+   notify.debug "$FUNCNAME: pck_name = \"$pck_name\""
+   case "$pck_name" in */*) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"'\\' characters detected in \$pck_name" ;; esac
+
+   notify.debug "$FUNCNAME: infile = \"$infile\""
+
+   local pckname_from_HTML=( $(sed -n "\
+         # remove HTML tags --> get a better input
+         /<a href=\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
+         /<A HREF=\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
+         # exit loop if the line do not match the following regexpr
+         /^$pck_name-[^-]\+-[^-]\+$/bm;be;
+         :m;/^$pck_name-[^-]\+-[^-]\+$/p;:e" $infile) )
+
+   echo "$pckname_from_HTML"
+}
+
+# function repository.resolveURL()
+#    expand the given url according to the given arch
+# args:
+#    $1 : url to expand
+#    $2 : current architecture
+# return value:
+#    the expanded url
+function repository.resolveURL() {
+   local ftpurl="$1" curr_arch="$2" resurl
+
+   [ "$ftpurl" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   [ "$curr_arch" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#2)"
+
+   case "$ftpurl" in
+   *@arch@*)
+      echo -n "$(echo $ftpurl | sed "s,@arch@,$curr_arch,g")" ;;
+   *) #echo -n "$ftpurl/$curr_arch/"
+      echo -n "$ftpurl/" ;;
+   esac
+}
+
+# function repository.get_SRPMS_name()
+#    get the full name of the first SRPMS package found using as
+#    package name '$@' and looking in the given list of repositories.
+#    The full names are saved in the vector 'got_SPEC_FILENAME[]'.
+#    The URL where the files have been found is saved in the variables
+#    'got_SPEC_FILENAME_URL', and the index corresponding to this URL
+#    is saved in 'got_SPEC_FILENAME_URL_LEVEL' (eventually set via the
+#    '--urlnum' option)
+# args:
+#    -r,--urllist    : list of urls where to check for packages
+#    -n,--urlnum     : the url number where to look at
+#    -p,--proxy      : proxy server
+#    -u,--proxy-user : proxy user
+#    -l,--user       : login user (for repositories that require authentication)
+#    $@              : list of package names to find for
+# return value:
+#    0 on success, 1 otherwise
+function repository.get_SRPMS_name() {
+   local ARGS
+   ARGS=`LANG=C getopt \
+      -o n:r:p:u: \
+      --long urlnum:,urllist:,proxy:,proxy-user:,user: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local i urlnum urllist proxy proxy_user user
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -n|--urlnum)
+         urlnum="$2"; shift
+         notify.debug "$FUNCNAME: urlnum = \"$urlnum\""
+      ;;
+      -r|--urllist)
+         urllist=($2); shift
+         for i in `seq 1 1 ${#urllist[*]}`; do
+            notify.debug "$FUNCNAME: urllist[$(($i-1))] = ${urllist[$i-1]}"
+         done
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      -l|--user)
+         user="$2"; shift
+         notify.debug "$FUNCNAME: user = \"$user\""
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   if [ "$urlnum" ]; then
+      [[ "$urlnum" =~ ^[0-9]+$ ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: urlnum: "$"not a number"
+   fi
+
+   # this can be the result of a buggy configuration file
+#   [ "$urllist" ] || notify.error $"\
+#(bug)"" -- $FUNCNAME: urllist: "$"unset"
+
+   local pck_names="$@"
+   notify.debug "$FUNCNAME: pck_names = \"${pck_names[@]}\""
+   [ "$pck_names" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   # FIXME: 'curl_opts_netlink' is an external variable
+   local curlopts="\
+-L --silent --list-only $curl_opts_netlink\
+${user:+ --user $user}\
+${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+
+   local curlopts_debug="\
+-L --silent --list-only $curl_opts_netlink\
+${user:+ --user ***}\
+${proxy:+ --proxy ***}${proxy_user:+ --proxy-user ***}"
+
+   local flist currflist currurl
+   local errors=0
+   let "i = 0"
+   for currurl in ${urllist[*]}; do
+      # get the list of files from the repository
+      notify.note $"\
+getting list of files from"" \`${NOTE}$currurl/${NORM}'..."
+
+      case $currurl in
+         ftp://*|http://*) ;;
+         *) notify.warning $"unsupported query type for this protocol"
+            let "errors += 1"
+            continue ;;
+      esac
+
+      currflist="$(mktemp -q -t flist.XXXXXXXX)" ||
+         notify.error $"can't create temporary files"
+      notify.debug "$FUNCNAME: currflist = $currflist"
+
+      # NOTE: the trailing slash is necessary, do not remove it
+      notify.debug "$FUNCNAME: curl $curlopts_debug --url $currurl/ -o $currflist"
+      curl $curlopts --url $currurl/ -o $currflist
+      let "retval = $?"
+      notify.debug "$FUNCNAME: curl return code: $retval"
+
+      case "$retval" in
+        0) sed -i 's/\x0D$//' $currflist
+           flist[$i]="$currflist" ;;
+        6) notify.warning $"couldn't resolve host"
+           let "errors += 1" ;;
+        7) notify.warning $"failed to connect to host"
+           let "errors += 1" ;;
+       56) notify.warning $"failure in receiving network data"
+           let "errors += 1" ;;
+        *) notify.warning $"curl error (exit code: $retval)"
+           let "errors += 1" ;;
+      esac
+
+      [ -s "$currflist" ] || notify.warning $"cannot get the list of files"
+
+      let "i += 1"
+   done
+   [ "$errors" = "${#urllist[@]}" ] && return 1
+
+   local pck_name level
+   for pck_name in ${pck_names[@]}; do
+      let "level = ${urlnum:-0}"
+      let "i = 0"
+      for currurl in ${urllist[*]}; do
+         notify.debug "$FUNCNAME: pck_name = $pck_name"
+
+         if [ -s "${flist[$i]}" ]; then
+            got_SPEC_FILENAME=$(\
+repository.get_pckname_from_HTML "$pck_name" "${flist[$i]}")
+
+            [ "$got_SPEC_FILENAME" ] &&
+             { notify.debug "\
+$FUNCNAME: got_SPEC_FILENAME = $got_SPEC_FILENAME"
+               got_SPEC_FILENAME_URL_LEVEL="$level"
+               got_SPEC_FILENAME_URL="$currurl"
+               break 2; }
+         fi
+         let "level += 1"
+         let "i += 1"
+      done
+   done
+
+   for i in ${!flist[@]}; do
+      notify.debug "$FUNCNAME: removing temporary file '${flist[$i]}'"
+      rm -f ${flist[$i]}
+   done
+
+   return 0
+}
+
+# function repository.get_RPMS_name()
+#    get the full name of the RPMS package '$1' looking at the
+#    repository '$1'.
+#    The full names are saved in the vector 'got_RPM_FILENAME[]'.
+# args:
+#    $1              : URL where to check
+#    $2 .. $n        : package names to look at
+#    -a,--archlist   : list of supported architectures in the specified url
+#    -x,--exclude    : exclude packages that match a given regexpr
+#    -c,--target-cpu : set the build architecture
+#    -p,--proxy      : proxy server
+#    -u,--proxy-user : proxy user
+#    -l,--user       : login user (for repositories that require authentication)
+# return value:
+#    0 on success, >0 otherwise
+# example of output:
+#    got_RPM_FILENAME = (
+#      i586:mbrowse-0.3.1-1qilnx.i586.rpm
+#      i586:mbrowse-contrib-0.3.1-1qilnx.noarch.rpm
+#      ppc:mbrowse-contrib-0.3.1-1qilnx.noarch.rpm )
+function repository.get_RPMS_name() {
+   ARGS=`LANG=C getopt \
+      -o a:x:c:p:u: \
+      --long archlist:,exclude:,target-cpu:,proxy:,proxy-user:,user: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   eval set -- "$ARGS"
+
+   local archlist excludeopt proxy proxy_user user target_cpu
+   while :; do
+      case $1 in
+      -a|--archlist)
+         archlist="$2"; shift
+         notify.debug "$FUNCNAME: archlist = \"$archlist\""
+      ;;
+      -x|--exclude)
+         excludeopt="$2"; shift
+         notify.debug "$FUNCNAME: excludeopt = \"$excludeopt\""
+      ;;
+      -c|--target-cpu)
+         target_cpu="$2"; shift
+         notify.debug "$FUNCNAME: target_cpu = \"$target_cpu\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      -l|--user)
+         user="$2"; shift
+         notify.debug "$FUNCNAME: user = \"$user\""
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
+      esac
+      shift
+   done
+
+   local scanurl="$1"
+   [ "$scanurl" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   shift
+
+   local pck_names="$@"
+   notify.debug "$FUNCNAME: pck_names = \"${pck_names[@]}\""
+   [ "$pck_names" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#2)"
+
+   [ "$archlist" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"no list of architectures set"" (\$archlist)"
+
+   local flist=`mktemp -q -t flist.XXXXXXXX` ||
+      notify.error $"can't create temporary files"
+
+   local curr_arch errors pck_name curr_match
+   let "errors = 0"
+
+   local curr_arch_list
+   case "$target_cpu" in
+      "") curr_arch_list=( $archlist ) ;;
+      "noarch")
+         #curr_arch_list=( ${arch_noarch_upload[*]} )
+         # FIXME : if the noarch directory cannot be found a warning
+         # message is displayed
+         curr_arch_list=( $archlist noarch )
+      ;;
+      *) # if the architecture is set by the user do ignore packages
+         # built for other architectures (aka: please do not remove
+         # packages built for other architectures!)
+         curr_arch_list="$target_cpu"
+      ;;
+   esac
+   notify.debug "\
+$FUNCNAME: curr_arch_list = ( ${curr_arch_list[*]} )"
+
+   # FIXME: 'curl_opts_netlink' is an external variable
+   local curlopts="\
+-L --silent --list-only $curl_opts_netlink -o $flist\
+${user:+ --user $user}\
+${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+
+   local curlopts_debug="\
+-L --silent --list-only $curl_opts_netlink -o $flist\
+${user:+ --user ***}\
+${proxy:+ --proxy ***}${proxy_user:+ --proxy-user ***}"
+
+   got_RPM_FILENAME=
+   for curr_arch in ${curr_arch_list[*]}; do
+      currurl="$(repository.resolveURL "$scanurl" "$curr_arch")"
+      #[ "$currurl" ] || notify.error $"(bug)"" -- $FUNCNAME: currurl = \"\""
+
+      # get the list of files from the repository
+      notify.note $"getting list of files from"" \`${NOTE}$currurl/${NORM}'..."
+
+      > $flist
+
+      # NOTE: the trailing slash is necessary, do not remote it
+      notify.debug "$FUNCNAME: curl $curlopts_debug --url $currurl/"
+      curl $curlopts --url $currurl/
+      let "retval = $?"
+      notify.debug "$FUNCNAME: curl return code: $retval"
+      case "$retval" in
+        0) ;;
+        6) notify.warning $"couldn't resolve host" ;;
+        7) notify.warning $"failed to connect to host" ;;
+       56) notify.warning $"failure in receiving network data" ;;
+        *) notify.warning $"curl error (exit code: $retval)" ;;
+      esac
+
+      if [ -s "$flist" ]; then
+         sed -i 's/\x0D$//' $flist
+         case $currurl in
+         ftp://*|http://*)
+            for pck_name in ${pck_names[@]}; do
+               got_RPM_FILENAME=( ${got_RPM_FILENAME[@]} $(\
+                  if [ -n "$excludeopt" ]; then
+                     sed -n "\
+                        /<a href=\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
+                        /<A HREF=\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
+                        /^$pck_name-[^-]*-[^-]*\.rpm/bm;be;
+                        :m;/^$pck_name-[^-]*-[^-]*\.rpm/{s,.*,$curr_arch:&,p}
+                        :e" $flist | grep -v -- "$excludeopt"
+                  else
+                     sed -n "\
+                        /<a href=\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
+                        /<A HREF=\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
+                        /^$pck_name-[^-]*-[^-]*\.rpm/bm;be;
+                        :m;/^$pck_name-[^-]*-[^-]*\.rpm/{s,.*,$curr_arch:&,p}
+                        :e" $flist
+                  fi ))
+         done
+         ;;
+         *) notify.warning $"unsupported query type for this protocol" ;;
+         esac
+      else
+         notify.warning $"cannot get the list of files"" ($curr_arch)"
+         let "errors += 1"
+      fi
+   done
+
+   rm -f $flist
+
+   notify.debug "$FUNCNAME: got_RPM_FILENAME = ( ""$(
+      for pck_name in ${got_RPM_FILENAME[@]}; do
+         echo -en "\n   $pck_name"
+      done ) )"
+
+   return $errors
+}
+
+# function curl.download
+#    download a file from an internet address using curl
+#    
+# args:
+#    -d,--destdir     : target directory
+#    -f,--force       : force download (optional, default: false)
+#    -n,--filenum     : number to display when executing this functions several times
+#    -o,--options     : extra options to pass to curl
+#    -x,--exit-on-err : terminate the script if the download fails
+#    -p,--proxy       : proxy
+#    -u,--proxy-user  : proxy user
+#    --debug-unsecure : print private informations in debug mode
+#    $@               : list of files to be downloaded
+# return value:
+#    0 on success, 1 otherwise
+
+function curl.download() {
+   local ARGS
+   ARGS=`LANG=C getopt \
+      -o d:fn:o:xp:u: \
+      --long destdir:,force,filenum:,options:,exit-on-err,proxy:,proxy-user: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local destdir
+   local curl_opts
+   local exitonerror="0"
+   local force_download="0"
+   local proxy proxy_user
+   local filenum="1"
+   local is_a_localfile
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -d|--destdir)
+         destdir="$2"; shift
+         notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      -f|--force)
+         force_download=1
+         notify.debug "$FUNCNAME: force download is enabled"
+      ;;
+      -n|--filenum)
+         filenum="$2"; shift
+         notify.debug "$FUNCNAME: filenum = \"$filenum\""
+      ;;
+      -o|--options)
+         curl_opts="$2"; shift
+         notify.debug "$FUNCNAME: curl_opts = \"$curl_opts\""
+      ;;
+      -x|--exit-on-err)
+         exitonerror="1"
+         notify.debug "$FUNCNAME: exitonerror = \"$exitonerror\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      --) shift; break;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   # FIXME: add support for list of files
+   local file_url="$1"
+   notify.debug "$FUNCNAME: file_url = \"$file_url\""
+   [ "$file_url" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ "$destdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--destdir)"
+
+   local file_name
+   case "$file_url" in
+      http://*|https://*|ftp://*)
+         file_name="${file_url##*/}"
+         is_a_localfile="0" ;;
+      *://*)
+         notify.error $"unsupported protocol"": \`${file_url//\:*}'"
+      ;;
+      *) #notify.error $"not an internet address"": \`$file_url'"
+         # it's a local file
+         [ -e "$destdir/$file_url" ] ||
+            notify.error $"file not found"": \`$destdir/$file_url'"
+         notify.note "[${filenum:-*}]  $NOTE$file_url$NORM ... "$"skipped"
+         return 0
+         ;;
+   esac
+
+   if [ -e $destdir/$file_name ]; then
+      if [ "$force_download" = "0" ]; then
+         notify.note "[${filenum:-*}]  $NOTE$file_url$NORM ... "$"skipped"
+         return 0
+      else
+         rm -f $destdir/$file_name
+      fi
+   fi
+
+   notify.note $"downloading"" ${NOTE}$file_name${NORM} ..."
+
+   [ "$(type -p curl)" ] || notify.error $"utility not found"": \`curl'"
+
+   [ -d "$destdir" ] ||
+      if [ "$exitonerror" = 1 ]; then
+         notify.warning $"\
+(bug)"" -- $FUNCNAME: "$"no such directory"": \`$destdir'"
+         return 1
+      else
+         notify.error $"\
+(bug)"" -- $FUNCNAME: "$"no such directory"": \`$destdir'"
+      fi
+
+   notify.note "\
+[${filenum:-*}]  $NOTE$file_url$NORM
+       --> $destdir/$file_name"
+
+   pushd $destdir >/dev/null
+
+   local retval
+   notify.debug "curl $curl_options\
+${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} $file_url"
+
+   curl $curl_options \
+      ${proxy:+ --proxy $proxy} ${proxyuser:+ --proxy-user $proxy_user} \
+      "$file_url"
+   retval=$?
+
+   notify.debug "$FUNCNAME: curl return code: $retval"
+   case "$retval" in
+     0) ;;
+     6) notify.warning $"couldn't resolve host" ;;
+     7) notify.warning $"failed to connect to host" ;;
+    56) notify.warning $"failure in receiving network data" ;;
+     *) notify.warning $"curl error (exit code: $retval)" ;;
+   esac
+
+   [ -e $destdir/$file_name ] ||
+   if [ "$exitonerror" = 1 ]; then
+      notify.error $"cannot download"": \`$file_name'"
+   else
+      popd >/dev/null
+      notify.warning $"cannot download"": \`$file_name'"
+      return 1
+   fi
+
+   popd >/dev/null
+}
+
+# function curl.upload
+#    upload a file using curl
+#    
+function curl.upload() {
+   local ARGS
+   ARGS=`LANG=C getopt \
+      -o f:l:o:p:u:x \
+      --long upload-file:,user:,options:,proxy:,proxy-user:,\
+repository-alias:,exit-on-err,debug-unsecure \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local upfile user options proxy proxy_user
+   local exitonerror=0
+   local debug_unsecure=0
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -f|--upload-file)
+         upfile="$2"; shift
+      ;;
+      -l|--user)
+         user="$2"; shift
+         #notify.debug "$FUNCNAME: user = \"$user\""
+      ;;
+      -o|--options)
+         options="$2"; shift
+         #notify.debug "$FUNCNAME: options = \"$options\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         #notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         #notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      -x|--exit-on-err)
+         exitonerror="1"
+         #notify.debug "$FUNCNAME: exitonerror = \"$exitonerror\""
+      ;;
+      --debug-unsecure)
+         debug_unsecure="1"
+      ;;
+      --) shift; break;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   #notify.debug "$FUNCNAME: debug_unsecure = \"$debug_unsecure\""
+
+   local destfile="$1"
+   [ "$destfile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ -e "$upfile" ] || notify.error $"package not found"": \`$upfile'"
+
+   # add an extra newline to workaroung a bug in curl
+   notify.note "
+ * ${NOTE}$upfile${NORM}
+   --> $destfile"
+
+   # option: --write-out [%{url_effective}]\\n
+   # the option '--progress-bar' is currently buggy in curl
+   local curr_curl_cmd="$options --progress-bar --fail -o /dev/null \
+${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} \
+--upload-file $upfile $destfile"
+
+   if [ "$debug_unsecure" = "1" ]; then
+      notify.debug "curl --user $user $curr_curl_cmd"
+   else
+      notify.debug "curl --user ***:*** $curr_curl_cmd"
+   fi
+
+   curl --user $user $curr_curl_cmd
+   [ $? -eq 0 ] || { [ "$exitonerror" = 1 ] && exit 1 || return 1; }
+}
+
+# function curl.ftp_command
+#    execute an ftp command (creating a directory, renamig a file,
+#    deleting) using curl
+#
+function curl.ftp_command() {
+   local ARGS
+   ARGS=`LANG=C getopt \
+      -o l:o:p:u:a: \
+      --long user:,options:,proxy:,proxy-user:,debug-unsecure,\
+action:,directory:,rename-from:,rename-to:,delete:,ftp-passive \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local user options proxy proxy_user ftp_passive
+   local action directory fromfile tofile deletefile
+   local exitonerror=0
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -l|--user)
+         user="$2"; shift
+         #notify.debug "$FUNCNAME: user = \"$user\""
+      ;;
+      -o|--options)
+         options="$2"; shift
+         #notify.debug "$FUNCNAME: options = \"$options\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         #notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         #notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      --debug-unsecure)
+         debug_unsecure="1"
+      ;;
+      -a|--action)
+         action="$2"; shift
+      ;;
+      --directory)
+         directory="$2"; shift
+      ;;
+      --rename-from)
+         fromfile="$2"; shift
+      ;;
+      --rename-to)
+         tofile="$2"; shift
+      ;;
+      --delete)
+         deletefile="$2"; shift
+      ;;
+      --ftp-passive)
+         ftp_passive="--ftp-pasv"
+      ;;
+      -x|--exit-on-err)
+         exitonerror="1"
+      ;;
+      --) shift; break;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   local backup_ftp_server="$1"
+   [ "$backup_ftp_server" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ "$ftp_passive" ] && options="$options $ftp_passive"
+
+   # NOTE: see RFC959 for the sintax of the 'quote' commands
+   # curl --ftp-pasv --user user:password \
+   #    -Q "MKD /devel/old/prova.dir" \
+   #    -Q "RNFR /devel/old/prova.tmp" \
+   #    -Q "RNTO /devel/old/prova.dir/prova.tmp" ftp.linuxdistro.org
+   case "$action" in
+   mkdir)
+      [ "$directory" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--directory)"
+      notify.debug "\
+curl $options --user \"***:***\" --quote \"MKD $directory\" $1"
+
+      curl $options --user "$user" --quote "MKD $directory" $1 &>/dev/null
+   ;;
+   rename-file)
+      [ "$fromfile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--rename-from)"
+      [ "$tofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--rename-to)"
+      notify.debug "curl $options --user \"***:***\"\
+ --quote \"RNFR $fromfile\" --quote \"RNTO $tofile\" $1"
+
+      curl $options --user "$user" \
+         --quote "RNFR $fromfile" --quote "RNTO $tofile" $1 &>/dev/null
+   ;;
+   delete)
+      [ "$deletefile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--delete)"
+
+      # example:
+      #   curl -v --ftp-pasv --user "$user" \
+      #      --quote "CWD SRPMS.base" \
+      #      --quote "DELE filename-0.0.1-1distro.src.rpm" \
+      #      ftp://ftpaccounts.openmamba.org
+      # -or-
+      #   curl -v --ftp-pasv --user "$user" \
+      #      --quote "DELE SRPMS.base/filename-0.0.1-1distro.src.rpm" \
+      #      ftp://ftpaccounts.openmamba.org
+      notify.debug "\
+curl $options --user \"***:***\" --quote \"DELE $deletefile\" $1"
+      curl $options --user "$user" --quote "DELE $deletefile" $1 &>/dev/null
+   ;;
+   *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"unknown action"": ($action)"
+   esac
+   retval=$?
+
+   case "$retval" in
+      0) ;;
+      6) notify.warning $"couldn't resolve host" ;;
+      7) notify.warning $"failed to connect to host" ;;
+      *) notify.warning $"curl error (exit code: $retval)" ;;
+   esac
+
+   [[ "$retval" != "0" && "$exitonerror" = 1 ]] && exit 1
+}

@@ -1,0 +1,104 @@
+# translation of it.po to Italiana
+# Copyright (C) 2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2008-10-28 22:00+0100\n"
+"PO-Revision-Date: 2008-10-28 22:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# tests/pkg_security_test_001
+
+msgid "this script requires bash version 2 or better"
+msgstr "questo script richiede bash versione 2 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "performing quality checks"
+msgstr "esecuzione dei test di qualità"
+
+msgid "\\`getopt' error"
+msgstr "errore in \\`getopt'"
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "missing mandatory arg"
+msgstr "parametro mancante"
+
+msgid "cannot read"
+msgstr "impossibile leggere"
+
+msgid "no such file or directory"
+msgstr "file o cartella non trovata"
+
+msgid "checking for wrong symbolic links"
+msgstr "ricerca di link simbolici errati"
+
+msgid "empty string"
+msgstr "stringa vuota"
+
+msgid "checking"
+msgstr "controllo"
+
+msgid "checking for \\`$SPEC_BUILDROOT' (%buildroot) strings"
+msgstr "ricerca della stringa \\`$SPEC_BUILDROOT' (%buildroot)"
+
+msgid "skipped"
+msgstr "ignorato"
+
+msgid "checking for \\`$BUILDDIR' (%_builddir) strings"
+msgstr "ricerca della stringa \\`$BUILDDIR' (%_builddir)"
+
+msgid "checking for suspicious plugins in devel packages"
+msgstr "controllo di plugin sospetti nei pacchetti devel"
+
+msgid "found suspect plugin \\`${NOTE}$f${NORM}'"
+msgstr "trovato sospetto plugin \\`${NOTE}$f${NORM}'"
+
+msgid "checking for wrong file attributes in bin and lib directories"
+msgstr "ricerca di file binari e librerie con permessi errati"
+
+msgid "found suspect file"
+msgstr "file sospetto"
+
+msgid "Hint"
+msgstr "Suggerimento"
+
+msgid "checking for binary files installed in /etc (see FHS)"
+msgstr "ricerca di file binari installati in /etc (vedi FHS)"
+
+msgid "checking if the info catalog is updated when necessary"
+msgstr "controllo se il registro delle pagine info viene aggiornato"
+
+msgid "info pages should be installed/uninstalled"
+msgstr "le pagine info dovrebbero essere installate/disinstallate"
+
+msgid "checking packages for wrong user and/or group ownerships"
+msgstr "ricerca di pacchetti contenenti file con errato utente e/o gruppo"
+
+msgid "package not found"
+msgstr "pacchetto non trovato"
+
+msgid "checking packages for desktop files installed in the applnk dir"
+msgstr "ricerca di pacchetti con file desktop installati in applnk"
+
+msgid "create desktop files for:"
+msgstr "creare file desktop per:"
+
+msgid "see:"
+msgstr "vedere:"
+
+msgid "checking for packages with bad BuildArch tag"
+msgstr "ricerca di pacchetti con errato tag BuildArch"
+
+msgid "this package should be tagged \\`noarch'"
+msgstr "questo pacchetto dovrebbe essere di tipo \\`noarch'"

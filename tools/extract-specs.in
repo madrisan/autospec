@@ -1,0 +1,142 @@
+#!/bin/bash
+# $0 -- get the specfiles from a local repository
+# Copyright (C) 2005,2007 Davide Madrisan <davide.madrisan@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by the
+# Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Report bugs to <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+me=(${0##*/} "0.2.2")
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+
+# FIXME: add a po file for this script
+#if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+#   . /etc/sysconfig/i18n
+#   export LANG
+#fi
+#TEXTDOMAIN="@package@"; export TEXTDOMAIN
+
+# default values
+let "verbose = 1"
+let "update_days = 0"   # `0' means +\infty
+unset update_opt
+unset owner_opt
+
+function version() {
+   echo "\
+$me, "$"version"" ${me[1]}""
+"$"Get the specfiles from a local repository.""
+Copyright (C) 2005-2007 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+function copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function usage() {
+   # $1: optional exit code (default is '1')
+   version
+   echo "
+"$"Usage":"
+   $me -s <path> -d <path> {-a | -u <int>} [-o <user>:<group>]
+
+"$"where the above options mean":"
+   -s, --sourcedir  "$"The local path where to find for the SRPMS packages""
+   -d, --destdir    "$"The local path where the extracted specfile will be saved""
+   -a, --all        "$"Get the specfiles from all the spmrs packages found""
+   -u, --update     "$"Get the specfiles from srpms last modified <n> days ago""
+   -o, --owner      "$"Set the ownership of all files created to the specified value""
+
+"$"Operation modes":"
+   -h, --help       "$"Print this help, then exit""
+   -v, --version    "$"Print version number, then exit""
+   -q, --quiet      "$"Run in quiet mode""
+
+"$"Some examples":"
+   $me -s /var/ftp/pub/SRPMS -d /var/temp/SPECS -o ftpuser:ftpuser -u 1
+
+"$"Report bugs to <davide.madrisan@gmail.com>."""
+
+   exit ${1:-1}
+}
+
+[ $# -eq 0 ] && usage
+
+TEMP=`LANG=C getopt \
+   -o s:d:au:o:hvq \
+   --long sourcedir:,destdir:,all,update:,owner:,help,version,quiet \
+   -n "$me" -- "$@"`
+[[ $? = 0 ]] || exit 1
+
+eval set -- "$TEMP"
+
+while :; do
+   case $1 in
+      -s|--sourcedir)
+         sourcedir="$2"; shift ;;
+      -d|--destdir)
+         destdir="$2"; shift ;;
+      -a|--all)
+         let "update_days = 0"; shift ;;
+      -u|--update)
+         update_days="$2"; shift ;;
+      -o|--owner)
+         owner_opt="--owner $2"; shift ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -h|--help)
+         usage 0 ;;
+      -v|--version)
+         version; echo; copying; exit 0;;
+      --) shift; break ;;
+      *) notify.error $"(bug)"" -- "$"\`getopt' error"
+   esac
+   shift
+done
+
+
+[[ -d "$sourcedir" ]] ||
+   notify.error $"not such a directory"": \`$sourcedir'"
+
+if [[ ! -d "$destdir" ]]; then
+   mkdir -p "$destdir" 2>/dev/null
+   [ $? -ne 0 ] &&
+      notify.error $"cannot create \`$destdir'"
+fi
+
+if [ "$update_days" != "0" ]; then
+   echo "$update_days" | grep -Eq "^[0-9]+$" ||
+      notify.error $"not a number"": \`$update_days'"
+   update_opt="-ctime -${update_days}"
+fi
+
+pushd $destdir &>/dev/null
+[ $? -ne 0 ] && notify.error "$destdir: "$"permission denied"
+
+find "$sourcedir" -maxdepth 1 $update_opt -type f -name \*.src.rpm | \
+while read file; do
+   notify.note $"processing"": $file ..."
+   rpm2cpio $file 2>/dev/null | \
+   cpio --quiet --extract --unconditional $owner_opt "*.spec" 2>/dev/null
+   [ $? -ne 0 ] &&
+      notify.warning $"cannot extract the specfile from \`$file'"
+done
+
+popd &>/dev/null
+
+notify.note $"\nall done, $destdir content updated"

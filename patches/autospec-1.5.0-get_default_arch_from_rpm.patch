@@ -1,0 +1,13 @@
+diff -Nru autospec-1.5.0/plugins/pck-update.in autospec-1.5.0.orig//plugins/pck-update.in
+--- autospec-1.5.0/plugins/pck-update.in	2010-08-21 19:13:06.294003023 +0200
++++ autospec-1.5.0.orig//plugins/pck-update.in	2010-08-21 19:12:32.407002798 +0200
+@@ -896,8 +896,7 @@
+    if [ ! "$target_cpu" ]; then
+       target_cpu="${SPEC_BUILDARCH:-$BUILD_ARCH}"
+       if [ "$target_cpu" == "noarch" ]; then
++         target_cpu=`rpm --eval %{_host_cpu}`
+-         set -- ${arch_list[@]}
+-         target_cpu=$1
+       fi
+    fi
+    notify.debug "target_cpu = $target_cpu"

@@ -1,0 +1,137 @@
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ...
+Group:         System/Libraries
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           ...
+Source:        ...
+#Patch0:        %{name}-<pck-version>-<patch-description>.patch
+License:       ...
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+@if:infopages
+Requires(post): %{__install_info}
+@fi:infopages
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+%package devel
+Group:         Development/Libraries
+Summary:       Static libraries and headers for %{name}
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+
+%description devel
+...
+This package contains static libraries and header files need for development.
+
+@if:pck_tools
+%package tools
+Group:         Applications/...
+Summary:       Utility applications for %{name}
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+
+%description tools
+The %{name}-tools package contains utility applications for %{name}.
+@fi:pck_tools
+
+@if:pck_apidocs
+%package apidocs
+Group:         Documentation
+Summary:       %{name} API documentation
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      gtk-doc
+
+%description apidocs
+This package includes the %{name} API documentation.
+@fi:pck_apidocs
+
+%prep
+%setup -q
+#%patch0 -p1
+
+%build
+@if:pck_apidocs
+@configure@ --enable-gtk-doc
+@else:pck_apidocs
+@configure@
+@fi:pck_apidocs
+@make@
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+@makeinstall@
+
+@if:i18n
+%find_lang %{name}
+@fi:i18n
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+@if:infopages
+%post devel
+## modify the infopage name as required
+%install_info %{name}.info
+exit 0
+
+%preun devel
+## modify the infopage name as required
+%uninstall_info %{name}.info
+exit 0
+@fi:infopages
+
+@if:i18n
+%files -f %{name}.lang
+@else:i18n
+%files
+@fi:i18n
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_libdir}/*.so.*
+# %{_mandir}/man1/*
+@standard_docs@
+
+%files devel
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_bindir}/%{name}-config
+# %{_datadir}/aclocal/*.m4
+# %{_includedir}/*.h
+# %{_includedir}/%{name}
+# %{_libdir}/*.a
+# %{_libdir}/*.la
+# %{_libdir}/*.so
+# %{_libdir}/pkgconfig/*.pc
+# %{_mandir}/man3/*
+@if:infopages
+# %{_infodir}/*.info.*
+@fi:infopages
+
+@if:pck_tools
+%files tools
+%defattr(-,root,root)
+## note: list all the binaries but %{name}-config
+# %{_bindir}/...
+## note: usually there's a manpages for each tool
+# %{_mandir}/man1/*
+@fi:pck_tools
+
+@if:pck_apidocs
+%files apidocs
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_datadir}/gtk-doc/html/%{name}
+@fi:pck_apidocs
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@

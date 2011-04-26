@@ -1,0 +1,110 @@
+# translation of it.po to Italiana
+# Copyright (C) 2004-2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2004-09-01 22:48+0200\n"
+"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# lib/libapse.lib
+
+msgid "this script requires bash version 2 or better"
+msgstr "questo script richiede bash versione 2 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "version"
+msgstr "versione"
+
+msgid "Find for updates scanning the web."
+msgstr "Ricerca aggiornamenti cercando nel web."
+
+msgid "Usage"
+msgstr "Utilizzo"
+
+msgid "where the above options mean"
+msgstr "dove le precedenti opzioni significano"
+
+msgid "Name of the package"
+msgstr "Nome del pacchetto"
+
+msgid "Name of the spec file"
+msgstr "Nome dello specfile"
+
+msgid "URL of the project home page"
+msgstr "Indirizzo internet dell'homepage del progetto"
+
+msgid "URL with no variable expansion"
+msgstr "Indirizzo internet senza espansione delle variabili"
+
+msgid "Proxy"
+msgstr "Proxy"
+
+msgid "Proxy user"
+msgstr "Utenza proxy"
+
+msgid "Operation modes"
+msgstr "Modalità operative"
+
+msgid "Print this help, then exit"
+msgstr "Stampa questa schermata di aiuto e termina il programma"
+
+msgid "Samples"
+msgstr "Alcuni esempi"
+
+msgid "Report bugs to <stefano.cotta@openmamba.org>."
+msgstr "Segnalare eventuali bug a <stefano.cotta@openmamba.org>."
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "\\`getopt' error"
+msgstr "errore in \\`getopt'"
+
+msgid "\\`getopt' error: bad command \\`$1'"
+msgstr "errore in \\`getopt': comando errato \\`$1'"
+
+msgid "can't create temporary files"
+msgstr "impossibile creare file temporanei"
+
+msgid "looking at"
+msgstr "cerco in"
+
+msgid "couldn't resolve host"
+msgstr "impossibile risolvere il nome dell'host"
+
+msgid "failed to connect to host"
+msgstr "impossibile connettersi all'host"
+
+msgid "curl error (exit code: $retval)"
+msgstr "errore curl (codice di errore: $retval)"
+
+msgid "not parametric source0 name; cannot update"
+msgstr "source0 in formato non parametrico: impossibile aggiornare"
+
+msgid "found version:"
+msgstr "versione trovata:"
+
+msgid "last version of \\`${NOTE}$specname${NORM}' found:"
+msgstr "ultima versione di \\`${NOTE}$specname${NORM}' trovata:"
+
+msgid "package \\`${NOTE}$specname${NORM}' is already the latest version"
+msgstr "il pacchetto \\`${NOTE}$specname${NORM}' è già aggiornato all'ultima versione"
+
+msgid "a new version of \\`${NOTE}$specname${NORM}' is available!"
+msgstr "è disponibile una nuova versione di \\`${NOTE}$specname${NORM}'!"
+
+msgid "a newer version of \\`${NOTE}$specname${NORM}' is already installed"
+msgstr "è già installata una versione successiva di \\`${NOTE}$specname${NORM}'"
+
+msgid "cannot find a new version of \\`$specname'"
+msgstr "impossibile trovare una nuova versione per \\`$specname'"

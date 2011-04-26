@@ -1,0 +1,770 @@
+#!/bin/bash
+# pck-create -- plugin for @package@
+# Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
+ { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+[ -r @libdir@/libnetwork.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libnetwork.lib" 1>&2
+   exit 1; }
+. @libdir@/libnetwork.lib
+
+# set default variables
+# colorized output (disabled by default)
+let "colorize = 0"
+# output verbosity
+let "verbose = 1"
+
+spec_type=standard
+spec_first_release=1
+spec_run_ldconfig="/sbin/ldconfig"
+spec_changelog_date="$(LC_ALL="C" date "+%a %b %d %Y")"
+spec_changelog_comment="package created by @package@"
+
+spec_default_summary="..."
+spec_default_group="..."
+spec_default_url="..."
+spec_default_license="..."
+spec_default_source="..."
+spec_default_description="..."
+spec_default_description_devel="..."
+spec_setup_macro=
+
+spec_cmd_configure_autotools="%configure"
+spec_cmd_make_autotools="%make"
+spec_cmd_makeinstall_autotools="%makeinstall"
+
+spec_cmd_configure_cmake="%cmake -d build"
+spec_cmd_make_cmake="%make"
+spec_cmd_makeinstall_cmake="%makeinstall -C build"
+
+spec_cmd_configure_default=""
+spec_cmd_make_default=""
+spec_cmd_makeinstall_default=""
+
+[ "$perl_Makefile_generator" ] || perl_Makefile_generator="Makefile.PL"
+
+# load the configuration file(s)
+[ -r @libdir@/libcfg.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
+   exit 1; }
+. @libdir@/libcfg.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="${me[0]}"; export TEXTDOMAIN
+
+function copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function version() {
+   echo "\
+${me[0]} ${me[1]}
+Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+# $1: optional exit code (default is '1')
+function usage() {
+   version
+   echo "\
+"$"Try to create a specfile for the specified source archive"".
+
+"$"Usage"":
+ @frontend@ -s <source-archive> [-n <name>] [-v <ver>] [-t <type>] [-o <outfile>]
+
+"$"where the above options mean"":
+ -s, --source       "$"Try to create a specfile for the specified source archive""
+ -n, --pck-name     "$"Name of the package (default: taken from <source-archive> name)""
+ -v, --pck-version  "$"Version of the package (default: taken from <source-archive> name)""
+ -t, --type         "$"Typology of the specfile to be created""
+                      standard        : "$"standard specfile (default)""
+                      gnome           : "$"specfile for gnome packages""
+                      kde3            : "$"specfile for kde3 packages""
+                      kde4            : "$"specfile for kde4 packages""
+                      library         : "$"specfile for common library packages""
+                      perl            : "$"specfile for single-package perl modules""
+                      python          : "$"specfile for python modules""
+                      standard-daemon : "$"standard specfile for system/network services""
+ -o, --output       "$"Redirect the output to the file <outfile>""
+
+"$"Operation modes"":
+ -h, --help         "$"Print this help, then exit""
+ -V, --version      "$"Print version number, then exit""
+ -q, --quiet        "$"Run in quiet mode""
+ -r, --colorize     "$"Enable the colorized output""
+ -D, --debug        "$"Run in debugging mode (very verbose output)""
+
+"$"Samples"":
+ @frontend@ -s ~/software/@package@-@version@.tar.bz2 -t standard -o @package@.spec
+ @frontend@ -s http://ftp.qilinux.it/devel/tools/@package@/@package@-@version@.tar.bz2
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+
+   exit ${1:-1}
+}
+
+case $1 in
+   --autospec-args-file*)
+      if [[ "$1" =~ = ]]; then
+         argsfile=`echo $1 | sed 's/^--autospec-args-file=//'`
+      else
+         argsfile=$2
+      fi
+      [ -r "$argsfile" ] || notify.error $"cannot read"": \`$argsfile'"
+      . $argsfile && rm -f $argsfile
+   ;;
+esac
+
+for arg in $@; do
+   case $arg in
+   -h|--help) usage 0 ;;
+   -V|--version) version; echo; copying; exit 0 ;;
+   esac
+done
+
+# the user configuration file for @package@ is required
+config.check4user
+
+exec_options=`LANG=C getopt \
+   -o s:n:v:t:o:DqrhV \
+   --long \
+source:,pck-name:,pck-version:,type:,output:,\
+debug,quiet,colorize,help,version,\
+frontend_opts: \
+   -n "$me" -- "$@"`
+[ $? = 0 ] || exit 1
+
+notify.debug "[ ${0} ${exec_options} ]\n"
+eval set -- "$exec_options"
+
+while :; do
+   case $1 in
+      -s|--source)
+         [ "$2" = "--help" ] && usage 0
+         [ "$2" = "-h" ] && usage 0
+         pck_tarball=$2; shift
+         ;;
+      -n|--pck-name)
+         pck_name=$2; shift ;;
+      -v|--pck-version)
+         shift; pck_version=$1 ;;
+      -t|--type)
+         spec_type=$2; shift ;;
+      -o|--output)
+         outfile=$2; shift ;;
+      -D|--debug)
+         let "verbose = 2" ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -r|--colorize)
+         let "colorize = 1" ;;
+      -h|--help)
+         usage 0 ;;
+      -V|--version)
+         version; echo; copying; exit 0 ;;
+      --) shift; break ;;
+      *) notify.error $"unrecognized option"" -- \`$1'" ;;
+   esac
+   shift
+done
+
+for arg in $@; do
+   notify.error $"unrecognized option"" -- \`$arg'"
+done
+
+[ "$colorize" = "1" ] && notify.enable_colors
+
+function specfile.ckeck_defvalues() {
+   # $1: name of the specfile
+   local specfile="$1" currvalue
+
+   check_values=(
+      "Summary"            spec_default_summary
+      "Group"              spec_default_group
+      "URL"                spec_default_url
+      "Source"             spec_default_source
+      "License"            spec_default_license
+      "%description"       spec_default_description
+      "%description devel" spec_default_description_devel
+   )
+
+   for i in `seq 1 1 $(( ${#check_values[@]} / 2 ))`; do
+      id="${check_values[($i-1)*2]}"
+      value="${check_values[($i-1)*2+1]}"
+      case "$id" in
+         # when id begins by a '%' character, the two lines below the id must
+         # be taken into account (three lines: the line containing the id, the
+         # following one and the following (blank) line)
+         %*) sed -n "/^$id$/,/^$/p" $specfile | sed 3q | grep -q "${!value}"
+             [ $? -eq 0 ] && notify.warning $"\
+remember to modify the value for \`${NOTE}$id${NORM}'" ;;
+          *) currvalue="\
+$(sed -n "/%description/q;{/^[ \t]*$id[ \t]*:[ \t]*/{s,.*:[ \t]*,,p}}" $specfile)"
+notify.debug "[[ \"$currvalue\" =~ \"${!value}\" ]]"
+             [[ "$currvalue" =~ "${!value}" ]] && notify.warning $"\
+remember to modify the value for \`${NOTE}$id${NORM}'" ;;
+      esac
+   done
+}
+
+function template.expand() {
+   local OPTIONS=`LANG=C getopt \
+   -o t:T:n:v:s:l:S:d:b: \
+   --long template:,type:,pckname:,pckversion:,setupmacro:,summary:,license:,\
+source:,standard-docs:,build-technology:,\
+i18n:,icons-mimetypes:,\
+infopages:,manpages:,\
+pck-apidocs:,pck-tools:,\
+shared-libraries:,\
+   -n "${0}" -- "$@"`
+[ $? = 0 ] || exit 1
+
+   notify.debug "$FUNCNAME: ${OPTIONS}"
+   eval set -- "${OPTIONS}"
+
+   local templatefile spec_type
+   local pck_name pck_version
+   local spec_setup_macro
+   local spec_summary="$spec_default_summary"
+   local spec_license="$spec_default_license"
+   local standard_docs
+   local build_technology
+
+   local i18n="0"
+   local icons_mimetypes="0"
+   local infopages="0"
+   local manpages="0"
+   local pck_apidocs="0"
+   local pck_tools="0"
+   local shared_libraries="0"
+
+   while :; do
+      case $1 in
+      -t|--template)
+         templatefile=$2; shift ;;
+      -T|--type)
+         spec_type=$2; shift ;;
+      -n|--pckname)
+         pck_name=$2; shift ;;
+      -v|--pckversion)
+         pck_version=$2; shift ;;
+      -s|--setupmacro)
+         spec_setup_macro="$2"; shift ;;
+      --summary)
+         spec_summary="$2"; shift ;;
+      -l|--license)
+         spec_license="$2"; shift ;;
+      -S|--source)
+         spec_source="$2"; shift ;;
+      -d|--standard-docs)
+         standard_docs="$2"; shift ;;
+      -b|--build-technology)
+         build_technology="$2"; shift ;;
+      --i18n)
+         i18n="$2"; shift ;;
+      --icons-mimetypes)
+         icons_mimetypes="$2"; shift ;;
+      --infopages)
+         infopages="$2"; shift ;;
+      --manpages)
+         manpages="$2"; shift ;;
+      --pck-apidocs)
+         pck_apidocs="$2"; shift ;;
+      --pck-tools)
+         pck_tools="$2"; shift ;;
+      --shared-libraries)
+         shared_libraries="$2"; shift ;;
+      --) shift; break ;;
+      *) notify.error $"unrecognized option"" -- \`$1'" ;;
+      esac
+      shift
+   done
+
+   notify.debug "$FUNCNAME: build_technology = $build_technology"
+
+   local spec_cmd_configure
+   local spec_cmd_make
+   local spec_cmd_makeinstall
+
+   case "$build_technology" in
+   cmake)
+      spec_cmd_configure="$spec_cmd_configure_cmake"
+      spec_cmd_make="$spec_cmd_make_cmake"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_cmake"
+   ;;
+   autotools)
+      spec_cmd_configure="$spec_cmd_configure_autotools"
+      spec_cmd_make="$spec_cmd_make_autotools"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_autotools"
+   ;;
+   unknown)
+      notify.warning $"unknown build techonology"
+      spec_cmd_configure="$spec_cmd_configure_default"
+      spec_cmd_make="$spec_cmd_make_default"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_default"
+   ;;
+   esac
+   notify.debug "$FUNCNAME: spec_cmd_configure   = \"$spec_cmd_configure\""
+   notify.debug "$FUNCNAME: spec_cmd_make        = \"$spec_cmd_make\""
+   notify.debug "$FUNCNAME: spec_cmd_makeinstall = \"$spec_cmd_makeinstall\""
+
+   [ -r "$templatefile" ] || notify.error $"file not found"": $templatefile"
+
+   local currvar line skipline=0
+   while read line; do
+      # FIXME: this code does not support nested conditional statements
+      case "$line" in
+      @if:*)
+         currvar="$(echo "$line" | sed "s,@if:\([^ \t]*\).*,\1,")"
+         [ "${!currvar}" = 1 ] || skipline=1
+         #echo "@if[$currvar]"
+         #unset currvar
+         continue
+      ;;
+      @else:*)
+         #currvar="$(echo "$line" | sed "s,@if:\([^ \t]*'http://search.cpan.org/CPAN/authors/id/K/KB/KBAUCOM/Term-Animation-%{version}.tar.gz'\).*,\1,")"
+         [ "$skipline" = 0 ] && skipline=1 || skipline=0         
+      ;;
+      @fi:*)
+         #currvar="$(echo "$line" | sed "s,@fi:\([^ \t]*\).*,\1,")"
+         skipline=0
+         continue
+      ;;
+      *) [ "$skipline" = 1 ] || echo "$line" | sed "\
+s,@DISTRO@,${DISTRO:-?DISTRO?},
+s,@DISTRO_rpm@,${DISTRO_rpm:-?DISTRO_rpm?},
+s,@VENDOR@,${VENDOR:-?VENDOR?},
+s,@packager_fullname@,${packager_fullname:-?packager_fullname?},
+s,@packager_email@,${packager_email:-?packager_email?},
+s,@rpm_default_buildroot@,${rpm_default_buildroot:-?rpm_default_buildroot?},
+s,@pck_name@,$pck_name,
+s,@pck_version@,$pck_version,
+s,@spec_first_release@,${spec_first_release:-1},
+s,@spec_run_ldconfig@,$spec_run_ldconfig,
+s,^\(%setup.*\),${spec_setup_macro},
+/^[ \t]*Summary[ \t]*:[ \t]*\.\.\..*$/{
+   s,\(^[ \t]*Summary[ \t]*:[ \t]*\).*,\1${spec_summary},}
+/^[ \t]*License[ \t]*:[ \t]*\.\.\.$/{
+   s,\(^[ \t]*License[ \t]*:[ \t]*\).*,\1${spec_license},}
+s,^\([ \t]*Source[ \t]*:[ \t]*\).*,\1${spec_source},
+s,@configure@,$spec_cmd_configure,
+s,@make@,$spec_cmd_make,
+s,@makeinstall@,$spec_cmd_makeinstall,
+s,@standard_docs@,${standard_docs:+%doc $standard_docs},
+s,@spec_changelog_date@,$spec_changelog_date,
+s,@spec_changelog_comment@,$spec_changelog_comment,
+"
+#/$spec_i18n/{ # if spec_i18n
+#   s,@i18n@\([^@]*\)@.*,\1,;be;}   #select 1st arg
+#:e s,@i18n@[^@]*@\([^@]*\)[@]*,\1, #select 2nd arg
+   ;;
+   esac
+   done < $templatefile | \
+      sed '/^$/{n;/^$/d}' # remove duplicate blank lines
+}
+
+# specfile.create()
+# Parameters:
+#   $1 : try to create a specfile from this tarball
+#   $2 : package name
+#   $3 : package version
+#   $4 : package tipology (template)
+#   $5 : output file
+# Description:
+#   Create an initial specfile to help packaging activities
+#
+function specfile.create() {
+   notify.debug "[ ${0}${exec_options} ]\n"
+
+   # check if all the needed tools are available
+   # note: uncompress has been removed from the mandatory list
+   for tool in chmod find grep mktemp sed bunzip2 gunzip unzip; do
+      [ "$(type -p $tool)" ] ||
+         notify.error $"utility not found"": \`$tool'"
+   done
+
+   local spec_type="$1"
+
+   # collect informations from the tarball name and the source files
+   #  1.  pck_tarball, pck_name , pck_version
+   #  2.  pck_rootdir (where the package has been decompressed) --> pck_rootdir_4spec
+
+   # 'pck_tarball' = absolute path of '$1'
+   local pck_tarball
+
+   case "$2" in
+      http://*|https://*|ftp://*)
+         pck_tarball="${2##*/}"
+         spec_source="$2"
+
+         curl.download \
+--options "$curl_options" \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --destdir="$source_dir" "$spec_source"
+
+         pck_tarball=$source_dir/$pck_tarball
+      ;;
+      *://*)
+         notify.error $"unsupported protocol"": \`${2//\:*}'"
+      ;;
+      /*) pck_tarball="$2" ;;
+      *) pck_tarball="$(pwd)/$2" ;;
+   esac
+   notify.debug "$FUNCNAME: pck_tarball = $pck_tarball"
+   notify.debug "$FUNCNAME: spec_source = $spec_source"
+
+   [ "$pck_tarball" ] || notify.error $"missing tarball name"
+
+   [ -e $pck_tarball ] ||
+      notify.error $"cannot find the package $pck_tarball"
+
+   # get the package name from the tarball name
+   local pck_name=${3:-`echo $2 | sed -n "\
+      s/.*\///  # remove directory name, if any
+      s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+      /-[0-9]*/{s/-[0-9].*//p;q}  # <pck_name>-<pck_ver>
+      /[^-\.][0-9]\./{s/\(.*[^-\.]\)[0-9]\..*/\1/p;q}  # <pck_name><pck_ver>
+      # <pck_name> (no version, but <pck_name> can end with numbers)
+      /^[^0-9]*[0-9]*$/p"`}
+   notify.debug "pck_name = \"$pck_name\""
+   [ "$pck_name" ] ||
+      notify.error $"cannot get the package name, use the \`-n' option"
+
+   [[ "${pck_newver//[0-9\.]/}" ]] &&
+      notify.error $"invalid version number"" -- \`$pck_newver'"
+
+   local pck_version=${4:-`echo $2 | sed -n "\
+      /[0-9]/!q  # return nothing if no number is found in the package name
+      s,.*/,,  # remove directory name, if any
+      s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+      /-[0-9]*/{s/.*-\([0-9]*.*\)/\1/p;q}  # <pck_name>-<pck_ver>
+      /[^-\.][0-9]\./{s/.*[^-\.]\([0-9]\..*\)/\1/p;q}  # <pck_name><pck_ver>
+      # <pck_name> (no version, but <pck_name> can end with numbers)
+      /^[^0-9]*[0-9]*$/q"`}
+   notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
+   [ "$pck_version" ] ||
+      notify.error $"cannot get the package version, use the \`-v' option"
+
+   local outfile="$5"
+   if [ "$outfile" ]; then
+      notify.debug "$FUNCNAME: output file"": ${NOTE}$outfile${NORM}"
+      > $outfile || notify.error $"can't create output file"" $outfile"
+      # do not chmod a non-regular file (for instance /dev/null)
+      [ -f "$outfile" ] && chmod ${rpm_specfile_mode:-644} $outfile
+   fi
+
+   notify.note "${NOTE}"$"generating specfile""${NORM}""...""
+ * "$"source"": ${NOTE}$pck_tarball${NORM}""
+ * "$"mode"": ${NOTE}$spec_type${NORM}"
+
+   case "$spec_type" in
+   library)
+      [[ "$pck_name" =~ $library_name_structure ]] || notify.error $"\
+libraries must have this name structure (use \`-n'):"" \
+\`$library_name_structure'"
+   ;;
+   perl)
+      [[ "$pck_name" =~ $perl_module_name_structure ]] || notify.error $"\
+perl modules must have this name structure (use \`-n'):"" \
+\`$perl_module_name_structure'"
+   ;;
+   python)
+      [[ "$pck_name" =~ $python_module_name_structure ]] || notify.error $"\
+python modules must have this name structure (use \`-n'):"" \
+\`$python_module_name_structure'"
+   ;;
+   esac
+
+   # link fd#3 with stdout and redirect stdout to the log file
+   [ "$outfile" ] && { exec 3<&1; exec 1>>$outfile; }
+
+   local tmpdir=`mktemp -q -d -t $me.XXXXXXXX`
+   [ $? -eq 0 ] ||
+      notify.error $"can't create temporary directory"
+
+   # decompress the tarball in the 'tmpdir' directory
+   cp -f $pck_tarball $tmpdir
+   pushd $tmpdir >/dev/null 
+   case $pck_tarball in
+      *.tar.gz|*.tgz)
+         gunzip -c $pck_tarball | tar xf - ;;
+      *.tar.bz2|*.tbz2)
+         bunzip2 -c $pck_tarball | tar xf - ;;
+      *.tar.Z)
+         [ "$(type -p uncompress)" ] ||
+            notify.error $"utility not found"": \`uncompress'"
+         uncompress -c $pck_tarball | tar xf - ;;
+      *.shar.gz)
+         gunzip -c $pck_tarball | unshar ;;
+      *.zip)
+         unzip -q $pck_tarball ;;
+      *.tar.xz|*.tar.lzma)
+         [ "$(type -p xz)" ] ||
+            notify.error $"utility not found"": \`xz'"
+         xz -d --stdout $pck_tarball | tar xf - ;;
+      *.tar.lz)
+         [ "$(type -p lzip)" ] ||
+            notify.error $"utility not found"": \`lzip'"
+         lzip -cd $pck_tarball | tar -xf - ;;
+      *.tar.7z)
+         [ "$(type -p 7za)" ] ||
+            notify.error $"utility not found"": \`7za'"
+         7za x -bd $pck_tarball >/dev/null | tar xf - ;;
+      *.7z)
+         [ "$(type -p 7za)" ] ||
+            notify.error $"utility not found"": \`7za'"
+         7za x -bd $pck_tarball >/dev/null ;;
+      *.jar)
+         [ "$(type -p jar)" ] ||
+            notify.error $"utility not found"": \`jar'"
+         jar -xf $pck_tarball >/dev/null ;;
+      *) notify.warning $"unsupported package compression method" ;;
+   esac
+   popd >/dev/null
+   rm -f $tmpdir/${pck_tarball##*/}
+
+   local pck_rootdir_dirs=(`\
+LANG=C find $tmpdir -mindepth 1 -maxdepth 1 -type d -printf "%f "`)
+   notify.debug "$FUNCNAME: pck_rootdir_dirs = \"$pck_rootdir_dirs\""
+   local pck_rootdir_files=(`\
+LANG=C find $tmpdir -mindepth 1 -maxdepth 1 -type f -printf "%f "`)
+   notify.debug "$FUNCNAME: pck_rootdir_files = \"$pck_rootdir_files\""
+
+   # 0. set 'spec_setup_macro'
+
+   local pck_rootdir local pck_rootdir_4spec spec_setup_macro
+
+   if [[ -n "$pck_rootdir_files" || \
+        ( -z "$pck_rootdir_dirs" && -z "$pck_rootdir_files" ) ]]; then
+      # detected a package without a root directory
+      pck_rootdir=""
+      pck_rootdir_4spec="-c %{name}-%{version}"
+      spec_setup_macro="%setup -q $pck_rootdir_4spec"
+   else
+      pck_rootdir="$pck_rootdir_dirs"
+      pck_rootdir_4spec=`echo $pck_rootdir | \
+         sed "s/$pck_name/%{name}/;s/$pck_version/%{version}/"`
+      if [ "$pck_rootdir_4spec" = "%{name}-%{version}" ]; then
+         spec_setup_macro="%setup -q"
+      elif [ "$pck_rootdir_4spec" = "-c %{name}-%{version}" ]; then
+         spec_setup_macro="%setup -q $pck_rootdir_4spec"
+      else
+         spec_setup_macro="%setup -q -n $pck_rootdir_4spec"
+      fi
+   fi
+
+   notify.debug "$FUNCNAME: pck_rootdir = \"$pck_rootdir\""
+   notify.debug "$FUNCNAME: pck_rootdir_4spec = \"$pck_rootdir_4spec\""
+   notify.debug "$FUNCNAME: spec_setup_macro = \"$spec_setup_macro\""
+
+   # 1. preliminaries checks
+
+   case "$spec_type" in perl) ;;
+   *) [[ -e $tmpdir/$pck_rootdir/$perl_Makefile_generator ||
+         -e $tmpdir/$pck_rootdir/Build.PL ]] && notify.warning $"\
+looks like a perl package (use \`-t perl' if this is true)" ;;
+   esac
+   case "$spec_type" in python) ;;
+   *) [[ -e $tmpdir/$pck_rootdir/setup.py ]] && notify.warning $"\
+looks like a python module (use \`-t python' if this is true)" ;;
+   esac
+
+   # 2. set 'spec_summary'
+   local spec_summary="$spec_default_summary"
+   local perl_pckname_from_makefile=""
+   case "$spec_type" in perl)
+      if [ -e $tmpdir/$pck_rootdir/Makefile.PL ]; then
+         # look for the variable `NAME' in Makefile.PL inside the
+         # 'WriteMakefile(' ... ')' block
+         perl_pckname_from_makefile=$(sed -n "\
+/^[ \t]*WriteMakefile(/,/^)/{#
+   /^[ \t]*[']NAME['][ \t]*=>/{#
+      s|.*=>[ \t]*['\"]\(.*\)['\"].*|\1|;p}}" \
+            $tmpdir/$pck_rootdir/Makefile.PL)
+#         [ "$perl_pckname_from_makefile" ] ||
+#            perl_pckname_from_makefile=$(sed -n "\
+#/name/{s,^[ \t]*name[ \t]*['\"]*\([a-zA-Z]*\)['\"]*.*,\1,p}" \
+#            $tmpdir/$pck_rootdir/Makefile.PL)
+      fi
+      [ -n "$perl_pckname_from_makefile" ] &&
+         spec_summary="$perl_pckname_from_makefile - ..."
+   esac
+
+   # 3. set 'spec_license'
+   case "$spec_type" in perl)
+      spec_license="${perl_License_default:-$spec_default_license}"
+   esac
+
+   # find for package license info
+   # FIXME: currently GNU GPL, LGPL, and W3C licenses are supported
+   local spec_license="$spec_default_license"
+
+   if [[ -e $tmpdir/$pck_rootdir/COPYING ]]; then
+      [[ `grep -c "[ ]*GNU GENERAL PUBLIC LICENSE[ ]*" \
+         $tmpdir/$pck_rootdir/COPYING` -eq 0 ]] || spec_license="GPL"
+      [[ `grep -c "[ ]*GNU LIBRARY GENERAL PUBLIC LICENSE[ ]*" \
+         $tmpdir/$pck_rootdir/COPYING` -eq 0 ]] || spec_license="LGPL"
+      [[ `grep -c "[ ]*GNU LESSER GENERAL PUBLIC LICENSE[ ]*" \
+         $tmpdir/$pck_rootdir/COPYING` -eq 0 ]] || spec_license="LGPL"
+      [[ `grep -c "Copyright .* World Wide Web Consortium" \
+         $tmpdir/$pck_rootdir/COPYING` -eq 0 ]] || spec_license="W3C"
+   fi
+
+   notify.debug "$FUNCNAME: spec_license (1) = \"$spec_license\""   
+
+   # 4. set 'spec_source'
+
+   local spec_preamble_tarball=`echo "${pck_tarball##*/}" |
+      sed "s,$pck_version,%{version},g"`
+   local spec_preamble_source=`echo "$spec_source" |
+      sed "s,$pck_version,%{version},g"`
+
+   [ "$spec_source" ] ||
+      spec_preamble_tarball="http://.../$spec_preamble_tarball"
+
+   notify.debug "$FUNCNAME: spec_preamble_tarball = \"$spec_preamble_tarball\""
+   notify.debug "$FUNCNAME: spec_preamble_source = \"$spec_preamble_source\""
+
+   # 5. discover basic documentation and set 'spec_basic_docs'
+
+   # standard text documentation files (see 'automake --help')
+   # + some other documentation files commonly found in several packages
+   local standard_docs_list='
+      AUTHORS
+      BACKLOG
+      BUGS
+      CHANGES
+      COPYING
+      COPYING.DOC
+      COPYING.LESSER
+      COPYING.LIB
+      CREDITS
+      ChangeLog*
+      LICENCE
+      LICENSE
+      MANUAL
+      NEWS
+      README*
+      THANKS
+      TODO
+      WHATSNEW
+      WHERE'
+
+   local standard_docs doc currdocs currdoc
+   for doc in $standard_docs_list; do
+      # `ls' if used to support strings like `ChangeLog*'
+      currdocs=$(cd $tmpdir/$pck_rootdir && ls $doc 2>/dev/null)
+      for currdoc in $currdocs; do
+         # ignore empty documentation files
+         [ -s $tmpdir/$pck_rootdir/$currdoc ] &&
+            standard_docs="${standard_docs:+$standard_docs }$currdoc"
+      done
+   done
+   # split the list of docs into multiple lines if necessary
+   #[ "$docs" ] && docs=`echo $docs | fmt -u -w 77 | sed 's,.*,%doc &,'`
+
+   # 6. discover build technology
+
+   local build_techology="unknown"
+   case "$spec_type" in
+   kde3|kde4|perl|python) 
+      build_techology="$spec_type"
+   ;;
+   *) if [ -e $tmpdir/$pck_rootdir/CMakeLists.txt ]; then
+         build_techology="cmake"
+      elif [ -x $tmpdir/$pck_rootdir/configure ]; then
+         build_techology="autotools"
+      fi
+   ;;
+   esac
+
+   # 7. check for internationalization files
+
+   local spec_i18n="0"
+   # note: in the 'tar' tarball there is no 'intl' folder, so we use 'po'
+   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -type d -name po 2>/dev/null)" ] &&
+      spec_i18n="1"
+
+   # 8. check for manpages
+
+   local spec_manpages="0"
+   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
+-exec grep "MANS[ ]*=" {} \; 2>/dev/null)" ] && spec_manpages="1"
+
+   [ "$spec_manpages" = 0 ] &&
+     { [ "$(LANG=C find $tmpdir/$pck_rootdir/ \
+-type f -name "*.[0-9]" 2>/dev/null)" ] && spec_manpages="1"; }
+
+   # 9. check for infopages
+
+   local spec_infopages="0"
+   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
+-exec grep "info_TEXINFOS[ ]*=" {} \; 2>/dev/null)" ] && spec_infopages="1"
+   notify.debug "$FUNCNAME: spec_infopages = $spec_infopages"
+
+   [ "$spec_infopages" = 0 ] &&
+     { [ "$(LANG=C find $tmpdir/$pck_rootdir/ \
+-type f -name "*.info" 2>/dev/null)" ] && spec_infopages="1"; }
+   notify.debug "$FUNCNAME: spec_infopages = $spec_infopages"
+
+   # 10. check for gtk-doc documentation
+
+   local spec_gtk_doc="0"
+   [ "$(LANG=C $tmpdir/$pck_rootdir/configure --help 2>/dev/null | \
+grep -e "enable-gtk-doc")" ] && {
+      spec_gtk_doc="1"
+      [ "$build_techology" = "autotools" ] && spec_cmd_configure="\
+$spec_cmd_configure_autotools --enable-gtk-doc"
+    }
+
+
+   # FIXME: missing support for:
+   #   pkgconfig  files
+   #   includedir files
+
+   template.expand \
+      --template "$templatedir/${spec_type}" \
+      --type "$spec_type" \
+      --pckname "$pck_name" \
+      --pckversion "$pck_version" \
+      --setupmacro "$spec_setup_macro" \
+      --summary="$spec_summary" \
+      --license "$spec_license" \
+      --source "${spec_preamble_source:-$spec_preamble_tarball}" \
+      --standard-docs "$standard_docs" \
+      --build-technology "$build_techology" \
+      --i18n "$spec_i18n" \
+      --icons-mimetypes "1" \
+      --infopages "$spec_infopages" \
+      --manpages "$spec_manpages" \
+      --pck-apidocs "$spec_gtk_doc" \
+      --pck-tools "1" \
+      --shared-libraries "1"
+
+   [ "$outfile" ] && specfile.ckeck_defvalues "$outfile"
+
+   rm -fr $tmpdir
+   if [ "$outfile" ]; then
+      exec 1<&3 3<&-   # restore stdout and close fd#3
+      [ -f "$outfile" ] &&
+         notify.note $"created specfile"": \`${NOTE}$outfile${NORM}'"
+   fi
+}
+
+specfile.create \
+   "$spec_type" "$pck_tarball" "$pck_name" "$pck_version" "$outfile"

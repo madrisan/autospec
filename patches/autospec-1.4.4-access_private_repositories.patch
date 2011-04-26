@@ -1,0 +1,246 @@
+diff -Nru autospec-1.4.4.orig/lib/librepository.lib.in autospec-1.4.4/lib/librepository.lib.in
+--- autospec-1.4.4.orig/lib/librepository.lib.in	2008-12-08 19:35:19.000000000 +0100
++++ autospec-1.4.4/lib/librepository.lib.in	2008-12-31 05:19:14.000000000 +0100
+@@ -84,11 +84,11 @@
+    local ARGS
+    ARGS=`LANG=C getopt \
+       -o n:r:p:u: \
+-      --long urlnum:,urllist:,proxy:,proxy-user: \
++      --long urlnum:,urllist:,proxy:,proxy-user:,user:,urllistrw: \
+       -n "$FUNCNAME" -- "$@"`
+    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+ 
+-   local i urlnum urllist proxy proxy_user
++   local i urlnum urllist proxy proxy_user user urllistrw
+ 
+    eval set -- "$ARGS"
+    while :; do
+@@ -111,6 +111,16 @@
+          proxy_user="$2"; shift
+          notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+       ;;
++      -l|--user)
++         user="$2"; shift
++         notify.debug "$FUNCNAME: user = \"$proxy_user\""
++      ;;
++      -w|--urllistrw)
++         urllistrw=($2); shift
++         for i in `seq 1 1 ${#urllistrw[*]}`; do
++            notify.debug "$FUNCNAME: urllistrw[$(($i-1))] = ${urllistrw[$i-1]}"
++         done
++      ;;
+       --) shift; break ;;
+       *) notify.error $"\
+ (bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+@@ -135,10 +145,14 @@
+    # FIXME: 'curl_opts_netlink' is an external variable
+    local curlopts="\
+ -L --silent --list-only $curl_opts_netlink\
++${user:+ --user $user} \
+ ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+ 
+    local flist currflist currurl
+    local errors=0
++   
++   [ "${user}" ] && urllist=(${urllistrw[*]})
++
+    let "i = 0"
+    for currurl in ${urllist[*]}; do
+       # get the list of files from the repository
+@@ -160,6 +174,8 @@
+       #notify.debug "curl $curlopts --url $currurl/"
+       curl $curlopts --url $currurl/ -o $currflist
+       let "retval = $?"
++
++      notify.debug "$FUNCNAME: curl $curlopts --url $currurl/ -o $currflist"
+       notify.debug "$FUNCNAME: curl return code: $retval"
+ 
+       case "$retval" in
+@@ -223,6 +239,7 @@
+ #    -c,--target-cpu : set the build architecture
+ #    -p,--proxy      : proxy server
+ #    -u,--proxy-user : proxy user
++#    -l,--user       : login user
+ # return value:
+ #    0 on success, >0 otherwise
+ # example of output:
+@@ -233,13 +250,13 @@
+ function repository.get_RPMS_name() {
+    ARGS=`LANG=C getopt \
+       -o a:x:c:p:u: \
+-      --long archlist:,exclude:,target-cpu:,proxy:,proxy-user: \
++      --long archlist:,exclude:,target-cpu:,proxy:,proxy-user:,user: \
+       -n "$FUNCNAME" -- "$@"`
+    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+ 
+    eval set -- "$ARGS"
+ 
+-   local archlist excludeopt proxy proxy_user target_cpu
++   local archlist excludeopt proxy proxy_user user target_cpu
+    while :; do
+       case $1 in
+       -a|--archlist)
+@@ -262,6 +279,10 @@
+          proxy_user="$2"; shift
+          notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+       ;;
++      -l|--user)
++         user="$2"; shift
++         notify.debug "$FUNCNAME: user = \"$proxy_user\""
++      ;;
+       --) shift; break ;;
+       *) notify.error $"\
+ (bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
+@@ -309,6 +330,7 @@
+    # FIXME: 'curl_opts_netlink' is an external variable
+    local curlopts="\
+ -L --silent --list-only $curl_opts_netlink -o $flist\
++${user:+ --user $user} \
+ ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+ 
+    got_RPM_FILENAME=
+diff -Nru autospec-1.4.4.orig/plugins/pck-update.in autospec-1.4.4/plugins/pck-update.in
+--- autospec-1.4.4.orig/plugins/pck-update.in	2008-12-18 20:49:37.000000000 +0100
++++ autospec-1.4.4/plugins/pck-update.in	2008-12-31 05:20:28.000000000 +0100
+@@ -1053,16 +1053,53 @@
+       notify.error $"can't create temporary files"
+    notify.debug "$FUNCNAME: infofile = $infofile"
+ 
++   local upload_ftp_server
++   local upload_ftp_rpms_dir
++   local upload_ftp_srpms_dir
++   local upload_ftp_port
++   local upload_ftp_user
++   local upload_ftp_passwd
++
++   # select the server where the new packages will be uploaded
++   upload_ftp_server=${ftp_rw_server[$ftp_server_upload_num]}
++   notify.debug "upload_ftp_server = \"$upload_ftp_server\""
++   [ "$upload_ftp_server" ] || notify.error "\
++\`ftp_rw_server[$ftp_server_upload_num]': "$"unset in the configuration files"
++
++   # get the folder where the new rpm packages will be uploaded
++   upload_ftp_rpms_dir=${ftp_rw_rpms_dir[$ftp_server_upload_num]}
++   notify.debug "upload_ftp_rpms_dir = \"$upload_ftp_rpms_dir\""
++   [ "$upload_ftp_rpms_dir" ] || notify.error "\
++\`ftp_rw_rpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
++
++   # get the folder where the new srpm package will be uploaded
++   upload_ftp_srpms_dir=${ftp_rw_srpms_dir[$ftp_server_upload_num]}
++   notify.debug "upload_ftp_srpms_dir = \"$upload_ftp_srpms_dir\""
++   [ "$upload_ftp_srpms_dir" ] || notify.error "\
++\`ftp_rw_srpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
++
++   upload_ftp_port=${ftp_rw_port[$ftp_server_upload_num]}
++   [ "$ftp_rw_user_forced" ] &&
++      upload_ftp_user="$ftp_rw_user_forced" ||
++      upload_ftp_user="${ftp_rw_user[$ftp_server_upload_num]}"
++   [ "$ftp_rw_passwd_forced" ] &&
++      upload_ftp_passwd="$ftp_rw_passwd_forced" ||
++      upload_ftp_passwd="${ftp_rw_passwd[$ftp_server_upload_num]}"
++
+    for step in ${steps[*]}; do
+       case $step in
+       0) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
+ check for available versions in the repositories""${NORM}"
+ 
+          local srpm_pck_found=0
++
+          if [ "$ftp_server_download_num" ]; then
+             repository.get_SRPMS_name \
+                --urllist "${ftpurl_ro_srpms[$ftp_server_download_num]}" \
+                --urlnum "$ftp_server_download_num" \
++               --user "$upload_ftp_user:$upload_ftp_passwd" \
++               --urllistrw "$upload_ftp_server${upload_ftp_port:+:upload_ftp_port}/\
++$upload_ftp_srpms_dir/" \
+                --proxy "$proxy" \
+                --proxy-user "$proxy_user" \
+                "$pck_name"
+@@ -1079,9 +1116,13 @@
+             fi
+          else
+             for i in `seq 1 1 ${#ftp_rw_server[*]}`; do
++
+                repository.get_SRPMS_name \
+                   --urllist "${ftpurl_ro_srpms[$(($i-1))]}" \
+                   --urlnum "$(($i-1))" \
++                  ${upload_ftp_user:+ --user "$upload_ftp_user:$upload_ftp_passwd"} \
++                  --urllistrw "$upload_ftp_server${upload_ftp_port:+:upload_ftp_port}/\
++$upload_ftp_srpms_dir/" \
+                   --proxy "$proxy" \
+                   --proxy-user "$proxy_user" \
+                   "$pck_name"
+@@ -1113,6 +1154,9 @@
+          repository.get_SRPMS_name \
+             --urllist "${ftpurl_ro_srpms[$ftp_server_download_num]}" \
+             --urlnum "$ftp_server_download_num" \
++            ${upload_ftp_user:+ --user "$upload_ftp_user:$upload_ftp_passwd"} \
++            --urllistrw "$upload_ftp_server${upload_ftp_port:+:upload_ftp_port}/\
++$upload_ftp_srpms_dir/" \
+             --proxy "$proxy" \
+             --proxy-user "$proxy_user" \
+             "$pck_name"
+@@ -1141,12 +1185,14 @@
+               cd $srpms_dir
+ 
+               curl $curl_options \
++                 ${upload_ftp_user:+ --user $upload_ftp_user:$upload_ftp_passwd} \
+                  ${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} \
+                  $got_SPEC_FILENAME_URL/$got_SPEC_FILENAME
+               [[ $? -eq 0 ]] &&
+                  notify.note $"got from"" \`$got_SPEC_FILENAME_URL'" ||
+                  notify.debug "\
+ curl $curl_options\
++${upload_ftp_user:+ --user $upload_ftp_user:$upload_ftp_passwd} \
+ ${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} \
+ $got_SPEC_FILENAME_URL/$got_SPEC_FILENAME: [${CRIT}FAILED${NORM}]" )
+ 
+@@ -2552,6 +2598,9 @@
+          repository.get_SRPMS_name \
+             --urllist "${ftpurl_ro_srpms[$ftp_server_upload_num]}" \
+             --urlnum "$ftp_server_upload_num" \
++            ${upload_ftp_user:+ --user "$upload_ftp_user:$upload_ftp_passwd"} \
++            --urllistrw "$upload_ftp_server${upload_ftp_port:+:upload_ftp_port}/\
++$upload_ftp_srpms_dir/" \
+             --proxy "$proxy" \
+             --proxy-user "$proxy_user" \
+             "$pck_name" ${SPEC_OBSOLETES[@]}
+@@ -2662,38 +2711,6 @@
+          [ "${ftp_rw_passive_mode[$ftp_server_upload_num]}" = "on" ] &&
+             ftp_opts="$ftp_opts --ftp-pasv"
+ 
+-         local upload_ftp_server
+-         local upload_ftp_rpms_dir
+-         local upload_ftp_srpms_dir
+-         local upload_ftp_port
+-         local upload_ftp_user
+-         local upload_ftp_passwd
+-
+-         # select the server where the new packages will be uploaded
+-         upload_ftp_server=${ftp_rw_server[$ftp_server_upload_num]}
+-         notify.debug "upload_ftp_server = \"$upload_ftp_server\""
+-         [ "$upload_ftp_server" ] || notify.error "\
+-\`ftp_rw_server[$ftp_server_upload_num]': "$"unset in the configuration files"
+-
+-         # get the folder where the new rpm packages will be uploaded
+-         upload_ftp_rpms_dir=${ftp_rw_rpms_dir[$ftp_server_upload_num]}
+-         notify.debug "upload_ftp_rpms_dir = \"$upload_ftp_rpms_dir\""
+-         [ "$upload_ftp_rpms_dir" ] || notify.error "\
+-\`ftp_rw_rpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
+-
+-         # get the folder where the new srpm package will be uploaded
+-         upload_ftp_srpms_dir=${ftp_rw_srpms_dir[$ftp_server_upload_num]}
+-         notify.debug "upload_ftp_srpms_dir = \"$upload_ftp_srpms_dir\""
+-         [ "$upload_ftp_srpms_dir" ] || notify.error "\
+-\`ftp_rw_srpms_dir[$ftp_server_upload_num]': "$"unset in the configuration files"
+-
+-         upload_ftp_port=${ftp_rw_port[$ftp_server_upload_num]}
+-         [ "$ftp_rw_user_forced" ] &&
+-            upload_ftp_user="$ftp_rw_user_forced" ||
+-            upload_ftp_user="${ftp_rw_user[$ftp_server_upload_num]}"
+-         [ "$ftp_rw_passwd_forced" ] &&
+-            upload_ftp_passwd="$ftp_rw_passwd_forced" ||
+-            upload_ftp_passwd="${ftp_rw_passwd[$ftp_server_upload_num]}"
+ 
+          notify.note "\
+ ${NOTE}"$"upload the new packages to the ftp repository"" \

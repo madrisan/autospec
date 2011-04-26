@@ -1,0 +1,12 @@
+diff -Nru autospec-1.4.8.orig/autospec.conf.in autospec-1.4.8/autospec.conf.in
+--- autospec-1.4.8.orig/autospec.conf.in	2009-10-14 21:24:36.000000000 +0200
++++ autospec-1.4.8/autospec.conf.in	2009-10-16 12:03:40.000000000 +0200
+@@ -446,7 +446,7 @@
+ apse_uri[5]="http://distrowatch.com/packages.php?"
+ apse_put_fields[5]=""
+ apse_error_msg[5]="is currently being redesigned"
+-apse_grep[5]="td.*[^a-zA-Z]\${search_name}[^a-zA-Z0-9]"
++apse_grep[5]="td.*/\${search_name}[-_][0-9]"
+ apse_sed[5]="s,.*td><[^>]*>\([^ <]*\)<.*,\1,pi"
+ 
+ #------------------------------------------------------------------------------

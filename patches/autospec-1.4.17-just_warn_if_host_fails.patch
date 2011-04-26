@@ -1,0 +1,14 @@
+diff -Nru autospec-1.4.17.orig//plugins/pck-update.in autospec-1.4.17/plugins/pck-update.in
+--- autospec-1.4.17.orig//plugins/pck-update.in	2010-07-01 14:21:58.741780539 +0200
++++ autospec-1.4.17/plugins/pck-update.in	2010-07-01 14:23:39.985642249 +0200
+@@ -2671,9 +2671,8 @@
+          if [ "${ftp_rw_server[$ftp_server_upload_num]}" ]; then
+             repository.is_reachable "${ftp_rw_server[$ftp_server_upload_num]}"
+             [ $? -eq 0 ] ||
+-             { notify.error $"\
++               notify.warning $"\
+ server unreachable"": \`${ftp_rw_server[$ftp_server_upload_num]}'"
+-               break; }
+          else
+             notify.error $"\
+ you have no read write access to url#$ftp_server_upload_num"

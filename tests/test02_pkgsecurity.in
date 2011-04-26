@@ -1,0 +1,149 @@
+#!/bin/bash
+# test02_pkgsecurity -- @package@ test (rpm security checks)
+# Copyright (C) 2008 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="test02_pkgsecurity"; export TEXTDOMAIN
+
+function alltests() {
+   # FIXME: add to 'po' file
+   notify.note "** ${NOTE}"$"performing security checks""${NORM}""..."
+
+   TEMP=`LANG=C getopt \
+      -o i:t: --long infofile:,tmpdir: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || return 1
+   eval set -- "$TEMP"
+
+   while :; do
+      case "$1" in
+      -i|--infofile)
+         rpminfofile="$2"
+         shift
+      ;;
+      -t|--tmpdir)
+         tmpextractdir="$2"
+         shift
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
+      esac
+      shift
+   done
+
+   [ "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--infofile)"
+   [ -r "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"cannot read"" \`$rpminfofile'"
+
+   . $rpminfofile
+
+   [ "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--tmpdir)"
+   [ -d "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"no such file or directory"" \`$tmpextractdir'"
+
+
+   function security.filecheckrpath() {
+      # $1: file to check
+      # RPATH /usr/lib/.:/usr/lib/qt3/lib:/usr/lib:/usr/X11R6/lib
+      objdump -p $1 2>/dev/null | \
+         sed -n '/RPATH/{s/.* \(.*\)/\1:/p}' | \
+         while read -d: path; do
+            # try to discard false positive warnings
+            [[ "${allowed_libdirs}:" =~ ${path}: ]] || echo -n "$path "
+         done
+   }
+
+   notify.note \
+" * ${NOTE}"$"checking for RPATH vulnerabilities""${NORM}..."
+
+   let "i = 0"
+   for pck in ${rpmpkg_name[@]}; do
+      notify.note "   - "$"checking"": \`${pck##*/}'"
+      pushd $tmpextractdir/$i >/dev/null
+
+      # find ELF binaries (ELF 32-bit LSB executable)
+      # and libs (ELF 32-bit LSB shared object)
+      for f in $(find -mindepth 2 -perm +111 -type f); do
+         if [[ "$(file $f | grep " ELF ")" ]]; then
+            rpath="$(security.filecheckrpath $f)"
+            [[ "$rpath" ]] && notify.warning "${f/./}\nRPATH:   $rpath"
+         fi
+      done
+      popd >/dev/null
+      let "i += 1"
+   done
+###
+
+   notify.note \
+" * ${NOTE}"$"checking for setuid binaries""${NORM}..."
+
+   let "i = 0"
+   for pck in ${rpmpkg_name[@]}; do
+      notify.note "   - "$"checking"": \`${pck##*/}'"
+      pushd $tmpextractdir/$i >/dev/null
+      # find setuid binaries
+      # NOTE: find output is different for normal and root users
+      for f in $(find -mindepth 2 -perm +111 -type f); do
+         [[ "$(file $f | grep " setuid ")" ]] &&
+            notify.warning "${NOTE}${f/./}${NORM}"
+      done
+      popd >/dev/null
+      let "i += 1"
+   done
+###
+
+   # checking for unsecure use of $$ as random source in shell scripts
+   notify.note " * ${NOTE}"$"\
+checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
+
+   vulnerable=0
+   let "i = 0"
+   for pck in ${rpmpkg_name[@]}; do
+      notify.note "   - "$"checking"": \`${pck##*/}'"
+      pushd $tmpextractdir/$i >/dev/null
+      for f in $(find -mindepth 1 -perm +111 -type f); do
+         # we are interesting only in shell scripts
+         [[ "$(file $f | grep "shell script\|perl script")" ]] ||
+            continue
+         # check for string like:
+         # - tmp=/tmp/zfoo.$$
+         # - gzip -cdfq "$2" > /tmp/"$F".$$
+         [[ \
+-n "$(grep $f -m1 -s -rl -e"[^[:space:]]*=.*\$\$")" ||
+-n "$(grep $f -m1 -s -rl -e">[[:space:]]*.*[[:space:]]*[^[:space:]]*\$\$")" ]] &&
+            let "vulnerable = 1" &&
+               notify.warning $"\
+seems to be affected"": \`${NOTE}${f/./}${NORM}'"
+      done
+      popd >/dev/null
+      let "i += 1"
+   done
+   [[ $vulnerable -eq 1 ]] && notify.note "\
+-----------------------------
+${NOTE}"$"Hint for bash scripts (\`mktemp' required)"":${NORM}
+   tmpdir=\`mktemp -d /tmp/<script_name>.XXXXXX\` ||
+    { echo \"Cannot create directory \\\`\$tmpdir'. Aborting.\" >&2; exit 1; }
+   trap 'ret=\$?; rm -rf \$tmpdir && exit \$ret' 0
+   trap '(exit $?); exit' 1 2 13 15
+   tmpfile=\`env TMPDIR=\"\" mktemp -p \$tmpdir tmpfile.XXXXXX\` ||
+    { echo \"Cannot create temporary file \\\`\$tmpfile'. Aborting.\" >&2; exit 1; }
+${NOTE}"$"Hint for perl scripts"":${NORM}
+   use File::Temp qw/ tempfile /;
+   (\$fh,\$file) = tempfile ('<script_name>.XXXXXX');
+-----------------------------"
+}

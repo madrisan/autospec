@@ -1,0 +1,15 @@
+diff -Nru autospec-1.4.16.orig//plugins/pck-update.in autospec-1.4.16/plugins/pck-update.in
+--- autospec-1.4.16.orig//plugins/pck-update.in	2010-05-06 14:57:00.523842465 +0200
++++ autospec-1.4.16/plugins/pck-update.in	2010-05-06 14:58:14.009216091 +0200
+@@ -2041,9 +2041,9 @@
+          local f rpm_provided_by buildrequirements_to_install
+          for f in ${SPEC_BUILDREQUIRES[@]}; do
+             unset rpm_provided_by
+-            rpm --quiet -q --whatprovides $f &>/dev/null
++            rpm --quiet -q $rpm_root_opts --whatprovides $f &>/dev/null
+             [ $? -eq 0 ] &&
+-               rpm_provided_by="$(rpm -q --whatprovides $f)"
++               rpm_provided_by="$(rpm -q $rpm_root_opts --whatprovides $f)"
+ 
+             notify.note " * "$"\
+ build requirement found"": \`${NOTE}$f${NORM}' ""\

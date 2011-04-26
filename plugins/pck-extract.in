@@ -1,0 +1,270 @@
+#!/bin/bash
+# pck-extract -- plugin for @package@
+# Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
+ { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+# default values:
+# - colorized output (disabled by default)
+let "colorize = 0"
+# - output verbosity
+let "verbose = 1"
+
+# load the configuration file(s)
+[ -r @libdir@/libcfg.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
+   exit 1; }
+. @libdir@/libcfg.lib
+
+[ -r @libdir@/libnetwork.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libnetwork.lib" 1>&2
+   exit 1; }
+. @libdir@/libnetwork.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="${me[0]}"; export TEXTDOMAIN
+
+function copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function version() {
+   echo "\
+${me[0]} ${me[1]}
+Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+# $1: optional exit code (default is '1')
+function usage() {
+   version
+   echo "\
+"$"Extract a given file or list of files from a srpm archive"".
+
+"$"Usage"":
+ @frontend@ -x -F <file(s)> [--destdir=<dir>] <srpm_pck>
+
+"$"where the above options mean"":
+ -x, --extract      "$"Extract from the srpm package <srpm_pck>...""
+ -F, --files        "$"...the specified file or list of files <file(s)>""
+     --destdir      "$"Save extracted files in the directory <dir>""
+
+"$"Operation modes"":
+ -h, --help         "$"Print this help, then exit""
+ -V, --version      "$"Print version number, then exit""
+ -q, --quiet        "$"Run in quiet mode""
+ -r, --colorize     "$"Enable the colorized output""
+ -D, --debug        "$"Run in debugging mode (very verbose output)""
+
+"$"Samples"":
+ @frontend@ -x @package@-@version@-1mamba.src.rpm -F \\*.spec --destdir=/tmp/specs
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+
+   exit ${1:-1}
+}
+
+case $1 in
+   --autospec-args-file*)
+      if [[ "$1" =~ = ]]; then
+         argsfile=`echo $1 | sed 's/^--autospec-args-file=//'`
+      else
+         argsfile=$2
+      fi
+      [ -r "$argsfile" ] || notify.error $"cannot read"": \`$argsfile'"
+      . $argsfile && rm -f $argsfile
+   ;;
+esac
+
+for arg in $@; do
+   case $arg in
+   -h|--help) usage 0 ;;
+   -V|--version) version; echo; copying; exit 0 ;;
+   esac
+done
+
+exec_options=`LANG=C getopt \
+   -o xF:DqrhV \
+   --long \
+extract,files:,destdir:,\
+debug,quiet,colorize,help,version,\
+frontend_opts: \
+   -n "$me" -- "$@"`
+[ $? = 0 ] || exit 1
+
+notify.debug "[ ${0} ${exec_options} ]\n"
+eval set -- "$exec_options"
+
+while :; do
+   case $1 in
+      -x|--extract) ;;
+      -F|--files)
+         filelst="$2"; shift ;;
+      --destdir)
+         destdir="$2"; shift ;;
+      -D|--debug)
+         let "verbose = 2" ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -r|--colorize)
+         let "colorize = 1" ;;
+      -h|--help)
+         usage 0 ;;
+      -V|--version)
+         version; echo; copying; exit 0 ;;
+      --) shift; break ;;
+      *) notify.error $"unrecognized option"" -- \`$1'" ;;
+   esac
+   shift
+done
+
+for arg in $@; do
+   [[ -z "$s_rpm_pck" ]] && s_rpm_pck=$arg ||
+      notify.error $"unrecognized option"" -- \`$arg'"
+done
+
+[ "$colorize" = "1" ] && notify.enable_colors
+
+# s_rpm_pck : the name of the srpm package (local or remote)
+#             (i.e. /usr/src/RPM/SRPMS/automake-1.9-1qilnx.src.rpm)
+# filelst   : list of file to extract (default is '*.spec', that is the specfile)
+# destdir   : the directory where to extract files (current directory if unset)
+#
+# Extract the specified file(s) `filelst' (default = all files) from the rpm or srpm
+# archive `s_rpm_pck' to the optional directory `destdir'.
+
+[ -z "$filelst" ] && filelst='*'
+[ -z "$destdir" ] && destdir='.'
+
+notify.note "[${NOTE}$s_rpm_pck${NORM}]"
+
+# check if all the needed tools are available
+for tool in bunzip2 cpio gunzip mktemp rpm2cpio; do
+   [ "$(type -p $tool)" ] ||
+      notify.error $"utility not found"": \`$tool'"
+done
+
+tmpcpiodir=$(mktemp -q -d -t $me.XXXXXXXX)
+[ $? -eq 0 ] &&
+   trap "rm -fr $tmpcpiodir" 0 1 2 3 6 7 9 13 15 ||
+   notify.error $"can't create temporary files"
+notify.debug "$FUNCNAME: tmpcpiodir = $tmpcpiodir"
+
+#local s_rpm_pck_name
+case "$s_rpm_pck" in
+http://*\.src\.*|http://*\.nosrc\.*|ftp://*\.src\.*|ftp://*\.nosrc\.*)
+   s_rpm_pck_name="${s_rpm_pck##*/}"
+   notify.debug "$FUNCNAME: s_rpm_pck_name = $s_rpm_pck_name"
+
+   curl.download \
+--options "$curl_options" \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --destdir="$tmpcpiodir" "$s_rpm_pck"
+
+   s_rpm_pck="$tmpcpiodir/$s_rpm_pck_name"
+;;
+*\.src\.*|*\.nosrc\.*)
+   s_rpm_pck_name="$s_rpm_pck"
+   notify.debug "$FUNCNAME: s_rpm_pck_name = $s_rpm_pck_name"
+
+   [[ -e "$s_rpm_pck" ]] ||
+      notify.error $"cannot find:"" \`$s_rpm_pck'"
+;;
+*) # FIXME : add support for RPMS packages if someone will ask for
+   notify.error "\`$s_rpm_pck': "$"not a srpm package" ;;
+esac
+
+mkdir -p $destdir 2>/dev/null || notify.error $"cannot create \`$destdir'"
+
+#local errcode
+#local \
+tmpcpiopck="srpm_pck.cpio"
+
+notify.debug "\
+$FUNCNAME: converting the rpm package into a cpio archive..."
+
+rpm2cpio $s_rpm_pck > $tmpcpiodir/$tmpcpiopck
+let "errcode = $?"
+[ "$errcode" = 0 ] ||
+ { rm -fr $tmpcpiodir
+   notify.debug "$FUNCNAME: exit code of rpm2cpio = \`$errcode'"
+   notify.error $"can't save extracted files to \`$destdir'"; }
+
+notify.debug "\
+$FUNCNAME: extracting files from the cpio archive..."
+
+pushd $tmpcpiodir &>/dev/null
+
+cpio --quiet --extract --preserve-modification-time \
+   < $tmpcpiodir/$tmpcpiopck
+let "errcode = $?"
+[ "$errcode" = 0 ] ||
+ { rm -fr $tmpcpiodir
+   notify.debug "$FUNCNAME: exit code of cpio = \`$errcode'"
+   notify.error $"can't save extracted files to \`$destdir'"; }
+
+rm -f $tmpcpiodir/$tmpcpiopck
+
+#notify.debug "\
+#$FUNCNAME: extracting files from the srpm archive..."
+#
+#rpm2cpio $s_rpm_pck 2>/dev/null | \
+#cpio --quiet --extract $filelst &>/dev/null
+#[ $? -ne 0 ] &&
+# { popd &>/dev/null
+#   notify.error $"can't save extracted files to \`$destdir'"; }
+
+popd &>/dev/null
+
+#local fname
+for f in $tmpcpiodir/${filelst:-*}; do
+   fname=${f##*/}
+   notify.debug "$FUNCNAME: fname = \"$fname\""
+   case $fname in
+      $s_rpm_pck_name)
+      ;;
+      *\.diff.bz2|*\.patch.bz2)
+         notify.debug "$FUNCNAME: decompressing the patch..."
+         bunzip2 $f &>/dev/null
+         [ $? -eq 0 ] ||
+          { rm -fr $tmpcpiodir
+            notify.warning $"can't decompress the file"" \`$f'"; }
+
+         notify.note " * ${NOTE}$destdir/${fname/\.bz2/}${NORM}"
+         cp -pf ${f/\.bz2/} $destdir/${fname/\.bz2/} &>/dev/null
+      ;;
+      *\.diff.gz|*\.patch.gz)
+         notify.debug "$FUNCNAME: decompressing the patch..."
+         gunzip $f &>/dev/null
+         [ $? -eq 0 ] ||
+          { rm -fr $tmpcpiodir
+            notify.warning $"can't decompress the file"" \`$f'"; }
+
+         notify.note " * ${NOTE}$destdir/${fname/\.gz/}${NORM}"
+         cp -pf ${f/\.gz/} $destdir/${fname/\.gz/} &>/dev/null
+      ;;
+      *)
+         notify.note " * ${NOTE}$destdir/$fname${NORM}"
+         cp -pf $f $destdir/$fname &>/dev/null
+      ;;
+   esac
+   [ $? -eq 0 ] ||
+    { rm -fr $tmpcpiodir
+      notify.error $"can't save files to \`$destdir'"; }
+done
+
+rm -fr $tmpcpiodir

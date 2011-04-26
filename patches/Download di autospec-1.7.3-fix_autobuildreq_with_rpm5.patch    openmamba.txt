@@ -1,0 +1,21 @@
+diff -Nru autospec-1.7.3.orig//plugins/pck-update.in autospec-1.7.3/plugins/pck-update.in
+--- autospec-1.7.3.orig//plugins/pck-update.in	2011-01-09 18:13:09.000000000 +0100
++++ autospec-1.7.3/plugins/pck-update.in	2011-03-23 19:54:56.180218040 +0100
+@@ -2366,13 +2366,13 @@
+                      if [ ! -e $solibpath -a "${solibpath:0:5}" = "/lib/" ]; then
+                         solibpath="/usr$solibpath"
+                      fi
+-                     buildreq=`rpm -qf $solibpath 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+-                     if [ ! "$buildreq" ]; then
++                     eval buildreq=`rpm -qf $solibpath 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
++                     if [ ! "$buildreq" -o $? -ne 0 ]; then
+                         # let's try removing version extension in libname
+                         # (eg. liblber-2.2.so => liblber.so) 
+                         solibpath=`echo $solibpath | sed "s|-[0-9.]*\.so|.so|"`
+-                        buildreq=`rpm -qf $solibpath 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+-                        [ ! "$buildreq" ] && echo "#$req: .so link not found" >> $frequires
++                        eval buildreq=`rpm -qf $solibpath 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
++                        [ ! "$buildreq" -o $? -ne 0 ] && echo "#$req: .so link not found" >> $frequires
+                      fi
+                   else
+                      echo "\

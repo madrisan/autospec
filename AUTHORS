@@ -1,0 +1,16 @@
+Davide Madrisan <davide.madrisan(a)gmail.com>
+   main developer
+   frontend, plugins, libraries, documentation
+   porting to the libspec.lib architecture
+
+Stefano Cotta Ramusino aka "whitone" <whitone(a)openmamba.org>
+   patch to check for OSI approved licenses
+   list of OSI approved licenses
+   autospec package search engine (APSE)
+   typo fixes in the documentation and more
+
+Silvan Calarco <silvan.calarco(a)mambasoft.it>
+   heavy bug tester
+   sparse patches
+   code for building the list of build requirements
+   support for the multi-architecture

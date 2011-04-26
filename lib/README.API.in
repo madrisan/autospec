@@ -1,0 +1,6 @@
+# TO DO, sorry...
+
+# try with:
+# . @libdir@/libspec.lib
+# EXIT_FUNC=return
+# specfile.getvars --help

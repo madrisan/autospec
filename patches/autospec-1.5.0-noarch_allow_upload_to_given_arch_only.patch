@@ -1,0 +1,106 @@
+diff -Nru autospec-1.5.0.orig//plugins/pck-update.in autospec-1.5.0/plugins/pck-update.in
+--- autospec-1.5.0.orig//plugins/pck-update.in	2010-08-12 12:13:49.374802087 +0200
++++ autospec-1.5.0/plugins/pck-update.in	2010-08-12 12:22:00.533683095 +0200
+@@ -893,31 +893,23 @@
+ # args:
+ #    none
+ function target_cpu.set_and_check() {
+-   if [ "$target_cpu" ]; then
+-      # command '--arch' used by user to force the architecture
+-      # 'BuildArch' in the specfile takes precedence over cmdline
+-      if [[ -n "$SPEC_BUILDARCH" && \
+-            "$target_cpu" != "$SPEC_BUILDARCH" ]]; then
+-         notify.warning $"\
+-command line architecture ignored, using:"\
+-" \`${NOTE}$SPEC_BUILDARCH${NORM}' (BuildArch)"
+-         target_cpu="$SPEC_BUILDARCH"
+-      fi
+-   else
++   if [ ! "$target_cpu" ]; then
+       target_cpu="${SPEC_BUILDARCH:-$BUILD_ARCH}"
++      if [ "$target_cpu" == "noarch" ]; then
++         set -- ${arch_list[@]}
++         target_cpu=$1
++      fi
+    fi
+    notify.debug "target_cpu = $target_cpu"
+ 
+-   if [ "$target_cpu" != "noarch" ]; then
+-      # check if the 'target_cpu' is an allowed architecture
+-      local arch_list_curr bad_arch=1
+-      for arch_list_curr in ${arch_list[@]}; do
+-         [ "$arch_list_curr" = "$target_cpu" ] &&
+-          { let "bad_arch = 0"; break; }
+-      done
+-      [ "$bad_arch" = 1 ] &&
+-         notify.error $"unsupported architecture"": \`$target_cpu'"
+-   fi
++   # check if the 'target_cpu' is an allowed architecture
++   local arch_list_curr bad_arch=1
++   for arch_list_curr in ${arch_list[@]}; do
++      [ "$arch_list_curr" = "$target_cpu" ] &&
++      { let "bad_arch = 0"; break; }
++   done
++   [ "$bad_arch" = 1 ] &&
++      notify.error $"unsupported architecture"": \`$target_cpu'"
+ }
+ 
+ # function package.update()
+@@ -2801,21 +2793,32 @@
+          if [ "$norpms" = "0" ]; then
+             let "i = 0"
+             for pck in ${SPEC_TARGET[@]}; do
+-               filename="\
+-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+-               [ -e $rpms_dir/$target_cpu/$filename ] &&
+-                  notify.note "\
+- * ${NOTE}$filename${NORM}" ||
+-                  notify.error $"\
+-package not found"": \`$rpms_dir/$target_cpu/$filename'"
+-
+                # copy noarch packages to all the repository set in the
+                # configuration variable `arch_noarch_upload[]'
+-               if [ "$target_cpu" = "noarch" ]; then
++               if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" = "noarch" ]; then
++                  filename="\
++$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
++                  [ -e $rpms_dir/noarch/$filename ] &&
++                     notify.note "\
++ * ${NOTE}$filename${NORM}" ||
++                     notify.error $"\
++package not found"": \`$rpms_dir/noarch/$filename'"
++
+                   for upload_arch in \
+                      ${arch_noarch_upload[$ftp_server_upload_num]}; do
+-                     currurl="\
++                     if [ "$upload_arch" == "@arch@" ]; then
++                        if [ "$target_cpu" != "noarch" ]; then
++                           currurl="\
++$(repository.resolveURL "$upload_ftp_rpms_dir" "${target_cpu}")"
++                        else
++                           set -- ${arch_list[*]}
++                           currurl="\
++$(repository.resolveURL "$upload_ftp_rpms_dir" "$1")"
++                        fi
++                     else
++                        currurl="\
+ $(repository.resolveURL "$upload_ftp_rpms_dir" "$upload_arch")"
++                     fi
+                      notify.note "\
+    --> ""$upload_ftp_server${upload_ftp_port:+:$upload_ftp_port} :: $currurl"
+ 
+@@ -2839,6 +2842,14 @@
+                      [ $? -eq 0 ] || exit 1
+                   done
+                else
++                  filename="\
++$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
++                  [ -e $rpms_dir/$target_cpu/$filename ] &&
++                     notify.note "\
++ * ${NOTE}$filename${NORM}" ||
++                     notify.error $"\
++package not found"": \`$rpms_dir/$target_cpu/$filename'"
++
+                   currurl="\
+ $(repository.resolveURL "$upload_ftp_rpms_dir" "$target_cpu")"
+                   notify.note "\

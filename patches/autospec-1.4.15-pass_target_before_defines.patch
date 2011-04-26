@@ -1,0 +1,12 @@
+diff -Nru autospec-1.4.15.orig//plugins/pck-update.in autospec-1.4.15/plugins/pck-update.in
+--- autospec-1.4.15.orig//plugins/pck-update.in	2010-03-24 21:40:44.000000000 +0100
++++ autospec-1.4.15/plugins/pck-update.in	2010-04-03 14:13:54.314056254 +0200
+@@ -2138,7 +2138,7 @@
+ 
+          # check if we are cross-compiling
+          [ "$BUILD_ARCH" != "$target_cpu" ] &&
+-            rpmbuild_opts="$rpmbuild_opts --target $target_cpu"
++            rpmbuild_opts="--target $target_cpu $rpmbuild_opts"
+ 
+          [ "$cleanup" = "1" ] && rpmbuild_opts="$rpmbuild_opts --clean"
+ 

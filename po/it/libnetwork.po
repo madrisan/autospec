@@ -1,0 +1,86 @@
+# translation of it.po to Italiana
+# Copyright (C) 2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2008-11-05 22:00+0100\n"
+"PO-Revision-Date: 2008-11-05 22:00+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# lib/librepository.lib
+
+msgid "this script requires bash version 2 or better"
+msgstr "questo script richiede bash versione 2 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "\\`getopt' error"
+msgstr "errore in \\`getopt'"
+
+msgid "\\`getopt' error: bad command \\`$1'"
+msgstr "errore in \\`getopt': commando errato \\`$1'"
+
+msgid "not a number"
+msgstr "non è un numero"
+
+msgid "missing mandatory arg"
+msgstr "parametro mancante"
+
+msgid "can't create temporary files"
+msgstr "impossibile creare file temporanei"
+
+msgid "getting list of files from"
+msgstr "ricavo l'elenco dei file da"
+
+msgid "couldn't resolve host"
+msgstr "impossibile risolvere il nome dell'host"
+
+msgid "failed to connect to host"
+msgstr "impossibile connettersi all'host"
+
+msgid "failure in receiving network data"
+msgstr "impossibile recevere dati via rete"
+
+msgid "curl error (exit code: $retval)"
+msgstr "errore curl (codice di errore: $retval)"
+
+msgid "unsupported query type for this protocol"
+msgstr "ricerca non supportata in questo protocollo"
+
+msgid "cannot get the list of files"
+msgstr "impossibile ottenere la lista dei file"
+
+msgid "no list of architectures set"
+msgstr "nessuna lista di architetture specificata"
+
+msgid "unsupported protocol"
+msgstr "protocollo non supportato"
+
+msgid "not an internet address"
+msgstr "non è un indirizzo internet"
+
+msgid "no such directory"
+msgstr "cartella non trovata"
+
+msgid "cannot download"
+msgstr "impossibile scaricare"
+
+msgid "unknown action"
+msgstr "azione sconosciuta"
+
+msgid "package not found"
+msgstr "pacchetto non trovato"
+
+msgid "downloading"
+msgstr "download di"

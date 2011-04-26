@@ -1,0 +1,26 @@
+#
+# this file is an example of rule file for the autobuild plugin
+#
+
+[commands]
+# this section can be used to set up some variables used later
+# or to call external scripts
+sn="$(LC_ALL="C" date "+%Y.%m.%d")"
+
+[global]
+specdir    /usr/src/RPM/SPECS
+logdir     /var/tmp/autobuild-$sn
+
+[packages]
+package          gzip
+download         false
+download_server  0
+update           rebuild
+build            force
+build_define
+install          testonly
+upload           false
+upload_server    0
+
+[commands]
+echo -e "\\nThat's all."

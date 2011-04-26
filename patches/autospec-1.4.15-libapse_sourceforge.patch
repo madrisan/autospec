@@ -1,0 +1,59 @@
+--- autospec-1.4.15/lib/libapse.lib.in.orig	2010-01-12 22:46:27.000000000 +0100
++++ autospec-1.4.15/lib/libapse.lib.in	2010-03-26 13:28:14.000000000 +0100
+@@ -397,6 +397,56 @@
+       fi
+    fi
+ 
++   # sourceforge.net, sf.net
++
++   local prj_name
++
++   if [ "$(echo $pckurl | grep "sourceforge.net\|sf.net")" ]; then
++      notify.note $"looking at"" <${NOTE}http://sourceforge.net${NORM}>..."
++
++      prj_name=$(echo "$pckurl" | sed -n 's,.*/\(.*\)/.*,\1,p')
++      [ "$prj_name" ] || notify.error $"\
++(bug)"" -- $FUNCNAME: "$"assertion failed:"" \"\$prj_name\" != \"\""
++
++      curr_curl_url="http://sourceforge.net/projects/$prj_name"
++      notify.debug "curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
++      curl $curr_curl_proxy_opts -s -L "$curr_curl_url" > $fcurlout
++
++      let "retval = $?"
++      case "$retval" in
++      0) ;;
++      7) notify.warning $"failed to connect to host" ;;
++      *) notify.warning $"curl error (exit code: $retval)" ;;
++      esac
++
++      [ "$retval" = "0" ] &&
++      if [ "$(sed -n "s,.*Invalid Project.*,error,pi" $fcurlout)" != \
++           "error" ]; then
++         [ "$src_name" ] || src_name="$specname"
++
++         pck_file=`grep -i -m1 "/download" $fcurlout | \
++grep -i "$src_name" | \
++sed -n "s,.*\"\([^\"]*\)\/download\".*,\1,pi"`
++         notify.debug "pck_file = \"$pck_file\""
++         [ "$src_name" ] && unset src_name
++
++         new_version=`echo $pck_file | sed -n "\
++/[0-9]/!q       # return nothing if no number is found in the package name
++s,.*/,,         # remove directory name, if any
++s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
++/-[0-9]*/{s/.*-\([0-9]*.*\)/\1/p;q}              # <pck_name>-<pck_ver>
++/_[0-9]*/{s/.*_\([0-9]*.*\)/\1/p;q}              # <pck_name>_<pck_ver>
++/[^-\.][0-9]\./{s/.*[^-\.]\([0-9]\..*\)/\1/p;q}  # <pck_name><pck_ver>
++# <pck_name> (no version, but <pck_name> can end with numbers)
++/^[^0-9]*[0-9]*$/q"`
++      fi
++   fi
++
++   if [ "$new_version" ]; then
++      notify.note "* "$"found version:"" \`${NOTE}$new_version${NORM}'"
++      last_version="$new_version"
++   fi
++
+    # check at the other supported web sites...
+ 
+    # skip perl packages to prevent name confusion; these are checked above via Source0

@@ -1,0 +1,1580 @@
+List of user visible changes in the release 1.8.0
+
+-- Bug fixes
+
+ * pck-update - Silvan Calarco:
+   Action 6: Fix automatic build requirements detection with rpm 5.
+
+-- Improvements
+
+ * templates/{perl,standard} - Davide Madrisan:
+   Updated.
+
+ * templates/standard-daemon - Davide Madrisan:
+   New template for packages providing a system/network service.
+
+ * lib/libcfg.lib - Davide Madrisan:
+   Support modularized configuration files (`~/.autospec.d/*.conf').
+   (Based on an idea developed by Stefano Cotta Ramusino.)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.7.3
+
+-- Bug fixes
+
+ * templates/{kde4,python} - Davide Madrisan:
+   Fixes.
+
+ * libspec - Davide Madrisan:
+   Workaround the segmentation fault of "rpm --eval" while parsing an internet
+   address (like rpm --eval 'http://ftp.gnu.org').
+   (Pointed out by Silvan Calarco)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.7.2
+
+-- Bug fixes
+
+ * spec-create - Davide Madrisan:
+   Fixed expansion of source and license tags.
+
+ * pck-update - Davide Madrisan:
+   action 1: Display the right installation path for files extracted from a
+   srpm archive.
+
+-- Improvements
+
+ * spec-create - Davide Madrisan:
+   Improvements in the specfiles created for perl archives.
+
+ * templates/library - Davide Madrisan:
+   Improved template for library packages.
+
+-- Updates
+
+ * Updated Italian translations.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.7.1
+
+-- Bug fixes
+
+ * spec-create - Davide Madrisan:
+   Fixed a regression in the expansion of the macro '@standard_docs@'.
+
+ * templates/{standard,perl} - Davide Madrisan:
+   Various fixes.
+
+-- Updates
+
+ * spec-create - Davide Madrisan:
+   Updated help message.
+
+ * spec-create - Davide Madrisan:
+   Add support for jar archives.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.7.0 - Christmas Release
+
+-- Updates
+
+ * spec-create - Davide Madrisan:
+   A completely rewritten plugin based on the templates available in the
+   templates directory.
+
+ * templates/{gnome,kde*,library*,perl,python,standard} - Davide Madrisan:
+   All the template has been reworked to be used by the new spec-create engine.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.6.3
+
+-- Updates
+
+ * libnetwork.lib - Davide Madrisan:
+   Better output in debug mode.
+
+ * pck-update - Davide Madrisan:
+   New option '--force-download': download the source files even if found in
+   the SOURCE directory.
+
+-- Bug fixes
+
+  * libcfg.cfg - Davide Madrisan
+    Display a correct error message when the user configuration file is not
+    available.
+
+-- documentation
+
+  * italian manpage:
+    Document the new option '--force-download'.
+    Minor updates.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.6.2.1
+
+-- Bug fixes
+
+  * libnetwork.lib - Davide Madrisan
+    Make the backup of old files working again.
+    (thanks to Silvan Calarco for reporting this problem)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.6.2
+
+-- Updates
+
+  * libnetwork.lib - Davide Madrisan
+    New library, formerly known as librepository.lib, contaning also all the
+    functions previously provided by libcurl.lib.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.6.1
+
+-- Improvements
+
+  * pck-update - Davide Madrisan
+    Action 3: download the source file(s) specified in the specfile (instead
+    okf exiting with and error message) when no package version is specified
+    at command line.
+
+  * pck-update - Davide Madrisan
+    Action 5: display a warning message if "PYTHONDONTWRITEBYTECODE" is set.
+    (required by Stefano Cotta Ramusino)
+
+  * pck-update, libcurl - Davide Madrisan
+    All the code related to curl has been moved from pck-update to libcurl.
+    Several cosmetic changes were made to remove all the code duplication in
+    pck-update. Now the code appears only once in libcurl :)
+
+-- Bug fixes
+
+  * autospec.conf - Davide Madrisan
+    Fixed and simplified the example for the ftp repository configuration for
+    openmamba.
+
+  * autospec.conf - Davide Madrisan
+    Update the `patch_name_structure' variable to fix the check of the patches
+    name structure.
+
+  * pck-update, libcurl - Davide Madrisan
+    The deletion of the old srpm packages works again.
+
+-- Updates
+
+  * librepository.lib - Davide Madrisan
+    Exit with an error message when a curl command doesn't succeed.
+
+  * pck-update - Davide Madrisan
+    Several improvements in the messages shown while downloading and uploading
+    files (side effect of the moving of all the curl related code to libcurl).
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.6.0
+
+-- Improvements
+
+  * autospec.conf - Silvan Calarco, Davide Madrisan
+    New option `srpm_install_options' with default value `--nodeps':
+    by default the srpm packages are now installed without taking care of the
+    missing dependencies (for compatibility with rpm5).
+
+  * pck-update - Silvan Calarco
+    Compatibility fixes to support rpm 5.
+    Better support with multiarch uploads.
+    The discovery of the default architecture was improved.
+
+  * pck-update - Silvan Calarco, Davide Madrisan    
+    By default do use smart for rpm download and install.
+    Create specfile backups as old files (i.e. prefixed by '.') by default.
+    Two new options (`spec_backup_extension' and `spec_backup_attr' was
+    introduced in autospec.conf to make this behaviour configurable.
+    Better support for `noarch packages'.
+
+  * autospec.conf, libspec.lib - Davide Madrisan
+    Support 'IEEE' and 'Copyright only' licenses.
+    Support a list of licenses ending with the `, and' separator.
+    Now the licenses set in the subpackages are also scannned while looking for
+    syntax and quality issues in the specfiles.
+
+  * spec-create - Davide Madrisan
+    Add support for '.lz' and '.7z' compressed archives.
+
+  * libcurl - Davide Madrisan
+    New library containing all the code related to curl.
+    Available functions are for now: `curl.download()', and `curl.upload()'.
+
+  * pck-update - Davide Madrisan
+    Extended code reworking to translate previous code into calls to the licurl
+    functions.
+
+  * Several minor fixes and debug enhancements.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.5.0
+
+-- Improvements
+
+  * pck-update (patch by Silvan Calarco):  
+    Speed optimization.
+
+  * libspec.lib
+    Various speed improvements in the core function 'rpmvars.solve'.
+
+  * libspec.lib
+    Use rpm preprocessor to solve the variables used in a specfile.
+    Initial patch by Silvan Calarco. Reworked to move all the code into the 
+    pck-update plugin and to run the rpm preprocessor only once.
+
+  * pck-update
+    When it make sense, do use the preprocessed specile instead of the original
+    one when parsing the specfile.
+
+-- Bug fixes
+
+  * libapse.lib (patch by Silvan Calarco):
+    Honour the netlink option ('curl_opts_netlink').
+
+  * pck-update (patch by Silvan Calarco):  
+    Fix identification of old packages to backup.
+
+  * pck-update (patch by Silvan Calarco):
+    Reduce severity from error to warning if host command fails as happens
+    using qemu-arm environment.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.17
+
+-- Bug fixes
+
+  * pck-update:
+    Honour user defined macros when expanding rpm variables found in the
+    speciles.  This problem was noticed by Silvan Calarco when cross-compiling
+    packages via autospec.
+
+  * pck-update:
+    Use alternative root directory, if provided, for build requirements check.
+
+  * pck-update:
+    Don't pass alternative root directory to rpmbuild except when running
+    rpmbuild --nobuild to check dependencies.
+    As the dependencies check is done before, it is safe to pass --nodeps to
+    non-simulated build commands.
+
+  * test01_pkgquality:
+    Skip the `%buildroot' test whether 'rpm_ignores_buildroot' is true in the
+    configuration file.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.16
+
+-- Improvements
+
+  * spec-create:
+    Support lzma compressed archives.
+
+  * templates/python:
+    Automatically build the full list if files
+
+  * libapse.lib (patch by Stefano Cotta Ramusino:
+    Check for new software at sourceforge.net/sf.net sites.
+
+-- Bug fixes
+
+  * pck-update (patch by Silvan Calarco):
+    Cross-compilation fix.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.15
+
+-- Improvements
+
+  * templates/kde4:
+    add update-desktop-database, update-mime-database, and gtk-update-icon-cache
+    calls to rpm scriplets.
+
+  * pck-update (patch by Silvan Calarco):
+    new option '--root=DIRECTORY': use the file system tree rooted at DIRECTORY
+    for all rpm operations.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.14
+
+-- Bug fixes
+
+  * pck-update:
+    fix upload of rpm/srpm packages when 'ftp_rw_port[]' is set in the
+    configuration file
+
+  * pck-update
+    (patch provided by Silvan Calarco):
+    pass build options and defines to rpmbuild --nobuild to prevent it from
+    failing when it shouldn't.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.13
+
+-- Improvements
+
+  * spec-create:
+    add support for xz compressed archives.
+
+-- Bug fixes
+
+  * spec-create:
+    always end '%post' and '%preun' blocks containing multiple statements with
+    an 'exit 0' command.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.12
+
+-- Bug fixes
+
+  * libapse.lib:
+    fix the error message:
+      /usr/share/autospec/lib/libspec.lib: line 1018: [: too many arguments
+
+  * tools/kde4-flist2rpmvars:
+    do not skip the first file of the list to process.
+
+  * tools/kde4-flist2rpmvars:
+    correcty handle the '%{_kde4_xdgappsdir}' and '%{_kde4_xdgmimedir}' macros.
+
+-- Improvements
+
+  * spec-create:
+    improved creation of python specfiles.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.11
+
+-- Bug fixes
+
+  * libapse.lib
+    (reported by Silvan Calarco):
+    fixed a nasty regression bug introduced in 1.4.9 that prevented libapse
+    from finding lots of software updates while looking on the internet.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.10
+
+-- Update
+
+  * templates/python
+    (patch provided by Silvan Calarco):
+    do use %{__python} instead of python in the specfiles of python packages.
+
+  * templates/python
+    (patch provided by Stefano Cotta Ramusino: autospec-1.4.9-python_opt.patch):
+    do not build the python modules twice. Use the optimization flag `-O1'.
+
+-- Bug fixes
+
+  * pck-update (reported by Stefano Cotta Ramusino):
+    if a description begins with a '%' character, do not pretend that the
+    "`%description' has empty body".
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.9
+
+-- Update
+
+  * autospec.conf (data by Stefano Cotta Ramusino):
+    new list of OSI approved licenses.
+
+-- Improvements
+
+  * autospec.conf, libapse.lib
+    (patch provided by Silvan Calarco):
+    improvements in the Autospec Package Search Engine.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.8
+
+-- Improvements
+
+  * libapse (patch provided by Silvan Calarco):
+    improved package version detection.
+
+  * libspec:
+    support debug packages.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.7
+
+-- Improvements
+
+ * pck-update (patch provided by Silvan Calarco):
+   integrated the relocate_RPM_dirs patch
+
+-- Bug fixes
+
+ * libspec.lib (apse.scrapeversion()) (patch provided by Silvan Calarco):
+   update the Autospec Package Search Engine for the site <sourceforge.net>
+
+ * pck-update: fix the update of packages when the package name contains a
+   relative or absoute path.
+
+ * pck-update: fix the initialisation of the specfile directory when the
+   '-S/--specfile' option is specified.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.6
+
+-- Bug fixes
+
+ * autospec.conf (patch provided by Silvan Calarco):
+   updated `apse_grep' and `apse_uri' variables
+
+ * libspec.lib (apse.scrapeversion()) (patches provided by Silvan Calarco):
+   fix regexpr and code that check for a new version of a given package
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.5
+
+-- Improvements
+
+ * pck-update, libapse.lib (patch provided by Silvan Calarco):
+   new option '--pckurlverbatim' in apse.scrapeversion();
+   added `source0' url based search
+
+ * libreposirory.lib (repository.get_SRPMS_name(), repository.get_RPMS_name()):
+   new option '-l|--user' (login user) for repositories that require 
+   authentication even in readonly mode 
+
+-- Bug fixes
+
+ * libspec.lib (apse.scrapeversion()): handle specfiles with no url specified
+   in source0
+
+ * libspec.lib (apse.scrapeversion()): fix regexpr used for parsing
+   sourceforge.net pages
+
+ * libspec.lib (apse.scrapeversion()) (patch provided by Silvan Calarco):
+   fix perl packages scraping
+
+ * pck-update (action 4): do not always display the warning message
+   `Source[0]': does not point to a valid internet address
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.4 (Christmas Release!)
+
+-- Bug fixes
+
+ * libspec.lib (specfile.getvars()): support non-standard package names like
+   'foo2zjs.tar.gz', 'pdf417_enc.4.4.tar.gz', and 'slib3a4.zip'
+   (issue reported by Silvan Calarco)
+
+ * pck-update (infofile.create()): check the optional specfile path entered by
+   users via command line options (only the path set in the rpm configuration
+   files is supported)
+
+ * pck-update (action 2): whether a newer version of a package is found on
+   the web, do use this version number instead of the version coded into the
+   specfile; this fixes an issue discovered by Silvan Calarco using the
+   autospec tool while performing multiple actions like '--action 2:4'
+
+-- Compatibility issues
+
+ * pck-update (action 1): do not remove the SRPMS package after download and
+   installation (feature asked by Silvan Calarco)
+
+ * pck-update (action 2): exit with exit code 4 (instead of error code 1) if
+   the current package is already the latest version (patch by Silvan Calarco)
+
+-- Improvements
+
+ * librepository (repository.get_SRPMS_name()): only download the repository
+   web pages only once per repository (thanks to Silvan Calarco for reporting
+   this problem)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.3
+
+-- Improvements
+
+ * spec-create: added support for the 'https' protocol
+
+-- Bug fixes
+
+ * librepository.lib: a more general regular expression is now used in the
+   function 'repository.get_pckname_from_HTML()' (this should fix all the
+   issues recently spotted by Silvan Calarco)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.2
+
+-- Improvements
+
+ * libspec.lib: the "<pckname> <= <version>" syntax in the build requirements
+   is now supported (thanks to Silvan Calarco for reporting the problem)
+
+ * librepository.lib: new library with the repository/internet related code
+   (as usual it can be used in any third-part scripts)
+
+ * Now autospec build and run on Ubuntu (tested on Ubuntu 8.04) plus rpm tools
+   (note: alien is not yet supported)
+
+-- Bug fixes
+
+ * pck-update: fixed the 'ftp_alias' support (thanks to Silvan Calarco for the
+   bug report)
+
+-- Compatibility issues
+
+ * Makefile: use "/usr/local" as default prefix instead of "/usr"
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.1
+
+-- Improvements
+
+ * autospec.spec: subpackages descriptions now have an italian tranlations
+
+ * tests: the security and quality tests have been moved to external modules;
+   other tests can be added in a simpler way than before
+
+ * autospec.conf:
+   new variables
+    - 'rpm_install_noinstall_mask'
+    - 'rpm_install_l10n_pck_mask'
+    - 'rpm_install_l10n_pck_allow_lang_mask'
+   used to control which localization/development packages will be installed
+   by the plugin 'pck-update' (feature asked by Silvan Calarco)
+
+   ex. rpm_install_noinstall_mask='-apidocs-'
+       rpm_install_l10n_pck_mask='-i18n-|-help-'
+       rpm_install_l10n_pck_allow_lang_mask='it'
+
+   in this example:
+    - the apidocs packages will never by installed
+    - only the localization packages for the italian language will be installed
+
+-- Compatibility issues
+
+ * most plugins and libraries require now bash version 3 or better
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.4.0
+
+-- Improvements
+
+ * libapse: merged two pathes written by Silvan Calarco which increase
+   interoperability with the "autodist" tool written by Silvan Calarco for the
+   openmamba distribution
+
+ * the localization files are now splitted into separate files (one for each
+   library and plugin, and one for the autospec frontend)
+
+-- Compatibility issues
+
+ * pck-update: make a backup copy of the old specfiles when executing action 1
+   (srpm download/install) instead of action 4 (specfile update).
+   This seems more useful for developers and for the automatic upgrading tool
+   used in openmamba.  Feature asked by Silvan Calarco
+
+ * autobuild: this tool has been removed because it hasn't been developed and
+   maintained for a long time and it has been now superceeded by `autodist',
+   written by Silvan Calarco for the openmamba distribution
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.3.2
+
+-- Improvements
+
+ * pck-update: merged "autospec-1.2.2-localedir.patch" by Silvan Calarco:
+   this patch improves the detection of locales files performed by autospec
+
+ * pck-update: implemented aliases for ftp repositories (using the new vector
+   variable 'ftp_alias' in the autospec configuration file).
+   Affects both the options '--server-download' and '--server-upload'.
+   Feature asked by Silvan Calarco.
+
+   With this configuration lines:
+      ftp_alias[0]="devel"
+      ftp_alias[1]="contrib"
+
+   you can now select the second repository in the two ways:
+      autospec -u -a0 --server=1
+      autospec -u -a0 --server=contrib
+
+ * pck-update: support package names matching the regular expression
+   '<pck_name>-svn<date>-<..>.rpm', like 'peercast-svn20070619-1mamba.src.rpm'
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.3.1
+
+-- Bug fixes
+
+ * autospec: Fixed typo in the help message
+
+ * pck-update: Fixed a regression in the '--changelog' option (thank to
+   silvan.calarco(a)mambasoft.it for spotting this)
+
+ * libapse.lib: updated to work again with the renewed sourceforge site
+   (patch by silvan.calarco(a)mambasoft.it)
+
+ * several minor regressions have been fixed in all the plugins
+
+-- Improvements
+
+ * pck-update: new option "--force-update" (silvan.calarco(a)mambasoft.it)
+
+ * pck-update: fixed openmamba bug #83 reported by "skiver": remote patches
+   are not automatically downloaded
+
+ * libapse.lib: exit with return value "3" if a new version of the given
+   package cannot be found (patch by silvan.calarco(a)mambasoft.it)
+
+ * updated the italian man page and the document `autospec-it-HOWTO'
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.3.0
+
+-- Improvements
+
+ * libspec.lib: display "skipped" also for remote files already found in the
+   local disk (that is previously downloaded)
+
+ * all the plugins can be now executed directly. The autospec frontend is not
+   necessary any more (it can be replaced by a graphical one, for instance;-)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.2.2
+
+-- Improvements
+
+ * pck-update, action 5: speed up installation of missing build requirements
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.2.1
+
+-- Improvements
+
+ * pck-extract: preserve timestamps when extracting files from a srpm archive
+
+-- Bug fixes
+
+ * libspec.lib: support specfiles with licenses containing one or more spaces
+   (thanks to silvan for reporting this issue)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.2.0
+
+-- Bug fixes
+
+ * pck-update: a minor fix related to the 'proxy_user' variable
+
+-- Improvements
+
+ * templates: created the following specfile templates
+      templates/gnome
+      templates/kde3
+      templates/kde4
+      templates/library
+      templates/librarytool
+      templates/perl
+      templates/python
+      templates/standard
+
+ * libapse.lib: new functions
+      'getnamefromtarball()'
+      'getversionfromtarbal()'
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.9
+
+-- Changes
+
+ * autospec, italian man page: updated copyleft message
+
+ * pck-update, action 6: committed patches by Silvan Calarco
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.8
+
+-- Changes
+
+ * pck-update
+   - action 11: fixed an issue related to the recent rpm version upgrade
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.7
+
+-- Changes
+
+ * autospec.conf: new variables `rpm_macro_cmake' and 
+   `rpm_macro_makeinstall_cmake'
+
+ * spec-create: support the cmake building technology
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.6
+
+-- Changes
+
+ * libspec.lib: various changes (see ChangeLog for details) to support `Name's
+   using variables, that is matching the following regexpr:
+      "string0%{?varname:%varname-string1-}string2"
+   (feature asked by Silvan Calarco)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.5
+
+-- Changes
+
+ * configuration data moved from libapse.lib to the configuration file
+   (patch by Stefano Cotta Ramusino, aka whitone)
+
+-- Bug fixes
+
+ * fixed a bug introduced by the 1.1.4 update
+   (thanks to whitone for reporting this issue and providing a patch)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.4
+
+-- Changes
+
+ * libapse.lib: `apse.scrapeversion' updated to the latest version
+   (patch from Stefano Cotta Ramusino, the main author)
+
+ * autospec.conf: fixed some typos in the comment lines
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.3
+
+-- Changes
+
+ * libapse.lib: `apse.scrapeversion' returns the following exit codes:
+     0 : package is already the latest version
+     1 : a package with newer version is already installed
+     2 : a new version is available
+
+-- Bug fixes
+
+ * autospec.conf: added "Graphical Desktop/Applications/Security" to
+   `rpm_allowed_groups'
+
+ * pck-update, action 4: do not strip out all the make commands but the last
+   one in specfiles containing multiple occurrences of `make' in their
+   %build sections, when autoformatting is enabled
+
+ * pck-update, action 6: do not be too clever, if the specfile is newer than
+   the rpm and/or srpm packages just print a warning message
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.2
+
+-- Bug fixes
+
+ * libspec.lib: fixed two minor issues with tarballs with the name matching
+   the `<pck_name>_<pck_ver>' scheme
+
+ * config-getvar (autospec --eval): fixed queries results
+
+ * autospec.conf: updated `format_extra_rules' to automatically upgrade old
+   perl specfiles to the new scheme used in qilinux/openmamba distributions,
+   if the option `-f' is used
+
+ * configuration file: the `format_description_width' variable is now set to
+   `0' by default (unlimited length for description lines)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.1
+
+-- Changes
+
+ * pck-update, action 6: merged changes made by silvan.calarco(a)mambasoft.it
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.1.0
+
+-- Changes
+
+ * pck-update, action 6: merged the `find_buildrequirements' script written
+   by silvan.calarco(a)mambasoft.it
+
+-- Bug fixes
+
+ * spec-create: fixed a regression bug introduced in version 1.0.2
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.0.2
+
+-- Changes
+
+ * Updated and improved italian man page
+
+ * spec-create: better support for perl modules using the more recent
+   `Module::Build' building, testing, and installing system
+
+ * spec-create: improved support for perl modules creation
+
+ * pck-update, action 8: added a new test for checking whether a package
+   with no binary (elf) files has the BuildArch tag set to `noarch'
+
+-- Bug fixes
+
+ * pck-update, action 5: if the rpm packages are rebuilt force the repackaging
+   of the srpm package too
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.0.1
+
+-- Bug fixes
+
+ * pck-update: use a better regexpr (in `repository.get_RPMS_name/()') when
+   parsing the list of files found in a given repository reached trough a
+   proxy server
+
+ * support for kde4 libraries (see autospec.conf)
+
+ * updated autospec-it-HOWTO (formerly known as `rpm4QiLinux-it-HOWTO')
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 1.0
+
+   After three years of work I am very happy to announce this
+   milestone release of autospec!
+
+-- Changes
+
+ * tbz2 file archives (file archive compressed with both .TAR and .BZ2
+   compression) are now supported (a most peculiar extension indeed)
+
+ * pck-extract, spec-create: allow execution of these plugins by root even
+   if the configuration file `/root/.autospec' doesn't exist
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.99
+
+-- Bug fixes
+
+ * pck-update: fixed some issues related to the changes in the openmamba
+   website
+
+ * configuration file: modified the default settings for `ftp_rw_server',
+   ftp_rw_rpms_dir', and `ftp_rw_srpms_dir' according to the new openmamba
+   web infrastructure
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.98
+
+-- Bug fixes
+
+ * pck-update, action 10: do not display usernames and passwords in the
+   debug messages
+
+ * pck-update, action 0,10: url redirection is now supported when scanning
+   for rpm and srpms packages at http urls
+
+ * pck-update, action 10: the backup of old packages should now work again
+
+ * pck-update: the variable `curl_opts_netlink' can now be set in the user
+   configuration file to tune connection timeout and number of retries when
+   downloading files
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.97
+
+-- Changes
+
+ * configuration file: the list of the approved licenses has been updated
+
+-- Bug fixes
+
+ * honour command line LANG setting
+
+ * pck-update, action 10: more general approach when creating the urls where
+   the packages will be uploaded in order to support the url scheme used by
+   openmamba
+
+-- Compatibility issues
+
+ * The syntax of the values of the configuration variables `ftpurl_ro_rpms'
+   and `ftp_rw_rpms_dir' has been modified to permit a different setup of the
+   architectures supported in the repositories. Here an example:
+
+     ftpurl_ro_rpms[1]="http://www.openmamba.org/pub/openmamba/devel-contrib/RPMS.@arch@"
+     ftp_rw_rpms_dir[1]="/RPMS.@arch@"
+     arch_list[1]="i586"
+     arch_noarch_upload[1]="${arch_list[1]}"
+
+   The string `@arch@' in the repository `n' means: every architecture listed
+   in `arch_list[n]'.
+
+     arch_list               @arch
+     -----------------------------
+     "i586 ppc arm x86_64"   "i586", "ppc", "arm", "x86_64"
+     "i586"                  "i586"
+
+   See the global configuration file for details.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.96
+
+-- Changes
+
+ * configuration file: the list of the approved licenses has been updated
+
+ * pck-update, action 2: `sourceforge.net' is now also scanned while finding
+   for available packages over the web
+
+-- Bug fixes
+
+ * configuration file: do really support openmamba in the default settings
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.95
+
+-- Changes
+
+ * configuration file: default setting modified to support openmamba
+
+ * update, action 4: support the upgrade of packages when switching between
+   two different linux distribution
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.94
+
+-- Improvements
+
+ * update, action 8: check for desktop files installed in /usr/share/applnk/
+   (a non-standard location used by kde in the old times)
+
+-- Bug fixes
+
+ * update, action 4: fixed some minor bugs (see ChangeLog for details)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.93
+
+-- Improvements
+
+ * libspec: now it's possible to force the download of a source file,
+   even if a local copy (can be corrupted) has been detected
+
+-- Bug fixes
+
+ * libspec: do not dowload a remote file if a local copy is found
+
+ * update, action 4: fixed code used to append multiline changelog entries in
+   the specfiles; was affected by a strange bug apparently caused by a bash
+   upgrade
+
+-- Other changes
+
+ * configuration file: by default the variable `python_module_name_structure
+   is now unset. The python packages do not need now a mandatory `python-'
+   prefix in their names; the original names can be used.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.92
+
+-- Improvements
+
+ * update, action 0: added support for http repositories
+
+-- Bug fixes
+
+ * this release contain several code cleanups and some minor bug fixes
+   especially in the main script
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.91
+
+-- Improvements
+
+ * update, action 5: do not check for uninstalled build requirements and
+   source files if nor the srpm not the rpm packages need to be built
+
+-- Bug fixes
+
+ * libspec: fixed expansion of define directives found in a specfile that
+   refer to other define directives
+
+     ex. %define gnomever %(echo `rpm -q --queryformat '%{VERSION}' libglib`)
+         %define gnomemajver %(echo %gnomever | cut -d. -f 1-2)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.90
+
+-- Improvements
+
+ * update, action 10: the code used to upload packages has been reworked to
+   be more robust and easier to debug
+
+-- Bug fixes
+
+ * this release contains several bug fixes related to network connections
+   trough a proxy server
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.15
+
+-- Improvements
+
+ * autospec.conf: the new option `--proxy' and `proxy_user' are available so
+   now it's possibile to use autospec trough a proxy server
+
+ * almost all the modules have been updated to support connections trough a
+   proxy server
+
+ * update, action 2: integrated the package engine search code developed by
+   Stefano Cotta aka whitone (stefano.cotta(a)qilinux.it); now autospec can
+   automatically search for updates!
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.14
+
+-- Improvements
+
+ * update, action 4: the test that checks for the presence of the 
+   install/uninstall code for info pages has been improved, at least for LSB
+   compliant systems (thanks to "whitone" (stefano.cotta(a)qilinux.it) for
+   providing a patch)
+
+ * spec-create: the uncompress utility is not required now; an error message
+   is printed if a .Z file is found and the uncomress utility is not installed
+
+ * autospec: the new option `--ignore-test' is available so now it's possibile
+   to tell autospec to skip a given list of tests
+
+-- Bug fixes
+
+ * several portability fixes (tested on OpenSuSE 10.[0,1])
+
+ * the `packager_group' variable can be now unset (some distros do not have
+   such a group)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.13
+
+-- Improvements
+
+ * update, action 0: when listing the available versions of a given package
+   found in the repositories, the server number is now also displayed
+
+ * new option '-T/--target' available in the `autobuild' plugin
+
+-- Bug fixes
+
+ * minor fixes and documentation updates
+
+ * a bunch of bug fixes and enhancements in the `autobuild' plugin
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.12
+
+-- Improvements
+
+ * update, action 1: if `force_install' is set by user the srpm file is
+   downloaded and installed even if a local srpm has been detected
+
+ * update, action 3: redirect is now supported by default by autospec when
+   downloading files from remote ftp servers
+
+ * specfiles with conditional expressions with one operand, like
+
+      %if "%{?stage1}"
+
+   are now supported (libspec.lib were extended to support them)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.11
+
+-- Improvements
+
+ * new option `--force-build' to force the rebuild of rpm(s) and srpm
+   packages detected on the local harddisk
+
+ * new option `--force-install' to force the installation of the rpm packages
+   even if rpm complains for errors
+
+ * the previous (ambiguous) option `--force' is now a shortcut that can be
+   used to enable both these options
+
+ * new options `--server-download' to select a server from where to download
+   the srpm packages
+
+ * new option `--server-upload' to select a server where to upload packages
+
+ * the previous (ambiguous) option `--server' can now be used to select a
+   server to be used for both download and upload
+
+ * autobuild plugin updated and improved
+
+ * the help message displayed when the user configuration file for autospec
+   is not found has been improved
+
+ * update, action 5: if a source file cannot be found in the source directory
+   autospec now try to download it before starting the build process
+   (feature suggested by <stefano.cotta(a)qilinux.it>)
+
+ * if one or more lines in a specfile must be ignored by autospec, a command
+   block 'AUTOSPEC-OFF' - 'AUTOSPEC-ON' can now be used; an example follows
+
+      ## *AUTOSPEC-OFF*
+      Obsoletes: %{name}-tools
+      ## *AUTOSPEC-ON*
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.10
+
+-- Improvements
+
+ * new plugin autobuild for batch processing: this plugin can parse text
+   files written with a specific syntax and execute shell commands, build,
+   upgrade, install, and upload rpm and srpm packages
+
+-- Bug fixes
+
+ * minor fixes in the update and extract plugins (see the Changelog file for
+   details)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.9
+
+-- Improvements
+
+ * no improvements: this release only fix a few bugs discovered in the update
+   plugin (see the ChangeLog file for details)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.8
+
+-- Improvements
+
+ * update, action 5: the rpm and srpm packages are not built if they are
+   found on the local disk; to force the rebuild of such packages, the
+   `--force' option can be used
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.7
+
+-- Improvements
+
+ * update, action 11: the new option `--force' can be used now to force the
+   installation of the rpm packages (the rpm command used by autospec is user
+   configurable by editing the new configration variable `rpm_install_force')
+
+ * any trailing ".spec" string found in the package name entered by user is
+   stripped out to avoid a potentially frequent and boring error message
+
+-- Bug fixes
+
+ * update, action 10: fixed some typo and sintax errors; the `--server'
+   option should now always work as expected
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.6
+
+-- Improvements
+
+  * patches compressed with the gzip tool (*.{diff|patch}.gzip) are now
+    automatically decompressed by the pck-update plugin
+
+  * update, action 0: the given srpm package is now searched in all the
+    configured repositories (the searching process do not stops at the first
+    match) so it is possible to know if a packages has been updated to several
+    different repositories, like public and commercial ones, with the same or
+    different version and/or release
+
+-- Bug fixes
+
+  * update, action 10: packages backup/cleanup is now performed correctly
+    even when the `--server' option is specified by user
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.5
+
+-- Improvements
+
+  * The pck-update plugin now supports specfiles with source0 unset
+    This is a feature needed when updating some very unusual packages
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.4
+
+-- Improvements
+
+ * no improvements, just small bugfixes
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.3
+
+-- Improvements
+
+ * spec-create plugin: several minor fixss (especially when creating
+   specfiles for perl modules) and a few updates to use the new features
+   provided by rpm 4.4.4
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.2
+
+-- Improvements
+
+ * The pck-extract plugin now automatically decompress the patch compressed
+   with the bzip2 tool.
+   Source files can now be remote URLs (will be automatically downloaded)
+
+ * The pck-update plugin now also supports release numbers in the format
+   `[0-9]*.[0-9]*'
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.1
+
+-- Improvements
+
+ * New option `--server' used by the `pck-update' module to permit users to
+   force the selection of a single repository where to look for available srpm
+   files and where to upload new or updated packages.
+   This feature will permit developers to manage a (configurable) set of ftp
+   repositories where srpm packages could be even duplicated, with the same or
+   a different version and/or release number.
+
+ * Autospec now exit with an error message if the configuration file
+   `~/.autospec' is not found or not readable by the user running autospec.
+
+ * When a specfile is generated by autospec, the value for `Source:' has now
+   all the occurrences of the version number substituded by the string
+   `%{version}'.
+
+ * rpm4QiLinux-it-HOWTO: an example of a working configuration file to put in
+   the home directory of any QiLinux contributors has been added.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.9.0
+
+-- Compatibility issues
+
+ * The configuration variables used during the uploading process have been
+   slightly modified and some variables have been added to enhance this
+   feature (see below).
+   All the compatibility problems should have been addressed with warning and
+   error messages.
+
+-- Improvements
+
+ * Autospec now supports a set of repositories where the packages can be
+   uploaded.  By default new packages are uploaded to the server where an old
+   copy of the SRPMS package is found.  If no old packages exist, a default
+   server is choosen by autospec, looking at the new configuration variable
+
+      `ftp_rw_server_num_default'.
+
+   Its value is the zero-based index pointing to the list of available servers
+   `ftp_rw_server'.
+   The backup of any old package, is now performed using the directory saved
+   in the configuration variable
+
+      `ftpdir_rw_old[i]'
+
+   where `i' is the zero-based index of the ftp server where the old packages
+   have been found.  If `ftpdir_rw_old[i]' is not set (or set to ""), the old
+   packages are just removed, as usual.
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.9
+
+-- Improvements
+
+ * update, action 4: new test to check if all the licenses listed in the
+   `License' entry in the specfile are approved licenses
+   (patch by "whitone")
+
+ * update, action 4: added two short messages if test 8 or 9 fail to help users
+
+ * autospec: the `--eval' command now supports all the configuration variable
+   typologies (notably the multiline vectors)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.8
+
+-- Improvements
+
+ * update, action 5: now supports both the options `--norpm' and `--nosrpm'
+
+ * update, action 5: user defined values set via the `--define' command are
+   now passed to rpm when building a specfile
+
+ * update, action 6: has been obsoleted
+
+ * the rpm4QiLinux-it-HOWTO document has been updated
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.7
+
+-- Improvements
+
+  * specfile creation: the `-s' option now also supports URLs; in this case
+    the package is dowloaded and the URL used to set the `Source' entry in the
+    specfile
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.6
+
+-- Improvements
+
+ * autospec is now fully UTF-8 compliant
+
+ * update, action 4: the test for info pages installation/removal has
+   been enhanced, so no false positive errors should be generated now
+
+ * created italian manpage for autospec
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.5
+
+-- Improvements
+
+ * libspec.lib:
+   specfile.getvars: new query `SPEC_LICENSE' (patch submitted by whitone)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.4
+
+-- Improvements
+
+ * update, action 4: added a check to see if the `Group' entry specified
+   in the spefile is a known one, according to the (new) configuration
+   variable `rpm_allowed_groups'
+
+ * libspec.lib:
+   specfile.getvars: new query `SPEC_GROUP'
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.3
+
+-- Compatibility issues
+
+ * update:
+   the code from action 2 has been moved at the top of action 4 to give room
+   for future implementations (action 2 does nothing usefull now)
+
+-- Improvements
+
+ * checks for needed tools customized and moved at the top of each plugin body
+   to permit users to view help instructions, check configuration files and
+   execute some plugins even if not all the system tools required by autospec
+   are available
+
+ * update, action 4: strict specfile sintax checks are performed before
+   updating the specfile
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.2
+
+-- Improvements
+
+ * autospec:
+   the `--eval' command can now be executed in quiet mode (`-q' option)
+
+ * libspec.lib:
+   specfile.getvars(): query `SPEC_URL' now available
+   nested conditional blocks (%if ... %else ... %endif) in the specfiles are
+   now supported
+
+ * update: new modifier `--norpm' for action `5' to only create the srpm
+   package
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.1
+
+-- Improvements
+
+ * update: new action `11' to install the rpm files created by a given
+   package
+
+ * libspec.lib:
+   specfile.getvars(): query `SPEC_BUILDREQUIRES' now available
+   rpmvars.solve(): rpm variables are now expanded
+      example: rpmvars.solve("%{__install_info}" mbrowse.spec)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.8.0
+
+-- Improvements
+
+ * part of code has been moved to shell shared libraries (`libspec.lib' and
+   `libmsgmng.lib' for now) that can be loaded by external scripts to use
+   the feature of the autospec program;
+   execute the commands
+      . /usr/share/autospec/lib/libspec.lib
+      EXIT_FUNC=return specfile.getvars --help
+   for a short help message
+
+ * installation of build requirements moved to action 5 (build section)
+
+ * update, action 4: new option `--changelog' to set a user defined changelog
+   entry (multiline entries are allowed, using eol ('\n') characters)
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.7.3
+
+-- Improvements
+
+ * `BuildArch' entries in the specfile are parsed and (the last) used as
+   target architecture
+
+ * generation of specfile for perl modules updated
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.7.2
+
+-- Improvements
+
+ * update, action 2: new test to check if the macro `%find_lang' is used when
+   localization files are detected
+
+ * update, action 4 now install all the declared build requirements if
+   `rpm_download_and_install' is defined in the configuration file
+   (default value for `rpm_download_and_install': "sudo -y apt-get install")
+
+-- Bug fixes
+
+ * rpm variables with prefix `?' (like `%{?_smp_mflags}"') should now be fully
+   supported in all the specfile contexts
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.7.1
+
+-- Improvements
+
+ * specfile tests (update, action 2 ) improved
+
+-------------------------------------------------------------------------------
+
+List of user visible changes in the release 0.7.0
+
+-- Compatibility issues
+
+ * the configuration variables `ftpdir_rw_rpms' and `ftpdir_rw_srpms' are
+   now vectors and their entries MUST be ordered in the SAME WAY as in
+   `ftpurl_ro_rpms[]' and `ftpurl_ro_srpms[]'
+   default value (setup for QiLinux contributors)
+     ftpurl_ro_rpms[0]="ftp://ftp.qilinux.it:21/pub/QiLinux/devel/RPMS"
+     ftpurl_ro_rpms[1]="ftp://ftp.qilinux.it:21/pub/QiLinux/devel-contrib/RPMS"
+     ftpurl_ro_srpms[0]="ftp://ftp.qilinux.it:21/pub/QiLinux/devel/SRPMS"
+     ftpurl_ro_srpms[1]="ftp://ftp.qilinux.it:21/pub/QiLinux/devel-contrib/SRPMS"
+     ftpdir_rw_rpms[0]=""
+     ftpdir_rw_rpms[1]="/devel-contrib/RPMS"
+     ftpdir_rw_srpms[0]=""
+     ftpdir_rw_srpms[1]="/devel-contrib/SRPMS"
+
+ * update, action 2 now checks for sintax errors/non-standard stuff in the given
+   specfile (this check was part of action 4)
+
+-- Improvements
+
+ * added support for multiple architectures, configurable via the `arch_list'
+   vector in the configuration file (default value: ("i586" "ppc"))
+ * upload of noarch packages configurable via the `arch_noarch_upload' vector;
+   the noarch packages will be uploaded in the subfolder(s) specified by this
+   variable (default value: ("i586" "ppc"))
+ * new options `--nosrpm', `--norpm' for --update (action 10 only)
+ * rpm variables with prefix `?' (like `%{?_smp_mflags}"') are now supported
+ * %if statements using boolean expressions involving strings are now supported
+     %if "%{?cross_target_cpu}" != ""
+     ...
+ * backup/cleanup of old packages found in the ftp repositories now also take
+   care of the `Obsoletes' tags
+ * tests performance (--update --action 8) dramatically improved
+ * new shell script `extract-specs' usefull to extract specfiles from srpms
+   archives with no use of temporary files
+ * the command `-S|--specfile' accepts now a specfile name with path
+
+-- Bug fixes
+
+ * void strings in user definitions (like `--define cross_target_cpu=""') are
+   now allowed
+ * the `--eval' option now works correctly when invoked with vectors
+ * several minor bugfixes
+
+-------------------------------------------------------------------------------

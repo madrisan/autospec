@@ -1,0 +1,206 @@
+# translation of it.po to Italiana
+# Copyright (C) 2004-2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2004-09-01 22:48+0200\n"
+"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+msgid "this script requires bash version 3 or better"
+msgstr "questo script richiede bash versione 3 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid ""
+"This program is free software; you can redistribute it and/or modify it under\n"
+"the terms of the GNU General Public License version 2 as published by the\n"
+"Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY\n"
+"or FITNESS FOR A PARTICULAR PURPOSE."
+msgstr ""
+"Questo è software libero; è possibile redistribuirlo e/o modificarlo nei termini\n"
+"della GNU General Public License versione 2 così come pubblicata dalla\n"
+"Free Software Foundation.  Non è fornita ALCUNA garanzia; neppure di NEGOZIABILITA'\n"
+"o di APPLICABILITA' PER UN PARTICOLARE SCOPO."
+
+msgid "Try to create a specfile for the specified source archive"
+msgstr "Cerca di creare uno specfile per l'archivio sorgente indicato"
+
+msgid "Usage"
+msgstr "Utilizzo"
+
+msgid "where the above options mean"
+msgstr "dove le precedenti opzioni significano"
+
+msgid "Name of the package (default: taken from <source-archive> name)"
+msgstr "Nome del pacchetto (default: ricavato dal nome dell'archivio sorgente)"
+
+msgid "Version of the package (default: taken from <source-archive> name)"
+msgstr "Versione del pacchetto (default: ricavato dal nome dell'archivio sorgente)"
+
+msgid "Typology of the specfile to be created"
+msgstr "Categoria dello specfile da generare"
+
+msgid "standard specfile (default)"
+msgstr "specfile standard (default)"
+
+msgid "specfile for gnome packages"
+msgstr "specfile per pacchetti gnome"
+
+msgid "specfile for kde3 packages"
+msgstr "specfile per pacchetti kde3"
+
+msgid "specfile for kde4 packages"
+msgstr "specfile per pacchetti kde4"
+
+msgid "specfile for common library packages"
+msgstr "specfile per librerie"
+
+msgid "specfile for single-package perl modules"
+msgstr "specfile per singoli moduli perl"
+
+msgid "specfile for python modules"
+msgstr "specfile per moduli python"
+
+msgid "standard specfile for system/network services"
+msgstr "specfile per servizi di sistema/rete"
+
+msgid "Redirect the output to the file <outfile>"
+msgstr "Redirige lo standard output sul file <outfile>"
+
+msgid "Operation modes"
+msgstr "Modalità operative"
+
+msgid "Print this help, then exit"
+msgstr "Stampa questa schermata di aiuto e termina il programma"
+
+msgid "Print version number, then exit"
+msgstr "Stampa il numero di versione e termina il programma"
+
+msgid "Run in quiet mode"
+msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
+
+msgid "Enable the colorized output"
+msgstr "Abilita l'output colorato"
+
+msgid "Run in debugging mode (very verbose output)"
+msgstr "Attiva la modalità di debugging (output prolisso)"
+
+msgid "Samples"
+msgstr "Alcuni esempi"
+
+msgid "Report bugs to <davide.madrisan@gmail.com>."
+msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
+
+msgid "cannot read"
+msgstr "impossibile leggere"
+
+msgid "unrecognized option"
+msgstr "opzione non conosciuta"
+
+msgid "utility not found"
+msgstr "programma non trovato"
+
+msgid "info-page"
+msgstr "pagina-info"
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "illegal arg#1 for \\`$FUNCNAME'"
+msgstr "argomento #1 per \\`$FUNCNAME' non lecito"
+
+msgid "missing arg#2 in \\`$FUNCNAME $1'"
+msgstr "argomento #2 in \\`$FUNCNAME $1' mancante"
+
+msgid "unknown build techonology"
+msgstr "tecnologia di build sconosciuta"
+
+msgid "file not found"
+msgstr "file non trovato"
+
+msgid "remember to modify the value for \\`${NOTE}$id${NORM}'"
+msgstr "ricordarsi di modificare il valore di \\`${NOTE}$id${NORM}'"
+
+msgid "FIXME: sorry, not implemented yet..."
+msgstr "FIXME: spiacente, implementazione mancante..."
+
+msgid "(see $templatedir)"
+msgstr "(si veda $templatedir)"
+
+msgid "unknown specfile --type"
+msgstr "\\`--type' indicato sconosciuto"
+
+msgid "skipped"
+msgstr "ignorato"
+
+msgid "cannot download"
+msgstr "impossibile scaricare"
+
+msgid "unsupported protocol"
+msgstr "protocollo non supportato"
+
+msgid "missing tarball name"
+msgstr "manca il nome del tarball"
+
+msgid "cannot find the package $pck_tarball"
+msgstr "impossibile trovare il pacchetto $pck_tarball"
+
+msgid "cannot get the package name, use the \\`-n' option"
+msgstr "impossibile ricavare il nome del pacchetto, usa l'opzione \\`-n'"
+
+msgid "invalid version number"
+msgstr "numero di versione non valido"
+
+msgid "cannot get the package version, use the \\`-v' option"
+msgstr "impossibile ricavare la versione del pacchetto, usa l'opzione \\`-v'"
+
+msgid "output file"
+msgstr "file di output"
+
+msgid "can't create output file"
+msgstr "impossibile creare il file di output"
+
+msgid "generating specfile"
+msgstr "generazione dello specfile"
+
+msgid "source"
+msgstr "sorgente"
+
+msgid "mode"
+msgstr "modo"
+
+msgid "libraries must have this name structure (use \\`-n'):"
+msgstr "i nomi delle librerie devono avere questa struttura (usare \\`-n'):"
+
+msgid "perl modules must have this name structure (use \\`-n'):"
+msgstr "i nomi dei moduli perl devono avere questa struttura (usare \\`-n'):"
+
+msgid "python modules must have this name structure (use \\`-n'):"
+msgstr "i nomi dei moduli python devono avere questa struttura (usare \\`-n'):"
+
+msgid "can't create temporary directory"
+msgstr "impossibile creare directory temporanee"
+
+msgid "unsupported package compression method"
+msgstr "metodo di compressione del pacchetto non supportato"
+
+msgid "neither \\`Makefile' nor \\`Makefile.in' has been found"
+msgstr "\\`Makefile' e \\`Makefile.in' non trovati"
+
+msgid "looks like a perl package (use \\`-t perl' if this is true)"
+msgstr "sembra un pacchetto perl (in questo caso usa \\`-t perl')"
+
+msgid "looks like a python module (use \\`-t python' if this is true)"
+msgstr "sembra un modulo python (in questo caso usa \\`-t python')"
+
+msgid "created specfile"
+msgstr "creato specfile"

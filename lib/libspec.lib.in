@@ -1,0 +1,1216 @@
+#!/bin/bash -e
+# libspec.lib -- @package@ library to manage rpm specfiles
+# Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="libspec"; export TEXTDOMAIN
+
+# function boolexpr.solve
+#    calculate the boolean expression `$1' expanding the variables
+#    found in `rpmvar_name[]' and `define_list_name[]'
+# args:
+#    $1 : boolean expression to calculate
+# return values:
+#    0  : false
+#    1  : true
+#    2  : sintax error in expression `$1'
+# note:
+#    tested families of boolean expressions:
+#     - %define use_gcc_33   0
+#       %if [!] %{use_gcc_33}
+#       ...
+#     - %if "%{?cross_target_cpu}" != ""
+function boolexpr.solve() {
+   local input="$1" boolexpr="$1"
+
+   [[ "$boolexpr" ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   notify.debug "\
+$FUNCNAME: boolean expression [ $boolexpr ]"
+
+   local i
+
+   # expand user --defined variables first...
+   for i in `seq 0 1 $(( ${#define_list_name[*]} - 1 ))`; do
+         notify.debug "\
+$FUNCNAME: expanding boolexpr using: \
+${define_list_name[$i]} (${define_list_value[$i]})"
+
+      boolexpr=$(echo $boolexpr | sed "\
+s@%${define_list_name[$i]}@${define_list_value[$i]}@g
+s@%?${define_list_name[$i]}@${define_list_value[$i]}@g
+s@%{${define_list_name[$i]}}@${define_list_value[$i]}@g
+s@%{?${define_list_name[$i]}}@${define_list_value[$i]}@g")
+   done
+
+   # ...then expand known variables
+   for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+      notify.debug "\
+$FUNCNAME: expanding boolexpr using: \
+${rpmvar_name[$i]} (${rpmvar_value[$i]})"
+
+      boolexpr=$(echo $boolexpr | sed "\
+s@%${rpmvar_name[$i]}@${rpmvar_value[$i]}@g
+s@%?${rpmvar_name[$i]}@${rpmvar_value[$i]}@g
+s@%{${rpmvar_name[$i]}}@${rpmvar_value[$i]}@g
+s@%{?${rpmvar_name[$i]}}@${rpmvar_value[$i]}@g")
+   done
+
+   # unexpanded variables beginning by '?' become void strings
+   # i.e. "%{?cross_target_cpu}" --> ""
+   case "$boolexpr" in
+   *%{?*|*%?*)
+      boolexpr=$(echo $boolexpr | \
+         sed "s@%{?[^}]*}@@g;s@%?[a-zA-Z0-9_]*@@")
+      notify.debug "$FUNCNAME: boolexpr blanked -- [ $boolexpr ]" ;;
+   esac
+
+   # expand rpm variables
+   # i.e. "%{_build_cpu}"
+   notify.debug "$FUNCNAME: expanding rpm variables, if any..."
+   boolexpr=$(eval "rpm $define_list_rpm --eval='"$boolexpr"'")
+   notify.debug "$FUNCNAME: boolexpr = \`$boolexpr'"
+
+   # catch parsing errors
+   #[ "$boolexpr" 2>/dev/null ]
+   #[ $? -gt 1 ] && { echo "2"; return; }
+
+   # note: rpm logic: "0" means false, everything else means "true"
+
+   set -- $boolexpr
+
+   local do_negate
+   [ "$1" = "!" ] &&
+    { let "do_negate = 1"; shift; } || let "do_negate = 0"
+   notify.debug "$FUNCNAME: do_negate = $do_negate"
+
+   if [[ ( "$1" = "0" || "$1" = "1" ) && -z "$2" ]]; then
+      let "retval = $1"
+      [[ "$do_negate" = "1" ]] && let "retval = $((! $1))"
+   else
+      notify.debug "\
+$FUNCNAME: set: \$1 = \"$1\", \$2 = \"$2\", \$3 = \"$3\""
+      case "$2" in
+         "") # boolean expression with only one operand, i.e
+             # %if "%{?stage1}"
+             [ "${1//\"/}" ] && let "retval = 1" || let "retval = 0"  #`
+         ;;
+         "<"|"<="|"="|"=="|"!="|">="|">")
+             # boolean expression with operator, i.e
+             # "%{?cross_target_cpu}" != ""
+             notify.debug "\
+$FUNCNAME: retval = \$( expr \"${1//\"/}\" \"$2\" \"${3//\"/}\" )"
+             retval=$( expr "${1//\"/}" "$2" "${3//\"/}" )  #`
+         ;;
+         *)  # FIXME
+             notify.warning $"\
+detected a specfile with unsupported syntax:"" $1 $2 $3"
+         ;;
+      esac
+      [ "$do_negate" = "1" ] && let "retval = $((! $1))"
+   fi
+
+   local boolstr; boolstr=(false true)
+   notify.debug "\
+$FUNCNAME: boolean expression [ $boolexpr ] --> ${boolstr[$retval]} ($retval)"
+
+   echo "$retval"
+}
+
+# function rpmvars.init
+#    set the vectors 'rpmvar_name[]', 'rpmvar_value[]', 'rpmvar_expr[]'
+# args:
+#    --clear  : clear all the rpmvar_* variables and exit
+#    --pckver : (force) version number of the package
+#    $1       : specfile name and path
+# note:
+#    FIXME : unsupported expressions
+#    (see nagios.spec)
+#    %{!?EMBPERL: %define EMBPERL 0}
+#    DEBUG: : set: $1 = "%{EMBPERL}", $2 = "", $3 = ""
+#    expr: sintax error
+function rpmvars.init() {
+   local ARGS pckver
+   ARGS=`LANG=C getopt -o cv: --long clear,pckver: -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   eval set -- "$ARGS"
+
+   while :; do
+      case "$1" in
+      -c|--clear)
+         unset rpmvar_name
+         unset rpmvar_value
+         unset rpmvar_expr
+         notify.debug "$FUNCNAME: variables \`rpmvar_*' cleared up"
+         return
+      ;;
+      -v|--pckver)
+         pckver="$2"
+         notify.debug "$FUNCNAME: pckver = $pckver (forced via --pckver)"
+         shift
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   local specfile="$1"
+
+   [[ "$specfile" ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [[ -r $specfile ]] ||
+      notify.error $"specfile not found"": \`$specfile'"
+
+   local i j
+
+   # if rpm variables have not been already set
+   if [[ -z "$rpmvar_name" || -z "$rpmvar_value" ]]; then
+      # set 'rpmvar_name' and 'rpmvar_value'
+      local line rpmvar_name rpmvar_value rpmvar_expr
+
+      rpmvar_name[0]="name"
+      rpmvar_value[0]="\
+$(sed -n "/%description/q;{ # look in the spec preamble
+   /^Name/{s,Name[ \t]*:[ \t]*,,p}}" $specfile)"
+      rpmvar_expr[0]="0"
+
+      rpmvar_name[1]="version"
+      if [ "$pckver" ]; then
+         rpmvar_value[1]="$pckver"
+      else
+         rpmvar_value[1]="\
+$(sed -n "/%description/q;{ # look in the spec preamble
+   /^Version/{s,Version[ \t]*:[ \t]*,,p}}" $specfile)"
+      fi
+      rpmvar_expr[1]="0"
+
+      local ifexpr ifexpr_level boolexpr tok toksave level
+      let "ifexpr_level = 0"   # level of nested %if statements
+      ifexpr[0]="1"            # '[0]' means: out of any %if statement
+
+      let "level = 0"
+
+      local ignore_lines       # support for '## *AUTOSPEC-{OFF,ON}*'
+      let "ignore_lines = 0"
+
+      while read -r -a tok; do
+         if [ "${tok[0]}" = "##" ]; then
+            if [ "${tok[1]}" = "*AUTOSPEC-OFF*" ]; then
+               notify.debug "$FUNCNAME: found an AUTOSPEC-OFF command"
+               let "ignore_lines = 1"
+               continue
+            fi
+
+            if [ "${tok[1]}" = "*AUTOSPEC-ON*" ]; then
+               notify.debug "$FUNCNAME: found an AUTOSPEC-ON command"
+               let "ignore_lines = 0"
+               continue
+            fi
+         elif [ "$ignore_lines" = "1" ]; then
+            # skip lines in the block "*AUTOSPEC-OFF*" .. "*AUTOSPEC-ON*"
+            notify.debug "$FUNCNAME: * line ignored --  ${tok[*]}"
+            continue
+         fi
+
+         case "${tok[0]}" in
+         %description)
+            # skip all but the specfile preamble
+            break
+         ;;
+         %if)
+            #ifexpr=$(rpmvars.solve "${tok2}${fromtok3}" "$specfile")
+            # note: if <%var> is undefined (not present) or set to "0"
+            #       then the conditional expression is false else is true
+            let "ifexpr_level += 1"
+
+            # note: to implement %if statements we must take care of
+            # boolean values of all the previous ifexpr[] values,
+            # starting from 1 to '$ifexpr_level'
+#            [ "$ifexpr_level" -gt 1 ] && notify.warning "\
+#$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (nested \`%if')"
+
+            notify.debug "\
+$FUNCNAME: conditional block (%if) [level#$ifexpr_level]  --  ${tok[*]}"
+
+            toksave=${tok[0]}
+            unset tok[0]
+            ifexpr[$ifexpr_level]=$(boolexpr.solve "${tok[*]}")
+            tok[0]=$toksave
+         ;;
+         %if[a-z]*)   # %ifarch, %ifdef, ?
+            notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (\`${tok[0]}')"
+            let "ifexpr_level += 1"
+            # FIXME: we should call 'boolexpr.solve' here:
+            #   toksave=${tok[0]}
+            #   unset tok[0]
+            #   ifexpr[$ifexpr_level]=$(boolexpr.solve "${tok[*]}")
+            #   tok[0]=$toksave
+            # for new we chooes a 50% right - 50% wrong approach :(
+            ifexpr[$ifexpr_level]=1
+         ;;
+         %else)
+            notify.debug "\
+$FUNCNAME: conditional block (%else) [level#$ifexpr_level]"
+           #let "level = 0"
+            for level in $(seq 1 1 $ifexpr_level); do
+            # complement boolean values in %else blocks
+               if [ "${ifexpr[$level]}" = "0" ]; then
+                  ifexpr[$level]=1
+                  notify.debug "$FUNCNAME: ifexpr[$level] = 0 --> 1"
+               else
+                  ifexpr[$level]=0
+                  notify.debug "$FUNCNAME: ifexpr[$level] = 1 --> 0"
+               fi
+            done
+         ;;
+         %endif)
+            notify.debug "\
+$FUNCNAME: conditional block (%end) [level#$ifexpr_level]"
+         let "ifexpr_level -= 1" ;;
+         %end)
+            notify.warning $"\`%end' found; should perhaps be \`%endif'"
+         ;;
+         %define)
+            # note: we want to catch %define directives put in conditional blocks
+            # example: %define majversion <single_token>
+            let "level = 0"
+            for level in $(seq 1 1 $ifexpr_level); do
+               notify.debug "$FUNCNAME: ifexpr[$level] = ${ifexpr[$level]}"
+               [ "${ifexpr[$level]}" = "0" ] &&
+                { # found a false condition
+                  let "level = $ifexpr_level + 1"; break; }
+            done
+            # not all the conditions are true: skip this definition
+            [ $level -gt $ifexpr_level ] &&
+             { notify.debug "$FUNCNAME: ${tok[*]} ... skipped"
+               continue; }
+
+            local tok0save tok1save tmpstr1 tmpstr2
+            tok0save=${tok[0]} tok1save=${tok[1]}
+            unset tok[0] tok[1]
+            unset tmpstr tmpstr2
+
+            notify.debug "$FUNCNAME: $tok1save = \"${tok[*]}\""
+            rpmvar_name[${#rpmvar_name[*]}]=$tok1save
+            case "${tok[*]}" in
+            %\(*\))
+               # it's something like:
+               # %define major_ver %(echo %version | cut -d. -f 1-2)
+               # %define glibver %(echo `rpm -q --queryformat '%{VERSION}' libglib`)
+
+#              rpmvar_value[${#rpmvar_value[*]}]="\
+#$( echo "${tok[*]}" | sed "s|%(\(.*\))|\1|" )"
+
+               tmpstr="$(echo "${tok[*]}" | sed "s|%(\(.*\))|\1|")"
+               notify.debug "$FUNCNAME: tmpstr = $tmpstr"
+               # use the expanded value only if there's no rpm variables inside
+               tmpstr2="$(bash -c "$tmpstr" 2>/dev/null)"
+               if [ $? -eq  0 ]; then
+                  echo "$tmpstr2" | grep -q -- '%' &&
+                     rpmvar_expr[${#rpmvar_expr[*]}]="1" ||
+                   { tmpstr="$tmpstr2"
+                     rpmvar_expr[${#rpmvar_expr[*]}]="0"
+                     notify.debug "$FUNCNAME: tmpstr = $tmpstr"; }
+               fi
+               rpmvar_value[${#rpmvar_value[*]}]="$tmpstr"
+            ;;
+            *) rpmvar_value[${#rpmvar_value[*]}]=${tok[*]}
+               rpmvar_expr[${#rpmvar_expr[*]}]="0"
+            ;;
+            esac
+
+            tok[0]=$tok0save
+            tok[1]=$tok1save
+         ;;
+         # %define expanded directive
+         # example:
+         #   %{expand:%%define kminver %(echo %version | cut -d. -f3)}
+         %{expand:*|%{expand)
+            notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (\`%expand...')"
+         ;;
+         %{!?*:*%define*)
+            # %{!?EMBPERL: %define EMBPERL 0}
+            notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (\`%{!?<VAR>:<DEFVALUE>')"
+#
+#            # condvar_name = "EMBPERL"
+#            local condvar_name="$(\
+#echo "${tok[0]}" | sed 's,%{!?\(.*\):.*,\1,')"
+#            notify.debug "$FUNCNAME: condvar_name = $condvar_name"
+#
+#            # condvar_expr = "EMBPERL 0"
+#            local condvar_expr="$(\
+#echo "${tok[0]}" | sed 's,.*%define[ \t]*\(.*\)},\1,')"
+#            notify.debug "$FUNCNAME: condvar_expr = $condvar_expr"
+         ;;
+         *) # not a definition: ignore the line
+            continue ;;
+         esac
+      done < $specfile
+
+      # [1] variable expansion using user `--define' values
+      notify.debug "\
+$FUNCNAME: * variable expansion using user \`--define' values..."
+      local define_applied
+      for i in `seq 0 1 $(( ${#define_list_name[*]} - 1 ))`; do
+         let "define_applied = 0"
+         for j in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+            [[ "${rpmvar_name[$j]}" = "${define_list_name[$i]}" ]] &&
+             { rpmvar_value[$j]="${define_list_value[$i]}"
+               let "define_applied = 1"
+               notify.debug "\
+$FUNCNAME: ${rpmvar_name[$j]} = \"${define_list_value[$i]}\" (forced by user)"
+               # FIXME : advanced users may --define variables by
+               # expressions, but for now expression are not supported by
+               # autospec, so we force '0' value
+               rpmvar_expr[$j]="0"; }
+         done
+         if [[ "$define_applied" = "0" ]]; then
+            notify.debug "\
+$FUNCNAME: added not existing user defined variable \`%${define_list_name[$i]}'"
+            rpmvar_name[${#rpmvar_name[*]}]="${define_list_name[$i]}"    # `
+            rpmvar_value[${#rpmvar_value[*]}]="${define_list_value[$i]}" # `
+            # FIXME : user cannot --define expressions, just values
+            rpmvar_expr[${#rpmvar_expr[*]}]="0"
+         fi
+      done
+      notify.debug "\
+$FUNCNAME: [1] rpmvar_name  = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
+      notify.debug "\
+$FUNCNAME: [1] rpmvar_value = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
+echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+
+      # [2] variable expansion using 'rpmvar_value[]'
+      local tmpvar tmpval
+      notify.debug "\
+$FUNCNAME: * variable expansion using user \`rpmvar_value[]'..."
+      for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
+         for j in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
+            # do not expand one variable with itself
+            [[ $i -eq $j ]] && continue
+
+            # use 'pck_newver' if defined
+            case "${rpmvar_name[$j]}" in
+            version) [[ "$pck_newver" ]] &&
+             { rpmvar_value[$i]="$(\
+echo ${rpmvar_value[$i]} | sed "s#%[{]*version[}]*#$pck_newver#g")"
+               continue; } ;;
+            esac
+            # NOTE: old code
+#            rpmvar_value[$i]="$(\
+#echo ${rpmvar_value[$i]} | sed "\
+#s#%[{]*[?]*${rpmvar_name[$j]}[}]*#${rpmvar_value[$j]}#g")"
+            tmpvar="${rpmvar_name[$j]}"; tmpvalue="${rpmvar_value[$j]}"
+            notify.debug "\
+$FUNCNAME:    * \`${rpmvar_value[$i]}' : \`$tmpvar' --> \`$tmpvalue'..."
+            rpmvar_value[$i]="$(\
+echo ${rpmvar_value[$i]} | sed -n "\
+/%{?$tmpvar:%$tmpvar.*}/{s#%{?$tmpvar:%$tmpvar\(.*\)}#$tmpvalue\1#gp;q};
+/%{?$tmpvar}/{s#%{?$tmpvar}#$tmpvalue#gp;q};
+/%{$tmpvar}/{s#%{$tmpvar}#$tmpvalue#gp;q};
+/%$tmpvar/{s#%$tmpvar#$tmpvalue#gp;q};
+p")"
+         done
+         notify.debug "\
+$FUNCNAME:    result: \`${rpmvar_value[$i]}'"
+      done
+      notify.debug "\
+$FUNCNAME: [2] rpmvar_name  = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
+      notify.debug "\
+$FUNCNAME: [2] rpmvar_value = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
+echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+
+      # [3] expand rpm variables using 'rpm --eval=<rpm_var>'
+      notify.debug "\
+$FUNCNAME: * variable expansion using \`rpm --eval=<rpm_var>'..."
+      local rpmvar_value_unexpanded
+      for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
+         case "${rpmvar_value[$i]}" in
+         %*) rpmvar_value_unexpanded="${rpmvar_value[$i]}"
+             rpmvar_value[$i]=$(\
+rpm --eval="${rpmvar_value[$i]}" 2>/dev/null) ;;
+         esac
+      done
+      notify.debug "\
+$FUNCNAME: [3] rpmvar_name  = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
+      notify.debug "\
+$FUNCNAME: [3] rpmvar_value = [ \
+$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
+echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+
+      for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
+         # note: we strip the '"' chars from 'rpmvar_value' because
+         # otherwise a definition like: 'BUILD_CC "ccache gcc33"'
+         # will be expanded into 'rpmvar_value[0]=""ccache gcc33""'
+         # and the error message: 'gcc33: no input files' will be
+         # printed to stderr at every '. infofile' command
+         echo "\
+rpmvar_name[$i]=\"${rpmvar_name[$i]}\"
+rpmvar_value[$i]=\"${rpmvar_value[$i]//\"/}\"
+rpmvar_expr[$i]=\"${rpmvar_expr[$i]}\"" >> ${infofile:-/dev/null} # `
+
+         if [[ "${rpmvar_expr[$i]}" = "1" ]]; then
+            notify.debug "$FUNCNAME: eval \"${rpmvar_value[$i]}\""
+            # FIXME : the eval command could lead to security issues!
+            #         ex. %define foo %(rm -f <a_file_in_HOME_dir>)
+            # it's also a problem for rpm itself (at least for rpm 4.0.4)
+            eval "${rpmvar_value[$i]}" &>/dev/null
+            # note: %define BUILD_CC ccache gcc33
+            #         --> eval "ccache gcc33" --> $? == 1
+            [[ $? -eq 0 ]] || notify.warning $"\
+cannot evaluate:"" \"${rpmvar_value[$i]}\""
+         fi
+      done
+   fi
+}
+
+# function rpmvars.solve
+#    convert the rpm variables found in the string '$1' with their
+#    values using the data vectors 'rpmvar_name' and 'rpmvar_value'
+# args:
+#    $1 :  string to expand
+#    $2 :  specfile name and path
+function rpmvars.solve() {
+   local i input="$1" output="$1" specfile="$2"
+
+   # skip strings with no variables inside
+   case "$input" in *%*) ;; *) echo "$output"; return ;; esac
+
+   [ "$input" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   [ "$specfile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#2)"
+
+   [ -r "$specfile" ] ||
+      notify.error $"specfile not found"": \`$specfile'"
+
+   [[ "${rpmvar_name[@]}" ]] || notify.warning $"\
+(bug)"" -- $FUNCNAME: "$"assertion failed:"" \"\${rpmvar_name[@]}\" != \"\""
+
+   notify.debug "$FUNCNAME: input = $input"
+
+   # convert the rpm variables found in 'output'
+   local tmpvar tmpvalue
+   for i in $(seq 0 1 $(( ${#rpmvar_name[@]} - 1 ))); do
+      notify.debug "\
+$FUNCNAME:  trying with \"${rpmvar_name[$i]}\" (${rpmvar_value[$i]}) ..."
+      if [ "${rpmvar_expr[$i]}" = "0" ]; then
+         # ex: "/ruby/%{majorminor}/ruby-%{version}%{?pl:-p%pl}.tar.bz2"
+         tmpvar="${rpmvar_name[$i]}"; tmpvalue="${rpmvar_value[$i]}"
+         output="$( echo "$output" | sed -n "\
+/%{?$tmpvar:%$tmpvar.*}/{s#%{?$tmpvar:%$tmpvar\(.*\)}#$tmpvalue\1#gp;q};
+/%{?$tmpvar}/{s#%{?$tmpvar}#$tmpvalue#gp;q};
+/%{$tmpvar}/{s#%{$tmpvar}#$tmpvalue#gp;q};
+/%$tmpvar/{s#%$tmpvar#$tmpvalue#gp;q};
+p")"
+#         output="$( echo "$output" | sed "\
+#s|%[{]*?${rpmvar_name[$i]}:||g;\
+#s|%[{]*[?]*${rpmvar_name[$i]}[}]*|${rpmvar_value[$i]}|g" )"
+      else
+         # FIXME : the eval command could lead to security issues!
+         # so it should be executed in a resticted environment
+         j=$( eval "${rpmvar_value[$i]}" 2>/dev/null )
+
+         output="$( echo "$output" | sed "\
+s|%[{]*?${rpmvar_name[$i]}:||g;\
+s|%[{]*[?]*${rpmvar_name[$i]}[}]*|$j|g" )"
+      fi
+      notify.debug "$FUNCNAME:  -${rpmvar_expr[$i]}-> '$output'"
+
+      # skip strings with no more variables inside
+      case "$output" in
+         *%*) ;;
+         *) notify.debug "$FUNCNAME: output = \`$output'"
+            echo "$output"; return ;;
+      esac
+   done
+   notify.debug "$FUNCNAME: output = \`$output'"
+
+   # unexpanded variables beginning by '?' must become blank strings
+   # i.e. "%{?cross_target_cpu}" --> ""
+   notify.debug "\
+$FUNCNAME: * blank unexpanded and undefined variables beginning by \`?'..."
+   output=$(echo $output | sed "s@%{?[^}]*}@@g;s@%?[a-zA-Z0-9_]*@@")
+   notify.debug "$FUNCNAME: output = \`$output'"
+
+   # expand rpm variables
+   # i.e. 'rpmvars.solve(%{__install_info} $specfile)'
+   case "$output" in *%*)
+      notify.debug "$FUNCNAME: * expanding rpm variables, if any..."
+      output=$(rpm --eval "$output")
+      notify.debug "$FUNCNAME: output = \`$output'" ;;
+   esac
+
+   echo "$output"
+}
+
+
+# function specfile.getvars
+#    set the variable(s) given as argument to the value(s) found
+#    in the specfile preamble
+# args:
+#    $v_! .. $v_n : specfile variables to resolve
+#    --specfile   : specfile name and path
+#    --verbatim   : do not expand variables
+#    --help
+# usage example:
+#    specfile.getvars SPEC_NAME SPEC_VERSION SPEC_RELEASE
+function specfile.getvars() {
+   local me="$FUNCNAME"
+
+ { # (to make 'usage' a local function)
+   function usage() {
+      echo "\
+$me, "$"version"" @version@""
+Copyright (C) 2005,2010 Davide Madrisan <davide.madrisan@gmail.com>""
+
+"$"Get informations from a given specfile.""
+
+"$"Usage"":
+   $me -s <specfile> [-v] <query0> [<query1> [...]]
+
+"$"where the above options mean"":
+   -s, --specfile        "$"name (and patch) of the specfile""
+   -v, --verbatim        "$"do not try to expand variables""
+
+"$"and <query> belongs to the following list"":
+   SPEC_NAME             Name
+   SPEC_VERSION          Version
+   SPEC_RELEASE          Release
+   SPEC_GROUP            "$"list of package groups"" (Group)
+   SPEC_BUILDARCH        BuildArch
+   SPEC_BUILDROOT        BuildRoot
+   SPEC_FILENAME         "$"full name of the srpm package""
+   SPEC_PATCH            "$"list of patches"" (Patch[0-9]*)
+   SPEC_URL              URL
+   SPEC_SOURCE0          Source[0]
+   SPEC_SOURCE0_PCKNAME  "$"name of the source0 file""
+   SPEC_SOURCE           "$"list of source files"" (Source[0-9]*)
+   SPEC_LICENSE          License
+   SPEC_TARGET           "$"list of all the generated rpm packages""
+   SPEC_OBSOLETES        "$"list of the obsoleted packages""
+   SPEC_BUILDREQUIRES    "$"list of the declared build requirements""
+
+"$"Operation modes"":
+   -h, --help            "$"Print this help, then exit""
+
+"$"Samples"":
+   $me -s /var/tmp/specs/@package@.spec SPEC_TARGET SPEC_VERSION
+   echo \"\${SPEC_TARGET[@]}, \$SPEC_VERSION\"  # @package@, @version@
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+   }
+ }
+
+   local ARGS
+   ARGS=`LANG=C getopt -o hs:v --long help,specfile:,verbatim \
+         -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local specfile verbatim=0
+
+   eval set -- "$ARGS"
+
+   while :; do
+      case "$1" in
+      -s|--specfile)
+         specfile="$2"; shift
+         notify.debug "$FUNCNAME: specfile = \"$specfile\""
+      ;;
+      -v|--verbatim)
+         let "verbatim = 1"
+         notify.debug "$FUNCNAME: verbatim = \"1\""
+      ;;
+      -h|--help)
+         usage
+         ${EXIT_FUNC:-"exit"}
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   [ "$specfile" ] || { usage; ${EXIT_FUNC:-"exit"} 1; }
+
+   [ -r "$specfile" ] ||
+    { # 'return' is required when 'EXIT_FUNC' is equal to 'return'
+      notify.error $"specfile not found"": \`$specfile'"; return; }
+
+   [ -r "$infofile" ] && . $infofile
+
+    # when this library is used by external scripts this assertion always fails
+#   [[ "${rpmvar_name[@]}" ]] || notify.warning $"\
+#(bug)"" -- $FUNCNAME: "$"assertion failed:"" \"\${rpmvar_name[@]}\" != \"\""
+
+   local ignore_lines       # support for '## *AUTOSPEC-{OFF,ON}*'
+   let "ignore_lines = 0"
+   local var
+
+   for var in $@; do
+      notify.debug "$FUNCNAME: expanding \`$var'..."
+
+      case $var in
+      SPEC_NAME)
+         [ "$SPEC_NAME" ] && continue
+         SPEC_NAME=$(sed -n "/%description/q;{ # look in the spec preamble
+            /^[ \t]*Name/{s,^[ \t]*Name[ \t]*:[ \t]*,,p}}" $specfile)
+         # FIXME (by whitone)
+         #  /^[ \t]*Name/{s,[^:]*:[ \t]*,,p}}" $specfile)
+         [[ "$(echo "$SPEC_NAME" | wc -w)" != 1 ]] &&
+            notify.error $"bad specfile preamble"" (Name)"
+         # resolve the rpm variables, if any
+         #[ "$(echo $SPEC_NAME | sed -n "s,.*%,%,p")" ] &&
+         SPEC_NAME=$(rpmvars.solve "$SPEC_NAME" "$specfile")
+         notify.debug "$FUNCNAME: $var = \"$SPEC_NAME\""
+      ;;
+      SPEC_VERSION)
+         [ "$SPEC_VERSION" ] && continue
+         SPEC_VERSION=$(sed -n "/%description/q;{
+            /^[ \t]*Version/{s,^[ \t]*Version[ \t]*:[ \t]*,,p}}" $specfile)
+         [[ "$(echo "$SPEC_VERSION" | wc -w)" != 1 ]] &&
+            notify.error $"bad specfile preamble"" (Version)"
+         # resolve the rpm variables, if any
+         #[ "$(echo $SPEC_VERSION | sed -n "s,.*%,%,p")" ] &&
+         SPEC_VERSION="$(rpmvars.solve "$SPEC_VERSION" "$specfile")"
+         notify.debug "$FUNCNAME: $var = \"$SPEC_VERSION\""
+      ;;
+      SPEC_RELEASE)
+         [ "$SPEC_RELEASE" ] && continue
+         SPEC_RELEASE=$(sed -n "/%description/q;{
+            /^[ \t]*Release/{s,.*:[ \t]*,,p}}" $specfile)
+         [[ "$(echo "$SPEC_RELEASE" | wc -w)" != 1 ]] &&
+            notify.error $"bad specfile preamble"" (Release)"
+         # resolve the rpm variables, if any
+         #[[ "$(echo $SPEC_RELEASE | sed -n "s,.*%,%,p")" ]] &&
+         SPEC_RELEASE=$(rpmvars.solve "$SPEC_RELEASE" "$specfile")
+         notify.debug "$FUNCNAME: $var = \"$SPEC_RELEASE\""
+      ;;
+      SPEC_GROUP)
+         [ "$SPEC_GROUP" ] && continue
+         local linenum=0
+         while read -r -a tok; do
+            let "linenum += 1"
+
+            # do support '## *AUTOSPEC-{OFF,ON}*' blocks
+            if [ "${tok[0]}" = "##" ]; then
+               if [ "${tok[1]}" = "*AUTOSPEC-OFF*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-OFF command"
+                  let "ignore_lines = 1"
+                  continue
+               fi
+
+               if [ "${tok[1]}" = "*AUTOSPEC-ON*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-ON command"
+                  let "ignore_lines = 0"
+                  continue
+               fi
+            elif [ "$ignore_lines" = "1" ]; then
+               # skip lines in the block "*AUTOSPEC-OFF*" .. "*AUTOSPEC-ON*"
+               notify.debug "$FUNCNAME: * line ignored --  ${tok[*]}"
+               continue
+            fi
+
+            case ${tok[0]} in
+            Group|Group:)
+               unset tok[0]
+               notify.debug "\
+$FUNCNAME: * entry found at line $linenum: \"${tok[*]}\""
+               SPEC_GROUP[${#SPEC_GROUP[*]}]="${tok[*]}"   #`
+#               notify.debug "\
+#$FUNCNAME: SPEC_GROUP = ( ${SPEC_GROUP[*]} )"
+            ;;
+            esac
+         done < $specfile
+
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_GROUP[*]} )"
+      ;;
+      SPEC_FILENAME)
+         [ "$SPEC_FILENAME" ] && continue
+         [ "$SPEC_NAME"     ] || specfile.getvars -s "$specfile" SPEC_NAME
+         [ "$SPEC_VERSION"  ] || specfile.getvars -s "$specfile" SPEC_VERSION
+         [ "$SPEC_RELEASE"  ] || specfile.getvars -s "$specfile" SPEC_RELEASE
+         SPEC_FILENAME="\
+${SPEC_NAME}-${SPEC_VERSION}-${SPEC_RELEASE}.src.rpm"
+
+         notify.debug "$FUNCNAME: $var = \"$SPEC_FILENAME\""
+      ;;
+      SPEC_PATCH)
+         if [ "$verbatim" = "1" ]; then
+            [ "$SPEC_PATCH_VERBATIM" ] ||
+             { SPEC_PATCH_VERBATIM=($(\
+                  sed -n "/%description/q;{
+                     /^[ \t]*Patch[0-9]*/{s,^Patch[0-9]*[ \t]*:[ \t]*,,p}}" \
+                  $specfile))
+               notify.debug "\
+$FUNCNAME: SPEC_PATCH_VERBATIM = ( ${SPEC_PATCH_VERBATIM[*]} )"
+             }
+            continue
+         fi
+
+         [ "$SPEC_PATCH" ] && continue
+
+         [ "$SPEC_NAME"    ] || specfile.getvars -s "$specfile" SPEC_NAME
+         [ "$SPEC_VERSION" ] || specfile.getvars -s "$specfile" SPEC_VERSION
+         SPEC_PATCH=($(sed -n "/%description/q;{
+            /^[ \t]*Patch[0-9]*/{s,^Patch[0-9]*[ \t]*:[ \t]*,,p}}" \
+         $specfile))
+         for i in $(seq 0 1 $((${#SPEC_PATCH[*]}-1))); do
+            SPEC_PATCH[$i]=$(\
+rpmvars.solve "${SPEC_PATCH[$i]}" "$specfile" | \
+               sed -n "\
+                  s,%[{]*name[}]*,$SPEC_NAME,
+                  s,%[{]*version[}]*,$SPEC_VERSION,;p" )
+         done
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_PATCH[*]} )"
+      ;;
+      SPEC_SOURCE0)
+         if [ "$verbatim" = "1" ]; then
+            [ "$SPEC_SOURCE0_VERBATIM" ] ||
+             { SPEC_SOURCE0_VERBATIM=$(\
+                  sed -n "/%description/q;{
+                     /^[ \t]*Source[0]*/{s,[ \t]*Source[0]*[ \t]*:[ \t]*,,p}}" \
+                  $specfile)
+               notify.debug "\
+$FUNCNAME: SPEC_SOURCE0_VERBATIM = \"$SPEC_SOURCE0_VERBATIM\""
+             }
+            continue
+         fi
+
+         [ "$SPEC_SOURCE0" ] && continue
+         SPEC_SOURCE0=$(sed -n "/%description/q;{
+            /^[ \t]*Source[0]*/{
+               s,[ \t]*Source[0]*[ \t]*:[ \t]*,,
+            p}}" $specfile)
+         SPEC_SOURCE0=$(rpmvars.solve "$SPEC_SOURCE0" "$specfile")
+         notify.debug "$FUNCNAME: $var = \"$SPEC_SOURCE0\""
+      ;;
+      SPEC_SOURCE0_PCKNAME)
+         [ "$SPEC_SOURCE0_PCKNAME" ] && continue
+         [ "$SPEC_NAME"    ] || specfile.getvars -s "$specfile" SPEC_NAME
+         [ "$SPEC_VERSION" ] || specfile.getvars -s "$specfile" SPEC_VERSION
+         [ "$SPEC_SOURCE0" ] || specfile.getvars -s "$specfile" SPEC_SOURCE0
+
+         SPEC_SOURCE0_PCKNAME=$(echo $SPEC_SOURCE0 | sed -n "\
+            s,%[{]*name[}]*,$SPEC_NAME,
+            s,%[{]*version[}]*,$SPEC_VERSION,
+            s/.*\///  # remove directory name, if any
+            s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+            # <pck_name><pck_ver>
+             /^${SPEC_NAME}${SPEC_VERSION}$/{s,$SPEC_VERSION,,p;q}
+             /[^-\.][0-9]\./{s/\(.*[^-\.]\)[0-9]\..*/\1/p;q}
+            # <pck_name>-<pck_ver>
+             /^${SPEC_NAME}\-${SPEC_VERSION}$/{s,\-${SPEC_VERSION},,p;q}
+             /-[0-9]\+/{s/-[0-9].*//p;q}
+            # <pck_name>_<pck_ver>
+             /^${SPEC_NAME}_${SPEC_VERSION}$/{s,_${SPEC_VERSION},,p;q}
+             /_[0-9]\+/{s/_[0-9].*//p;q}
+            # <pck_name>.<pck_ver>
+             /^${SPEC_NAME}\.${SPEC_VERSION}$/{s,\.${SPEC_VERSION},,p;q}
+             /^[a-zA-Z0-9_]\+\.[0-9\.]\+$/{s,\(^[a-zA-Z0-9_]\+\)\.[0-9\.]\+$,\1,p;q}
+            /^[a-zA-Z0-9]\+$/{p;q}  # <pck_name> (with no version)
+            # <pck_name> (no version, but <pck_name> can end with numbers)
+            /^[^0-9]*[0-9]*$/p")
+         notify.debug "$FUNCNAME: $var = \"$SPEC_SOURCE0_PCKNAME\""
+      ;;
+      SPEC_SOURCE)
+         if [ "$verbatim" = 1 ]; then
+            SPEC_SOURCE_VERBATIM=($(sed -n "/%description/q;{
+               /^[ \t]*Source/{
+                  s,[ \t]*Source[0-9]*[ \t]*:[ \t]*,,
+               p}}" $specfile))
+            notify.debug "\
+$FUNCNAME: SPEC_SOURCE_VERBATIM = ( ${SPEC_SOURCE_VERBATIM[*]} )"
+            continue
+         fi
+
+         [ "$SPEC_SOURCE"  ] && continue
+         [ "$SPEC_NAME"    ] || specfile.getvars -s "$specfile" SPEC_NAME
+         [ "$SPEC_VERSION" ] || specfile.getvars -s "$specfile" SPEC_VERSION
+         # FIXME : spaces in source URL are not supported
+         SPEC_SOURCE=($(sed -n "/%description/q;{
+            /^[ \t]*Source/{
+               s,[ \t]*Source[0-9]*[ \t]*:[ \t]*,,
+               s,%[{]*name[}]*,$SPEC_NAME,
+               s,%[{]*version[}]*,${pck_newver:-$SPEC_VERSION},
+            p}}" $specfile))
+
+         for i in $(seq 0 1 $((${#SPEC_SOURCE[*]} - 1))); do
+            SPEC_SOURCE[$i]=$(\
+rpmvars.solve "${SPEC_SOURCE[$i]}" "$specfile")
+         done
+
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_SOURCE[*]} )"
+      ;;
+      SPEC_LICENSE)
+         [ "$SPEC_LICENSE" ] && continue
+         unset SPEC_LICENSE tmp_spec_license
+         i=0
+         while read tmp_spec_license; do
+            SPEC_LICENSE[$i]="$tmp_spec_license"
+            let "i = i+1"
+         done < <(sed -n "\
+/^[ \t]*License[ \t]*:/{s,.*:[ \t]*,,;
+s,\,[ \t]*and[ \t]*,\n,; # remove ', and'
+s,\,[ \t]*,\n,g;p} # remove ','
+/^[ \t]*License[ \t]*:/{s,.*:[ \t]*,,;s,\,[ \t]*,\n,g;p}" $specfile)
+#-or-
+#/%description/q;{ # look in the spec preamble
+#/^[ \t]*License/{s,.*:[ \t]*,,;s,\,[ \t]*,\n,g;p}}" $specfile)
+         [[ "$(echo "$SPEC_LICENSE" | wc -w)" = 0 ]] &&
+            notify.error $"bad specfile preamble"" (License)"
+
+         notify.debug "$FUNCNAME: $var = ( \
+$(for i in $(seq 0 1 $((${#SPEC_LICENSE[*]} - 1))); do
+  echo -n "\"${SPEC_LICENSE[$i]}\" "; done))"
+      ;;
+      SPEC_URL)   # note: 'SPEC_URL' is not yet used in this script
+         [ "$SPEC_URL" ] && continue
+         SPEC_URL=$(sed -n "/%description/q;{
+/^[ \t]*\(Url\|URL\)[ \t]*:/{s,[ \t]*\(Url\|URL\)[ \t]*:[ \t]*,,p}}" $specfile)
+         [[ "$(echo "$SPEC_URL" | wc -w)" != 1 ]] &&
+            notify.error $"bad specfile preamble"" (URL)"
+         [ "$SPEC_URL" ] &&
+            SPEC_URL=$(rpmvars.solve "$SPEC_URL" "$specfile")
+         notify.debug "$FUNCNAME: $var = \"$SPEC_URL\""
+      ;;
+      SPEC_TARGET)
+         [ "$SPEC_TARGET" ] && continue
+         [ "$SPEC_NAME"   ] ||
+            specfile.getvars -s "$specfile" SPEC_NAME
+
+         local ifexpr ifexpr_level level boolexpr tok toksave filesname
+         let "ifexpr_level = 0"   # level of nested %if statements
+         ifexpr[0]="1"            # '0' means: out of any %if statement
+
+         local linenum=0
+         while read -r -a tok; do
+            let "linenum += 1"
+
+            # do support '## *AUTOSPEC-{OFF,ON}*' blocks
+            if [ "${tok[0]}" = "##" ]; then
+               if [ "${tok[1]}" = "*AUTOSPEC-OFF*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-OFF command"
+                  let "ignore_lines = 1"
+                  continue
+               fi
+
+               if [ "${tok[1]}" = "*AUTOSPEC-ON*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-ON command"
+                  let "ignore_lines = 0"
+                  continue
+               fi
+            elif [ "$ignore_lines" = "1" ]; then
+               # skip lines in the block "*AUTOSPEC-OFF*" .. "*AUTOSPEC-ON*"
+               notify.debug "$FUNCNAME: * line ignored --  ${tok[*]}"
+               continue
+            fi
+
+            case ${tok[0]} in
+            %if)
+               #ifexpr=$(rpmvars.solve "${tok2}${fromtok3}" "$specfile")
+               # note: if <%var> is undefined (not present) or set to "0"
+               #       then the conditional expression is false else is true
+               let "ifexpr_level += 1"
+               let "ifexpr[$ifexpr_level] = 0"
+
+               # note: to implement %if statements we must take into account
+               # the boolean values of the all previous ifexpr[] values
+               # starting from 1 to '$ifexpr_level'
+#              [ "$ifexpr_level" -gt 1 ] && notify.warning "\
+#$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (nested \`%if')"
+
+               notify.debug "\
+$FUNCNAME: ${tok[0]} [level#$ifexpr_level; lineno#$linenum]  --  ${tok[*]}"
+
+               toksave=${tok[0]}
+               unset tok[0]
+               ifexpr[$ifexpr_level]=$(boolexpr.solve "${tok[*]}")
+               tok[0]=$toksave
+            ;;
+            %if[a-z]*) # %ifarch|%ifnarch|%ifdef
+               notify.warning "\
+$FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (\`${tok[0]}')"
+               let "ifexpr_level += 1"
+               # FIXME: we should call 'boolexpr.solve' here:
+               #   toksave=${tok[0]}
+               #   unset tok[0]
+               #   ifexpr[$ifexpr_level]=$(boolexpr.solve "${tok[*]}")
+               #   tok[0]=$toksave
+               # for new we chooes a 50% right - 50% wrong approach :(
+               ifexpr[$ifexpr_level]=1
+            ;;
+            %else)
+               notify.debug "\
+$FUNCNAME: ${tok[0]} [level#$ifexpr_level; line#$linenum]"
+               let "level = 0"
+               for level in $(seq 1 1 $ifexpr_level); do
+               # complement boolean values in %else blocks
+                  if [ "${ifexpr[$level]}" = "0" ]; then
+                     ifexpr[$level]=1
+                     notify.debug "$FUNCNAME: ifexpr[$level] = 0 --> 1"
+                  else
+                     ifexpr[$level]=0
+                     notify.debug "$FUNCNAME: ifexpr[$level] = 1 --> 0"
+                  fi
+               done
+            ;;
+            %endif)
+               notify.debug "\
+$FUNCNAME: ${tok[0]} [level#$ifexpr_level; line#$linenum]]"
+               let "ifexpr_level -= 1"
+            ;;
+            %end)
+               notify.warning $"\`%end' found; should perhaps be \`%endif'"
+            ;;
+            %files)
+               let "level = 0"
+               for level in $(seq 1 1 $ifexpr_level); do
+                  notify.debug "$FUNCNAME: ifexpr[$level] = ${ifexpr[$level]}"
+                  [ "${ifexpr[$level]}" = "0" ] &&
+                   { # found a false condition
+                     let "level = $ifexpr_level + 1"; break; }
+               done
+               # not all the conditions are true: skip this definition
+
+               [ $level -gt $ifexpr_level ] &&
+                { notify.debug "\
+$FUNCNAME: %file block found (${tok[*]}) [line#$linenum] ... skipped"
+                  continue; }
+
+               notify.debug "\
+$FUNCNAME: %file block found (${tok[*]})[line#$linenum]"
+               filesname="$( \
+               rpmvars.solve "${tok[*]}" "$specfile" | \
+               sed -n '
+               # remove "%files" and "-f file-name" option if present
+               s,%files[ \t]*,,;s,-f[ \t]\+[^ ]*[ \t]*,,;p' )"
+
+               case "$filesname" in
+               "") # main package
+                    SPEC_TARGET=( ${SPEC_TARGET[@]} "$SPEC_NAME" )
+               ;;
+               -n*) # -n <package-name>
+                    filesname="$(echo $filesname | sed 's,-n[ \t]\+,,')"
+                    SPEC_TARGET=( \
+${SPEC_TARGET[*]} \
+"$(rpmvars.solve "$filesname" "$specfile")" )
+               ;;
+                 *) SPEC_TARGET=(\
+${SPEC_TARGET[*]} "$SPEC_NAME-$(\
+rpmvars.solve "$filesname" "$specfile")" )
+               ;;
+               esac
+               notify.debug "$FUNCNAME: $var = ( ${SPEC_TARGET[*]} )"
+            ;;
+            *) if [[ -n "$rpm_macro_debug_package" && \
+                    "${tok[0]}" = "$rpm_macro_debug_package" ]]; then
+                  # rpm macro for creating debug packages
+                  SPEC_TARGET=( ${SPEC_TARGET[@]} \
+                               "${SPEC_NAME}-${rpm_macro_debug_package_suffix}" )
+               fi
+            ;;
+            esac
+         done < $specfile
+         #notify.debug "$FUNCNAME: $var = ( ${SPEC_TARGET[*]} )"
+      ;;
+      SPEC_OBSOLETES)
+         # FIXME : should populate a vector with length '${#SPEC_TARGET[*]}'
+         # and with the entries ordered as in 'SPEC_TARGET[]', with '(none)'
+         # entries when no obsolete labels are found
+
+         [ "$SPEC_OBSOLETES" ] && continue
+         [ "$SPEC_NAME" ] || specfile.getvars -s "$specfile" SPEC_NAME
+
+         local linenum=0
+         while read -r -a tok; do
+            let "linenum += 1"
+            # do support '## *AUTOSPEC-{OFF,ON}*' blocks
+            if [ "${tok[0]}" = "##" ]; then
+               if [ "${tok[1]}" = "*AUTOSPEC-OFF*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-OFF command"
+                  let "ignore_lines = 1"
+                  continue
+               fi
+
+               if [ "${tok[1]}" = "*AUTOSPEC-ON*" ]; then
+                  notify.debug "$FUNCNAME: found an AUTOSPEC-ON command"
+                  let "ignore_lines = 0"
+                  continue
+               fi
+            elif [ "$ignore_lines" = "1" ]; then
+               # skip lines in the block "*AUTOSPEC-OFF*" .. "*AUTOSPEC-ON*"
+               notify.debug "$FUNCNAME: * line ignored --  ${tok[*]}"
+               continue
+            fi
+
+            case ${tok[0]} in
+            Obsoletes|Obsoletes:)
+               unset tok[0]
+               notify.debug "\
+$FUNCNAME: * entry found at line $linenum: \"${tok[*]}\""
+               SPEC_OBSOLETES[${#SPEC_OBSOLETES[*]}]="\
+$(rpmvars.solve "${tok[*]}" "$specfile")"
+
+               notify.debug "\
+$FUNCNAME: SPEC_OBSOLETES = ( ${SPEC_OBSOLETES[*]} )"
+            ;;
+            esac
+         done < $specfile
+
+       # SPEC_OBSOLETES=($(sed -n "\
+       #    /^[ \t]*Obsoletes[ \t]*:/{
+       #       s,[ \t]*Obsoletes[ \t]*:[ \t]*,,
+       #       s,%[{]*name[}]*,$SPEC_NAME,;p}" \
+       #    $specfile))
+
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_OBSOLETES[*]} )"
+      ;;
+      SPEC_BUILDARCH)
+         # note: 'SPEC_BUILDARCH' can be a null string
+         [ "$SPEC_BUILDARCH" ] && continue
+         # find for the tokens 'BuildArch' and 'BuildArchitecture'
+         SPEC_BUILDARCH=($(sed -n "\
+            /^[ \t]*BuildArch[a-z]*[ \t]*:/{
+               s,[ \t]*BuildArch[a-z]*[ \t]*:[ \t]*,,;{p}}" \
+            $specfile))
+         # use only the last 'BuiltArch' entry (rpm behaviour)
+         [ ${#SPEC_BUILDARCH[*]} -gt 1 ] &&
+            SPEC_BUILDARCH="${SPEC_BUILDARCH[${#SPEC_BUILDARCH[*]}-1]}"  # `
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_BUILDARCH[*]} )"
+      ;;
+      SPEC_BUILDREQUIRES)
+         [ "$SPEC_BUILDREQUIRES" ] && continue
+         local f rpm_provided_by
+         SPEC_BUILDREQUIRES=(`sed -n \
+'/^BuildRequires/{s,BuildRequires[ \t]*:[ \t]*,,p}' $specfile | \
+           (IFS="$IFS,"; while read -a buildreqs; do
+               let "isver = 0"
+               for f in ${buildreqs[@]}; do
+                  [ "$isver" = "1" ] &&
+                   { let "isver = 0"; continue; }
+                  case "$f" in
+                  # skip '<', '<=', '>', '>=', '=' version or %variable
+                  \<*|\>*|=*)
+                     let "isver = 1"
+                  ;;
+                  *%*) # rpm variable(s) (ex. '%{__install_info}')
+                     echo "$(rpmvars.solve "$f" $specfile) "
+                  ;;
+                  *) echo "$f " ;;
+                  esac
+               done
+            done)`)
+         notify.debug "$FUNCNAME: $var = ( ${SPEC_BUILDREQUIRES[*]} )"
+      ;;
+      SPEC_BUILDROOT)
+         if [ "$rpm_ignores_buildroot" != 1 ]; then
+            [ "$SPEC_BUILDROOT" ] && continue
+            [ "$SPEC_NAME"    ] || specfile.getvars -s "$specfile" SPEC_NAME
+            [ "$SPEC_VERSION" ] || specfile.getvars -s "$specfile" SPEC_VERSION
+            SPEC_BUILDROOT=(`sed -n "/%description/q;{
+               /^[ \t]*BuildRoot/{
+                  s,[^ ]*[ \t]*:[ \t]*,,
+                  s,%[{]*name[}]*,$SPEC_NAME,
+                  s,%[{]*version[}]*,$SPEC_VERSION,
+                  s,%[{]*release[}]*,$SPEC_RELEASE,
+                  s,%[{]*_tmppath[}]*,$(rpm --eval=%{_tmppath}),;p
+               }}" $specfile`)
+            [ "$(echo "$SPEC_BUILDROOT" | wc -w)" = 1 ] ||
+               notify.error $"bad specfile preamble"" (BuildRoot)"
+            [ "$SPEC_BUILDROOT" ] &&
+               SPEC_BUILDROOT=$(rpmvars.solve "$SPEC_BUILDROOT" $specfile)
+         fi
+         notify.debug "$FUNCNAME: $var = $SPEC_BUILDROOT"
+      ;;
+      *) notify.error $"(bug)"" -- $FUNCNAME: "$"bad arg \`$var'" ;;
+      esac
+
+      # note: some entries are not mandatory in a specfile
+      case "$var" in
+      "SPEC_SOURCE"|"SPEC_PATCH"|\
+      "SPEC_OBSOLETES"|"SPEC_BUILDARCH"|"SPEC_BUILDREQUIRES")
+      ;;
+      *) if [[ "$var" = "SPEC_BUILDROOT" && \
+               "$rpm_ignores_buildroot" = 1 ]]; then
+            :
+         else
+            [[ -z "${!var}" ]] && notify.error $"\
+cannot initialize \`$var' from specfile data"
+            #notify.debug "$FUNCNAME: $var = \"${!var}\""
+         fi
+      ;;
+      esac
+   done
+}
+
+# note: some examples of real package names
+# - automake 1.8.5      automake-1.8.5.tar.bz2
+# - Xorg 6.7.0          X11R6.7.0-src1.tar.gz
+# - hotplug 20040329    hotplug-2004_03_29.tar.gz
+# - perl-Tk 800.025     Tk800.025.tar.gz
+# - webalizer 2.0.1     webalizer-2.01-10-src.tgz
+
+# function getnamefromtarball
+#    get the package name from the tarball name
+# args:
+#    $1 :  tarball name
+function getnamefromtarball() {
+   local pck_name=`echo $1 | sed -n "\
+      s,.*/,,  # remove directory name, if any
+      s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+      /[^-]\+-[0-9]\+/{s/\([^-]*\)-[0-9].*/\1/p;q}  # <pck_name>-<pck_ver>
+      /[^-\.][0-9]\./{s/\(.*[^-\.]\)[0-9]\..*/\1/p;q}  # <pck_name><pck_ver>
+      # <pck_name> (no version, but <pck_name> can end with numbers)
+      /^[^0-9]*[0-9]*$/p"`
+
+   notify.debug "$FUNCNAME: pck_name = \"$pck_name\""
+   echo "$pck_name"
+}
+
+# function getversionfromtarball
+#    get the package version from the tarball name
+# args:
+#    $1 :  tarball name
+function getversionfromtarball() {
+   local pck_version=`echo $1 | sed -n "\
+      /[0-9]/!q  # return nothing if no number is found in the package name
+      s,.*/,,  # remove directory name, if any
+      s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+      /-[0-9]*/{s/.*-\([0-9]*.*\)/\1/p;q}  # <pck_name>-<pck_ver>
+      /[^-\.][0-9]\./{s/.*[^-\.]\([0-9]\..*\)/\1/p;q}  # <pck_name><pck_ver>
+      # <pck_name> (no version, but <pck_name> can end with numbers)
+      /^[^0-9]*[0-9]*$/q"`
+
+   notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
+   echo "$pck_version"
+}

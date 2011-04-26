@@ -1,0 +1,35 @@
+[COMMANDS]
+sn="$(LC_ALL="C" date "+%Y.%m.%d")"
+[ "$ARTSVER" ] || { echo "ARTSVER unset!"; exit 1; }
+[ "$KDEVER"  ] || { echo "KDEVER unset!"; exit 1; }
+echo "arts version : $ARTSVER"
+echo "KDE version  : $KDEVER"
+
+[GLOBAL]
+specdir    /usr/src/RPM/SPECS
+logdir     /var/tmp/autobuild-$sn
+
+[PACKAGES]
+package          arts
+download         force
+download_server  0
+update           $ARTSVER
+build            force
+build_define     kdever=$KDEVER
+install          false
+upload           false
+upload_server    0
+
+package          kdelibs
+download         force
+download_server  0
+update           $KDEVER
+build            true
+build_define
+install          true
+upload           false
+upload_server    0
+
+[COMMANDS]
+echo -e "\\nThat's all."
+

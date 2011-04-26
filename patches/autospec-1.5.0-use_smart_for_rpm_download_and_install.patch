@@ -1,0 +1,13 @@
+diff -Nru autospec-1.5.0.orig//autospec.conf.in autospec-1.5.0/autospec.conf.in
+--- autospec-1.5.0.orig//autospec.conf.in	2010-07-17 23:09:02.000000000 +0200
++++ autospec-1.5.0/autospec.conf.in	2010-08-02 13:10:25.213473018 +0200
+@@ -134,7 +134,8 @@
+ #          Cmnd_Alias DISTRO_CMD = /usr/bin/apt-get, /bin/rpm
+ #          %packager ALL = NOPASSWD: DISTRO_CMD
+ #        (of course your user must belong to the `packager' group)
+-rpm_download_and_install="sudo apt-get --quiet --yes install"
++#rpm_download_and_install="sudo apt-get --quiet --yes install"
++rpm_download_and_install="sudo smart install --yes"
+ rpm_install="sudo rpm -hUv"
+ rpm_install_force="sudo rpm -hUv --force --nodeps"
+ 

@@ -1,0 +1,62 @@
+# translation of it.po to Italiana
+# Copyright (C) 2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2008-10-28 22:00+0100\n"
+"PO-Revision-Date: 2008-10-28 22:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# tests/pkg_security_test_001
+
+msgid "this script requires bash version 2 or better"
+msgstr "questo script richiede bash versione 2 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "performing security checks"
+msgstr "esecuzione dei test di sicurezza"
+
+msgid "\\`getopt' error"
+msgstr "errore in \\`getopt'"
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "missing mandatory arg"
+msgstr "parametro mancante"
+
+msgid "cannot read"
+msgstr "impossibile leggere"
+
+msgid "no such file or directory"
+msgstr "file o cartella non trovata"
+
+msgid "checking for RPATH vulnerabilities"
+msgstr "ricerca di vulnerabilità di tipo RPATH"
+
+msgid "checking"
+msgstr "controllo"
+
+msgid "checking for setuid binaries"
+msgstr "ricerca di binari setuid"
+
+msgid "checking for unsecure use of \\`\\$\\$' in shell and perl scripts"
+msgstr "ricerca di script shell e perl che utilizzano \\`\\$\\$' in modo insicuro"
+
+msgid "seems to be affected"
+msgstr "sembra affetto"
+
+msgid "Hint for bash scripts (\\`mktemp' required)"
+msgstr "Suggerimento per script bash (richiede \\`mktemp')"
+
+msgid "Hint for perl scripts"
+msgstr "Suggerimento per script perl"

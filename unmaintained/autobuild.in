@@ -1,0 +1,402 @@
+#!/bin/bash
+# autobuild -- plugin for @package@
+# Copyright (C) 2006 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+me=(${0##*/} "@version@" "@date@")
+
+[ $(id -u) -eq 0 ] &&
+ { echo "$me: "$"you're running $me as root" 1>&2 && exit 1; }
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+
+[ -r @libdir@/libspec.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libspec.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libspec.lib
+
+# load the configuration file(s)
+[ -r @libdir@/libcfg.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libcfg.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="@package@"; export TEXTDOMAIN
+
+function copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function version() {
+   echo "\
+${me[0]} ${me[1]}
+Copyright (C) 2006 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+function usage() {
+   version
+   echo "\
+*** FIXME ***
+
+"$"Usage"":
+ @frontend@ -b <rulesfile> [-T <pck>]
+
+"$"where the above options mean"":
+ -b, --batch        "$"Run in batch mode, using <rulesfile> as a road map""
+ -T, --target       "$"Execute rules only for the given package""
+
+"$"Operation modes"":
+ -h, --help         "$"Print this help, then exit""
+ -V, --version      "$"Print version number, then exit""
+ -q, --quiet        "$"Run in quiet mode""
+ -r, --colorize     "$"Enable the colorized output""
+ -D, --debug        "$"Run in debugging mode (very verbose output)""
+
+"$"Samples"":
+ @frontend@ --batch /var/tmp/autobuild.rules
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+
+   exit ${1:-1}
+}
+
+# check if all the needed tools are available
+#for tool in ... ; do
+#   [ "$(type -p $tool)" ] ||
+#      notify.error $"utility not found": \`$tool'"
+#done
+
+case $1 in
+   --autospec-args-file*)
+      if echo $1 | grep -q '=' ; then
+         argsfile=`echo $1 | sed 's/^--autospec-args-file=//'`
+      else
+         argsfile=$2
+      fi
+      [ -r "$argsfile" ] || notify.error $"cannot read"": \`$argsfile'"
+      . $argsfile && rm -f $argsfile
+   ;;
+esac
+
+for arg in $@; do
+   case $arg in
+   -h|--help) usage 0 ;;
+   -V|--version) version; echo; copying; exit 0 ;;
+   esac
+done
+
+exec_options=`LANG=C getopt \
+   -o b:T:DqrhV \
+   --long batch:,target:,\
+          debug,quiet,colorize,help,version,\
+          frontend_opts: \
+   -n "$me" -- "$@"`
+[ $? = 0 ] || exit 1
+
+notify.debug "[ ${0} ${exec_options} ]\n"
+eval set -- "$exec_options"
+
+while :; do
+   case $1 in
+      -b|--batch)
+         batchfile=$2; shift ;;
+      -T|--target)
+         batchtargetpck=$2; shift ;;   # FIXME : currently ignored!
+      -D|--debug)
+         let "verbose = 2" ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -r|--colorize)
+         let "colorize = 1" ;;
+      -h|--help)
+         usage 0 ;;
+      -V|--version)
+         version; echo; copying; exit 0 ;;
+      --) shift; break ;;
+      *) notify.error $"unrecognized option"" -- \`$1'" ;;
+   esac
+   shift
+done
+
+for arg in $@; do
+   notify.error $"unrecognized option"" -- \`$arg'"
+done
+
+[ "$logging" = "1" ] && let "colorize = 0"
+
+[ "$colorize" = "1" ] && notify.enable_colors
+# default values for non mandatory configuration variables
+[ "$logging_dir" ] || logging_dir="${tmppath_dir:-/var/tmp}/@package@"
+
+# function autobuild.build()
+#    execute the commands contained in all the rules blocks
+# args:
+#    $1 : none
+function autobuild.build() {
+   # function autobuild.do_current()
+   #    execute the commands contained in a rules block
+   # args:
+   #    $1 : name (and path) of the rules file
+   function autobuild.do_current() {
+      local steps
+      [ "$download" = true ] && steps="1"
+
+      # FIXME: support for `update' is not complete !
+      if [ -n "$update" ]; then
+         steps="${steps:+$steps,}4"
+         [ "$update" = rebuild ] && let "rebuild = 1"
+      fi
+
+      [[ "$build" = true || "$build" = force ]] &&
+         steps="${steps:+$steps,}5"
+      [ "$build" = force ] && let "force_build = 1"
+
+      [ "$install" = testonly ] && steps="${steps:+$steps,}7"
+      [ "$install" = true ] && steps="${steps:+$steps,}11"
+      [ "$install" = force ] &&
+       { steps="${steps:+$steps,}11"; let "force_install = 1"; }
+
+      [ "$upload" = true ] && steps="${steps:+$steps,}10"
+
+      ( let "colorize = 0"
+        notify.disable_colors
+
+        package.update \
+           "${spec_format:-0}" \
+           "$pck_name" "$pck_newver" "$pck_newrel" \
+           "$steps" \
+           "" "" \
+           "${spec_name:-"${pck_name}.spec"}" \
+           "$define_list" \
+           "$ftp_server_download_num" \
+           "$ftp_server_upload_num"; )
+           # FIXME: "$changelog_userdef"
+
+      let "error = $?"
+      [ "$error" = 0 ] || notify.warning $"error detected!"
+   }
+
+
+   local rulesfile="$1"
+   notify.debug "rulesfile = \"$rulesfile\""
+
+   [ "$batchfile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"rulesfile unset"
+
+   [ -r $rulesfile ] ||
+      notify.error $"file not found"": \`$rulesfile'"
+
+   notify.note $"parsing"" ${NOTE}$rulesfile${NORM}..."
+
+   local linenum=1
+   unset pck_name
+
+   while read line; do
+      set -- $line
+      notify.debug "line = \"$line\""
+      notify.debug "   \$1 = \"$1\""
+
+      case "$1" in
+      \#*|"") # skip comments and blank lines
+      ;;
+      "[COMMANDS]"|"[GLOBAL]"|"[PACKAGES]")
+         section="$1"
+         notify.debug "parsing $1 section (line #$linenum)..."
+
+         if [ "$section" = "[PACKAGES]" ]; then
+            # check for syntax errors
+            [ "$logging_dir" ] ||
+               notify.error $"undefined directive"" \`logdir'"
+            [ "$spec_dir" ] ||
+               notify.error $"undefined directive"" \`specdir'"
+         fi
+         # if a package block is yet cached, do autobuild it
+         # (this happens for the last package listed in the rules file)
+         if [ "$pck_name" ]; then
+            notify.debug "batchtargetpck = \"$batchtargetpck\""
+            notify.debug "pck_name = \"$pck_name\""
+            [ "$pck_name" = "${batchtargetpck:-$pck_name}" ] &&
+               autobuild.do_current
+            unset pck_name
+         fi
+      ;;
+      logdir)
+         [ "$section" = "[GLOBAL]" ] ||
+            notify.error \
+$"misplaced directive"" \`logdir', "$"line"" #$linenum"
+         logging_dir="$(eval echo $2)"
+         notify.note "logdir:  ${NOTE}$logging_dir${NORM}"
+      ;;
+      specdir)
+         [ "$section" = "[GLOBAL]" ] ||
+            notify.error \
+$"misplaced directive"" \`specdir', "$"line"" #$linenum"
+         spec_dir="$(eval echo $2)"
+         notify.note "specdir: ${NOTE}$spec_dir${NORM}"
+      ;;
+      package)
+         if [ "$pck_name" ]; then
+            # the previous package block has ended, so the corresponding
+            # actions must be taken now
+            notify.debug "batchtargetpck = \"$batchtargetpck\""
+            notify.debug "pck_name = \"$pck_name\""
+            if [ "$pck_name" = "${batchtargetpck:-$pck_name}" ]; then
+               autobuild.do_current
+               let "error = $?"
+               [ "$error" = 0 ] ||
+                  notify.warning $"error detected!"" ($pck_name)"
+            fi
+            unset pck_name
+         fi
+
+         let "error = 0"
+
+         pck_name="$(eval echo $2)"
+         notify.debug "batchtargetpck = \"$batchtargetpck\""
+         notify.debug "pck_name = \"$pck_name\""
+         [ "$pck_name" = "${batchtargetpck:-$pck_name}" ] &&
+            notify.note "\n*** "$"package"": ${NOTE}$pck_name${NORM}"
+      ;;
+      specfile_name)
+         # optional: if missing, specfile_name is set to <package>.spec
+         spec_name="$2"
+      ;;
+      download)
+         [ "$error" = 0 ] || continue
+         download="$(eval echo $2)"
+         # legal values: true, false
+         case "$download" in
+            true|false) ;;
+            *) notify.warning \
+$"unknown rvalue"" \`$upload', "$"line"" #$linenum"
+               let "error+=1" ;;
+         esac
+      ;;
+      download_server)
+         [ "$error" = 0 ] || continue
+         ftp_server_download_num="$(eval echo $2)"
+      ;;
+      update)
+         [ "$error" = 0 ] || continue
+         # legal values are <version_mask>, rebuild, false
+         # ex: <*.2n.*>   (any, even number, any)
+         #     <*.2n+1.*> (any, odd number, any)
+         #     <*>        (any number)
+         update="$(eval echo $2)"
+         case "$update" in
+            rebuild|false) ;;
+            *) # FIXME : implementation is incomplete
+               # should perhaps make a syntax checking
+               pck_newver="$update"
+               notify.debug "pck_newver = \"$pck_newver\""
+               pck_newrel="$(eval echo $3)"
+               notify.debug "pck_newrel = \"$pck_newrel\""
+            ;;
+         esac
+      ;;
+      build)
+         [ "$error" = 0 ] || continue
+         # legal values: false, force, true
+         build="$(eval echo $2)"
+         case "$build" in
+            false|force|true) ;;
+            *) notify.warning \
+$"unknown rvalue"" \`$upload', "$"line"" #$linenum"
+               let "error+=1" ;;
+         esac
+      ;;
+      build_define)
+         [ "$error" = 0 ] || continue
+         shift; define_list="$(eval echo $*)"
+      ;;
+      install)
+         [ "$error" = 0 ] || continue
+         # legal values: false, force, testonly, true
+         install="$(eval echo $2)"
+         case "$install" in
+            false|force|testonly|true) ;;
+            *) notify.warning \
+$"unknown rvalue"" \`$upload', "$"line"" #$linenum"
+               let "error+=1" ;;
+         esac
+      ;;
+      upload)
+         [ "$error" = 0 ] || continue
+         # legal values: true, false
+         upload="$(eval echo $2)"
+         case "$upload" in
+            true|false) ;;
+            *) notify.warning \
+$"unknown rvalue"" \`$upload', "$"line"" #$linenum"
+               let "error+=1" ;;
+         esac
+      ;;
+      upload_server)
+         [ "$error" = 0 ] || continue
+         ftp_server_upload_num="$(eval echo $2)"
+      ;;
+      *) [ "$section" = "[COMMANDS]" ] &&
+          { eval "$line"; continue; }
+
+         notify.error \
+$"unknown token"" \`$1', "$"line"" #$linenum"
+      ;;
+      esac
+      let "linenum += 1"
+   done < $rulesfile
+
+   # if a package block is yet cached, do autobuild it
+   if [ "$pck_name" ]; then
+      [ "$pck_name" = "${batchtargetpck:-$pck_name}" ] &&
+         autobuild.do_current
+      unset pck_name
+   fi
+}
+
+# function autobuild.doall()
+#    frontend for this plugin
+# args:
+#    $1 : name (and path) of the rules file
+function autobuild.doall() {
+   local rulesfile="$1"
+   notify.debug "rulesfile = \"$rulesfile\""
+
+   [ "$batchfile" ] || notify.error $"
+(bug)"" -- $FUNCNAME: "$"rulesfile unset"
+
+   notify.error "FIXME: sorry, this plugin is currently unmantained"
+
+   ( # set some global variables used by the pck-update plugin
+     let "logging = 1"
+
+     notify.debug $"loading plugin"" \`$plugin_pck_update'..."
+     # FIXME: switch to the new @package@ architecture !!!
+     . $plugin_pck_update
+
+     autobuild.build "$batchfile"; )
+
+   return $?
+}
+
+# user configuration file for @package@ required
+config.check4user
+# make some security checks
+config.security
+
+autobuild.doall "$batchfile"

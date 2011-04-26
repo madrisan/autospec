@@ -1,0 +1,97 @@
+#!/bin/bash
+# $autoupdate-perl_modules -- update all perl modules
+# Copyright (C) 2005,2006 Davide Madrisan <davide.madrisan@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by the
+# Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Report bugs to <davide.madrisan@gmail.com>
+
+
+# FIXME :  WORK IN PROGRESS ...
+
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+me=("${0##*/}" "0.1.1")
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   export LANG
+fi
+TEXTDOMAIN="@package@"; export TEXTDOMAIN
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+
+spec_dir=`rpm --eval %_specdir 2>/dev/null`
+spec_changelog="automatically rebuild"
+
+eval $(autospec -q --eval=logging_dir)
+[ "$logging_dir" ] || logging_dir="${tmppath_dir:-/var/tmp}/@package@"
+
+# FIXME : get the list of perl modules from the repository
+#  ftp://ftp.qilinux.it:21/pub/QiLinux/devel/SPECS
+
+# WARNING : this variable used for test only
+mperl_lst="perl-Archive-Tar.spec"
+
+for mperl in $mperl_lst; do
+   autospec -u ${mperl/\.spec} -a1
+   specfile.getvars SPEC_TARGET -s $spec_dir/$mperl_lst
+
+   # FIXME : skip packages with multiple targets
+   [ "${SPEC_TARGET[*]}" = 1 ] ||
+    { > $logging_dir/${mperl/\.spec}.skipped
+      continue; }
+
+   # specfile fixes
+
+   grep -q "%define PERL_VERSION %(eval" $spec_dir/$mperl &&
+    { sed -i "
+s,%define PERL_VERSION %(eval \`perl -V:version\`; echo \$version),\
+%define perl_major_ver %(eval \`perl -V:version\`; echo \${version%*.[0-9]*}.0),
+s,%PERL_VERSION,%{perl_major_ver},g
+s,%{PERL_VERSION},%{perl_major_ver},g" $spec_dir/$mperl
+      tempfile=`mktemp -q specfile.XXXXXXXX` ||
+         notify.error $"can't create temporary files"
+
+      sed "/%install/q" $spec_dir/$mperl > $tempfile
+      echo "\
+[ \"%{buildroot}\" != / ] && rm -rf %{buildroot}
+%makeinstall_perl
+packlist=\`find %{buildroot} -name .packlist\`
+[[ -z \"$packlist\" ]] && exit 1 || cat \$packlist | \
+   sed \"s,%buildroot,,g;s,.*/man/.*,&.gz,g\" | \
+   sort -u > .packlist && rm \$packlist
+
+strid=\`echo \$packlist | sed 's,.*auto\(.*\)/.packlist,\1,'\`
+for dir in \`find %{buildroot} -type d | grep \$strid\`; do
+   echo \"%dir \${dir#%buildroot}\" >> .packlist
+done
+
+%clean
+[ \"%{buildroot}\" != / ] && rm -rf %{buildroot}
+rm -f .packlist
+
+%files -f .packlist
+%defattr(-,root,root)
+"
+      sed -n '/%changelog/,$p' $spec_dir/$mperl >> $tempfile
+      mv $tempfile $spec_dir/$mperl
+    }
+
+   sed -i "
+s,perl Makefile.PL,perl Makefile.PL INSTALLDIRS=vendor,
+s,make %{?_smp_mflags},%make,
+s,^make,%make," $spec_dir/$mperl
+
+   autospec -u ${mperl/\.spec} -a4 -f --rebuild \
+      --changelog="$spec_changelog" --log
+done

@@ -1,0 +1,44 @@
+# translation of it.po to Italiana
+# Copyright (C) 2004-2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2004-09-01 22:48+0200\n"
+"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# lib/libcfg.lib
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "configuration file not found"
+msgstr "file di configurazione non trovato"
+
+msgid "Hint"
+msgstr "Suggerimento"
+
+msgid "user \\`$(id -nu)' does not belong to group \\`$packager_group'"
+msgstr "l'utente \\`$(id -nu)' non appartiene al gruppo \\`$packager_group'"
+
+msgid "the file \\`$f' should be readable only by the group \\`$packager_group'"
+msgstr "il file \\`$f' dovrebbe essere leggibile solo dal gruppo \\`$packager_group'"
+
+msgid "unset in the configuration files"
+msgstr "non configurato nei file di configurazione"
+
+msgid "missing variable in the configuration file"
+msgstr "variabile non inizializzata nel file di configurazione"
+
+msgid "loading"
+msgstr "caricamento di"
+
+msgid "cannot read"
+msgstr "impossibile leggere"

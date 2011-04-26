@@ -1,0 +1,120 @@
+#!/bin/bash
+# libcfg.lib -- @package@ library for loading the configuration file(s)
+# Copyright (C) 2008,2011 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="libcfg"; export TEXTDOMAIN
+
+# list of the configuration file(s)
+default_cfg=(\
+`ls /etc/@package@.conf ~/.@package@ ~/.@package@.d/*.conf 2>/dev/null`)
+
+# check if the user configurations file for autospec is present
+function config.check4user() {
+   local user_data=$(getent passwd 2>/dev/null | grep "x:$(id -u):")
+   local user_fullname=$(echo "$user_data" | cut -d: -f 5)
+   local email_infof_kde
+
+   if [ -r "$HOME/.kde/share/config/emaildefaults" ]; then
+      email_infof_kde="$HOME/.kde/share/config/emaildefaults"
+   elif [ -r "$HOME/.kde4/share/config/emaildefaults" ]; then
+      email_infof_kde="$HOME/.kde4/share/config/emaildefaults"
+   fi
+
+   if [[ -n "$email_infof_kde" && -z "$packager_email" ]]; then
+      packager_email="$(\
+sed -n "/EmailAddress/{s/.*=//p}" "$email_infof_kde" 2>/dev/null)"
+   fi
+
+   [ -r ~/.@package@ ] || notify.error $"\
+configuration file not found"": ${HOME:-~}/.@package@
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}
+packager_fullname=\"${user_fullname:-Your Name}\"
+packager_email=\"${packager_email:-email@domain}\"
+ftp_rw_user[1]=\"user\"
+ftp_rw_passwd[1]=\"passwd\"
+---------------------------------------
+"
+}
+
+function config.security() {
+   if [ -n "$packager_group" ]; then
+      [ "$(groups 2>/dev/null | grep $packager_group 2>/dev/null)" ] ||
+         notify.error $"\
+user \`$(id -nu)' does not belong to group \`$packager_group'"
+
+      # security check for configuration file(s) groups and permissions
+      for f in ${default_cfg[0]}; do
+         cfg_file_mod=(`find $f -printf "%g %m" 2>/dev/null`)
+         [[ ${cfg_file_mod[0]} = $packager_group &&
+            "`expr ${cfg_file_mod[1]} : '.*\(.\)'`" = 0 ]] ||
+         notify.warning $"\
+the file \`$f' should be readable only by the group \`$packager_group'"
+      done
+   else
+      notify.warning "\`packager_group' "$"unset in the configuration files"
+   fi
+}
+
+# checking for errors in the configuration file
+function config.integrity() {
+   mandatory_cfg_vars='
+DISTRO
+DISTRO_rpm
+VENDOR
+packager_fullname
+packager_email
+ftpurl_ro_rpms
+ftpurl_ro_srpms
+packager_group
+allowed_libdirs
+library_group
+library_summary
+library_group_devel
+library_group_perl
+format_buildroot_value
+man_compress_ext
+info_compress_ext
+library_name_structure
+perl_module_name_structure
+patch_name_structure
+source0_name_structure
+plugindir
+plugin_pck_update
+plugin_spec_create
+plugin_pck_extract
+plugin_config_getvar'
+
+   # note: use indirect references to 'mandatory_cfg_vars' variables
+   for cfg_var in $mandatory_cfg_vars; do
+      (set -u; : ${!cfg_var}) 2>/dev/null ||
+         notify.error $"\
+missing variable in the configuration file"" -- \`$cfg_var'"
+   done
+}
+
+cfg_files_num=0
+for cfg_file in ${default_cfg[*]}; do
+   if [ -e "$cfg_file" ]; then
+      cfg_files_num=$(($cfg_files_num + 1))
+      notify.debug $"loading"": \`$cfg_file'..."
+      [ -r "$cfg_file" ] || notify.error $"cannot read"" \`$cfg_file'"
+      . "$cfg_file"
+   fi
+done
+
+[ "$cfg_files_num" = 0 ] && notify.error $"configuration file not found"
+
+unset cfg_file

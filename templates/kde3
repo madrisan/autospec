@@ -1,0 +1,42 @@
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ...
+Group:         ...
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      $packager_fullname <$packager_email>
+URL:           ...
+Source:        ...
+#Patch0:        %{name}-<pck-version>-<patch-description>.patch
+License:       ...
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+%prep
+%setup -q
+#%patch0 -p1
+
+%build
+%configure_kde
+%make
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+%makeinstall
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%files
+%defattr(-,root,root)
+@standard_docs@
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@

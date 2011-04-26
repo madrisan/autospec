@@ -1,0 +1,170 @@
+#!/bin/bash
+#         _\|/_
+#         (o o)
+# +----oOO-{_}-OOo-----------------------------------------------------------+
+# |                                                                          |
+# | $0 -- help creating rpm specfiles and automatically update rpm packages  |
+# | Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>      |
+# |                                                                          |
+# | This program is free software; you can redistribute it and/or modify it  |
+# | under the terms of the GNU General Public License version 2 as published |
+# | by the Free Software Foundation.  There is NO warranty; not even for     |
+# | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                     |
+# |                                                                          |
+# | Report bugs to <davide.madrisan@gmail.com>                               |
+# |                                                                          |
+# +--------------------------------------------------------------------------+
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+ { echo $"this script requires bash version 2 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="@package@_fe"; export TEXTDOMAIN
+
+# default values
+let "pck_update = 0"
+let "pck_extract = 0"
+let "spec_create = 0"
+let "config_getvar = 0"
+let "print_help = 0"
+let "print_version = 0"
+
+function autospec.version() {
+   echo "\
+${me[0]} ${me[1]}
+Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>"
+}
+
+function autospec.copying() {
+   echo "\
+"$"This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 2 as published by the
+Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE."
+}
+
+function autospec.usage() {
+   # $1: optional exit code (default is '1')
+   autospec.version
+   echo "
+"$"Automatically update rpm packages and help creating new specfiles.""
+
+"$"Operation modes"":
+ -u, --update       "$"Update the given package to a specified version and release""
+ -s, --source       "$"Try to create a specfile for the specified tarball""
+ -x, --extract      "$"Extract a given file or list of files from a srpm archive""
+     --eval         "$"Print the value of the given configuration variable""
+ -h, --help         "$"Print this help, then exit""
+ -V, --version      "$"Print version number, then exit""
+ -q, --quiet        "$"Run in quiet mode""
+ -r, --colorize     "$"Enable the colorized output""
+ -D, --debug        "$"Run in debugging mode (very verbose output)""
+
+"$"Usage"":
+  "$"Use '-u -h', '-s -h', '-x -h', and '--eval -h' to display specific command line options.""
+
+"$"Report bugs to <davide.madrisan@gmail.com>."
+
+   exit ${1:-1}
+}
+
+[ $# -eq 0 ] && autospec.usage
+
+# load the warning/error/debug/ message handling library
+# to define the 'notify()' function
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+notify.disable_colors
+
+# load the configuration file(s)
+[ -r @libdir@/libcfg.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libcfg.lib
+
+for arg in $@; do
+   case $arg in
+      -u|--update)
+         let "pck_update = 1" ;;
+      -s|--source)
+         let "spec_create = 1" ;;
+      -x|--extract)
+         let "pck_extract = 1" ;;
+      --eval|--eval=*)
+         let "config_getvar = 1" ;;
+      -D|--debug)
+         let "verbose = 2" ;;
+      -q|--quiet)
+         let "verbose = 0" ;;
+      -r|--colorize)
+         let "colorize = 1" ;;
+      -h|--help)
+         let "print_help = 1" ;;
+      -V|--version)
+         let "print_version = 1" ;;
+       *) ;;
+   esac
+done
+
+case "$(( $pck_update + $spec_create + $pck_extract + $config_getvar ))" in
+   0) [ "$print_help" = "1" ] && autospec.usage 0
+      if [ "$print_version" = "1" ]; then
+         # only print the version number in quiet mode
+         [ "$verbose" = 0 ] && { echo "${me[1]}"; exit 0; }
+         autospec.version;
+         autospec.copying
+         exit 0;
+      fi
+      autospec.usage 1 ;;
+   1) ;;
+   *) autospec.usage 1 ;;
+esac
+
+[ "$logging" = "1" ] && let "colorize = 0"
+[ "$colorize" = "1" ] && notify.enable_colors
+
+notify.debug "[${me[0]}, "$"version"" ${me[1]}]"
+
+# checking for errors in the configuration file
+[ "$config_getvar" = 1 ] || config.integrity
+
+# load and execute the required plugin...
+
+[ "$config_getvar" = 1 ] && plugin_to_run="$plugin_config_getvar"
+[ "$pck_extract"   = 1 ] && plugin_to_run="$plugin_pck_extract"
+[ "$spec_create"   = 1 ] && plugin_to_run="$plugin_spec_create"
+[ "$pck_update"    = 1 ] && plugin_to_run="$plugin_pck_update"
+
+[ -n "$plugin_to_run" ] ||
+   notify.error "\`$plugin_to_run': "$"unset in the configuration files"
+[ -x "$plugin_to_run" ] ||
+   notify.error $"plugin not found"": \`$plugin_to_run'"
+
+tmpargfile=$(mktemp -q -t $me.XXXXXXXX)
+[ $? -eq 0 ] || notify.error $"can't create temporary files"
+notify.debug "tmpargfile = \`${NOTE}$tmpargfile${NORM}'"
+
+# workaround to bypass the issues related to bash expansion in multi-word
+# strings (ex: autospec -u s.spec -a4 1.0 --changelog "here's the problem")
+echo -n "set -- " > $tmpargfile
+while [ $# -gt 0 ]; do
+   echo -n "\"$1\" " >> $tmpargfile
+   shift
+done
+echo >> $tmpargfile
+
+notify.debug "\
+running: \`$plugin_to_run --autospec-args-file=$tmpargfile'"
+$plugin_to_run --autospec-args-file=$tmpargfile
+
+exit $?

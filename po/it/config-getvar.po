@@ -1,0 +1,91 @@
+# translation of it.po to Italiana
+# Copyright (C) 2004-2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2004-09-01 22:48+0200\n"
+"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+# plugins/config-getvar
+
+msgid "this script requires bash version 3 or better"
+msgstr "questo script richiede bash versione 3 o superiore"
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid ""
+"This program is free software; you can redistribute it and/or modify it under\n"
+"the terms of the GNU General Public License version 2 as published by the\n"
+"Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY\n"
+"or FITNESS FOR A PARTICULAR PURPOSE."
+msgstr ""
+"Questo è software libero; è possibile redistribuirlo e/o modificarlo nei termini\n"
+"della GNU General Public License versione 2 così come pubblicata dalla\n"
+"Free Software Foundation.  Non è fornita ALCUNA garanzia; neppure di NEGOZIABILITA'\n"
+"o di APPLICABILITA' PER UN PARTICOLARE SCOPO."
+
+msgid "Print the value of a given configuration variable"
+msgstr "Stampa il valore che una data variabile assume nei file di configurazione"
+
+msgid "Usage"
+msgstr "Utilizzo"
+
+msgid "where the above options mean"
+msgstr "dove le precedenti opzioni significano"
+
+msgid "Print the value of the configuration variable <var>"
+msgstr "Stampa il valore che <var> assume nei file di configurazione"
+
+msgid "Use an alternate configuration file"
+msgstr "Utilizza un file di configurazione alternativo"
+
+msgid "Default files:"
+msgstr "File di default:"
+
+msgid "Operation modes"
+msgstr "Modalità operative"
+
+msgid "Print this help, then exit"
+msgstr "Stampa questa schermata di aiuto e termina il programma"
+
+msgid "Print version number, then exit"
+msgstr "Stampa il numero di versione e termina il programma"
+
+msgid "Run in quiet mode"
+msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
+
+msgid "Enable the colorized output"
+msgstr "Abilita l'output colorato"
+
+msgid "Run in debugging mode (very verbose output)"
+msgstr "Attiva la modalità di debugging (output prolisso)"
+
+msgid "Samples"
+msgstr "Alcuni esempi"
+
+msgid "Report bugs to <davide.madrisan@gmail.com>."
+msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
+
+msgid "cannot read"
+msgstr "impossibile leggere"
+
+msgid "unrecognized option"
+msgstr "opzione non conosciuta"
+
+msgid "configuration file not found"
+msgstr "file di configurazione non trovato"
+
+msgid "(bug)"
+msgstr "(bug)"
+
+msgid "unknown variable type"
+msgstr "tipo di variabile sconosciuto"

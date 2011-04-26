@@ -1,0 +1,316 @@
+.TH AUTOSPEC "9" "@date_my@" "@package@ @version@" "User Commands"
+.SH NOME
+\fB@package@\fR - script di frontend per la creazione e l'aggiornamento e la verifica di pacchetti rpm.
+.br
+\fBconfig-getvar\fR - plugin per la visualizzazione di variabili presenti nei file di configurazione di autospec.
+.br
+\fBpck-extract\fR - plugin per l'estrazione di file da archivi srpm.
+.br
+\fBpck-update\fR - plugin per l'aggiornamento di archivi rpm.
+.br
+\fBspec-create\fR - plugin per la creazione di archivi rpm.
+.br
+\fB@pck_lib@\fR - libreria di funzioni per l'analisi degli specfile.
+
+.SH VERSIONE
+Questo documento e' aggiornato alla versione 1.8.0 di @package@.
+
+.SH DESCRIZIONE
+@package@ e' una suite di script che permette di velocizzare ed automatizzare una parte
+delle operazioni necessarie alla creazione, al mantenimento (aggiornamento) dei pacchetti
+rpm di una intera distribuzione ed al controllo di comuni errori e vulnerabilita'.
+.br
+@package@ e' modulare ed altamente configurabile e quindi facilmente adattabile alle
+particolarita' specifiche di ogni distribuzione basata su pacchetti rpm.
+.br
+@package@ fornisce inoltre la libreria @pck_lib@, utilizzabile anche da script di shell
+esterni per ricavare in modo semplice informazioni su un qualsiasi specfile dato in input.
+
+.SH FILE DI CONFIGURAZIONE
+@package@ legge all'avvio in primo luogo il file globale \fI@sysconfdir@/@pck_conf@\fR
+e quindi i file privati dell'utente: \fI~/.@package@\fR e/o \fI~/.@package@.d/*.conf\fR.
+E' buona norma non modificare direttamente il file globale.
+Utilizzare i file privati per tale scopo.
+
+.SH SINTASSI
+@package@ e' lo script principale ed ha funzione di frontend per una serie di script e
+librerie specializzate.
+Per questo motivo sono possibili differenti modalita' distinte di utilizzo.
+Si ricorda che le opzioni indicate tra parentesi quadre sono opzionali.
+
+.SS "Creazione di specfile"
+\fB@package@\fR \
+\fB\-s\fR \fItarball\fR \
+[\fB\-n\fR \fIname\fR] \
+[\fB\-v\fR \fIver\fR] \
+[\fB\-t\fR \fItype\fR] \
+[\fB\-o\fR \fIoutfile\fR]
+.TP
+\fB\-s\fR, \fB\-\-source\fR
+cerca di creare uno specfile per il \fItarball\fR indicato
+.TP
+\fB\-n\fR, \fB\-\-pck\-name\fR
+nome del pacchetto (default: ricavato dal nome del tarball)
+.TP
+\fB\-v\fR, \fB\-\-pck\-version\fR
+versione del pacchetto (default: ricavato dal nome del tarball)
+.TP
+\fB\-t\fR, \fB\-\-type\fR
+categoria dello specfile da generare:
+.br
+\fIstandard\fR : specfile standard (default)
+.br
+\fIgnome\fR : specfile per pacchetti gnome
+.br
+\fIkde3\fR : specfile per pacchetti kde3
+.br
+\fIkde4\fR : specfile per pacchetti kde4
+.br
+\fIlibrary\fR : specfile per librerie
+.br
+\fIlibrarytools\fR : specfile per librerie con tool
+.br
+\fIperl\fR : specfile per singoli moduli perl
+.br
+\fIpython\fR : specfile per moduli python
+.br
+\fIstandard-daemon\fR : specfile per servizi di sistema/rete
+.TP
+\fB\-o\fR, \fB\-\-output\fR
+redirige lo standard output sul file \fIoutfile\fR
+
+.SS "Aggiornamento di pacchetti rpm"
+\fB@package@\fR \
+\fB\-u\fR \fIpck\fR \fB\-a\fR \fIlst\fR [\fIver\fR] [\fIrel\fR] \
+[\fB\-d\fR \fIv1=r1\fR[,\fIv2=r2\fR,...]] \
+[\fB\-\-server\-download\fR \fIint\fR] \
+[\fB\-\-server\-upload\fR \fIint\fR] \
+[\fB\-l\fR \fIusr\fR:\fIpswd\fR] \
+[\fB\-S\fR \fIspecfile\fR] \
+[\fB\-A\fR \fIarch\fR] \
+[\fB\-\-changelog\fR "\fImsg\fR" ] \
+[\fB\-\-nosrpm\fR|\fB\-\-norpm\fR] \
+[\fB\-\-force-update\fR] [\fB\-\-force-build\fR] [\fB\-\-force-install\fR] \
+[\fB\-\-ignore-test \fIt1\fR[,\fIt2\fR,...]\fR] \
+[\fB\-c\fR] [\fB\-f\fR] [\fB\-L\fR] [\fB\-R\fR]
+.TP
+\fB\-u\fR, \fB\-\-update\fR
+aggiorna automaticamente il pacchetto \fIpck\fR, versione \fIver\fR,
+release \fIrel\fR
+.TP
+\fB\-a\fR, \fB\-\-action\fR
+Esegue la lista di azioni separate da virgole \fIlst\fR
+.br
+\fI0\fR. indica le versioni del pacchetto disponibili nei repository
+.br
+\fI1\fR. download ed installazione del pacchetto srpm
+.br
+\fI2\fR. controlla se e' disponibile un aggiornamento
+.br
+\fI3\fR. download dei nuovi file sorgente
+.br
+\fI4\fR. aggiornamento e controllo dello specfile
+.br
+\fI5\fR. creazione dei pacchetti rpm e srpm
+.br
+\fI6\fR. creazione della lista dei build requirement
+.br
+\fI7\fR. simulazione dell'installazione dei pacchetti rpm
+.br
+\fI8\fR. esecuzione dei test di qualita' e sicurezza
+.br
+\fI9\fR. calcolo dei valori di hashing md5 e sha1
+.br
+\fI10\fR. upload dei nuovi pacchetti sul sito ftp,
+rimozione dei vecchi pacchetti dal sito ftp
+(backup in `$ftp_rw_old_dir', se la variabile e' definita)
+.br
+\fI11\fR. installazione dei nuovi pacchetti rpm
+.TP
+\fB\-\-force-update\fR
+forza l'aggiornamento dei pacchetti rpm e srpm
+.TP
+\fB\-\-force-build\fR
+ricrea comunque i pacchetti rpm e srpm
+.TP
+\fB\-\-force-install\fR
+installa i nuovi pacchetti anche in caso di errori rpm
+.TP
+\fB\-\-force\-download
+scarica i file sorgente anche se presenti in SOURCE
+.TP
+\fB\-\-force\fR
+cerca di eseguire comunque le azioni specificate
+.TP
+\fB\-\-ignore-test
+non esegue i test indicati (\fIt1\fR, \fIt2\fR,...)
+.TP
+\fB\-d\fR, \fB\-\-define\fR
+assegna alle variabili \fIv1\fR, \fIv2\fR,... i valori \fIr1\fR, \fIr2\fR,...
+.TP
+\fB\-\-server\-download\fR
+server da utilizzare nel download dei pacchetti
+.TP
+\fB\-\-server-upload\fR
+server dove effettuare l'upload dei pacchetti
+.TP
+\fB\-\-server\fR
+server per l'upload e il download dei pacchetti
+.TP
+\fB\-l\fR, \fB\-\-login\fR
+user \fIusr\fR e password \fIpswd\fR per effettuare l'upload sul sito FTP
+.TP
+\fB\-S\fR, \fB\-\-specfile\fR
+nome dello specfile (default: \fIname\fR.spec)
+.TP
+\fB\-A\fR, \fB\-\-arch\fR
+forza un valore per l'architettura
+.TP
+\fB\-\-changelog\fR
+scrive il messaggio \fImsg\fR nel changelog del pacchetto
+(utilizzare `\en' come terminatore di linea in caso di messaggi multilinea)
+.TP
+\fB\-\-nosrpm\fR
+crea soltanto i pacchetti rpm (azione 5)
+.br
+non effettua l'upload del pacchetto srpm (azione 10)
+.TP
+\fB\-\-norpm\fR
+crea soltanto il pacchetto srpm (azione 5)
+.br
+non effettua l'upload dei pacchetti rpm (azione 10)
+.TP
+\fB\-c\fR, \fB\-\-clear\fR
+rimuove tutti i file temporanei
+.TP
+\fB\-f\fR, \fB\-\-format\fR
+abilita la riformattazione dello specfile
+.TP
+\fB\-L\fR, \fB\-\-log\fR
+abilita il log su file (nella directory: `$logging_dir')
+.TP
+\fB\-R\fR, \fB\-\-rebuild\fR
+attiva modalita' ed impostazioni di rebuild (azione 4)
+.TP
+\fB\-R\fR, \fB\-\-root\fR
+definisce una root directory alternativa per rpm
+
+.SS "Estrazione di file da pacchetti srpm"
+\fB@package@\fR \
+\fB\-x\fR \fB\-F\fR \fIfile(s)\fR [\fB\-\-destdir\fR=\fIdir\fR] \fIsrpm_pck\fR
+.TP
+\fB\-x\fR, \fB\-\-extract\fR
+estrae dal pacchetto srpm \fIsrpm_pck\fR...
+.TP
+\fB\-F\fR, \fB\-\-files\fR
+\&...il file o la lista di file \fIfile(s)\fR
+.TP
+\fB\-\-destdir\fR
+salva i file estratti nella cartella \fIdir\fR
+
+.SS "Richiesta del valore di variabili presenti nei file di configurazione"
+\fB@package@\fR \
+[\fB\-C\fR \fIconf_file\fR] \fB\-\-eval\fR=\fIvar\fR
+.TP
+\fB\-C\fR, \fB\-\-config\fR
+utilizza un file di configurazione alternativo \fIconf_file\fR
+.br
+file di default: \fI@sysconfdir@/@pck_conf@\fR, \fI~/.@package@\fR
+.TP
+\fB\-\-eval\fR
+stampa il valore che \fIvar\fR assume nei file di configurazione
+
+.SS "Modalita' operative"
+Sono inoltre disponibili alcune opzioni standard ed alcune opzioni di uso generale
+che influenzano il tipo di output generato.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+stampa una schermata di aiuto e termina il programma
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+stampa il numero di versione e termina il programma
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+non stampa alcun dettaglio delle operazioni in esecuzione
+.TP
+\fB\-r\fR, \fB\-\-colorize\fR
+abilita l'output colorato
+.TP
+\fB\-D\fR, \fB\-\-debug\fR
+attiva la modalita' di debugging (output prolisso)
+
+.SH "ESEMPI"
+.B
+@package@
+\fB\-s\fR ~/software/@package@\-@version@.tar.bz2 \fB\-t\fR standard \fB\-o\fR @package@.spec
+.br
+.B
+@package@
+\fB\-s\fR ftp://ftp.gnu.org/pub/gnu/bash/bash-3.2.tar.gz
+.br
+.B
+@package@
+\fB\-u\fR @package@ @version@ \fB\-a\fR4 \fB\-f\fR \fB\-\-changelog\fR "changelog entry"
+.br
+.B
+@package@
+\fB\-\-log\fR \fB\-u\fR @package@ \fB\-a\fR5,7:9 \fB\-\-define\fR addons_ver=0.9
+.br
+.B
+@package@
+\fB\-c\fR \fB\-u\fR \fB\-l\fR usr:pswd @package@ @version@ \fB\-a\fR10 \fB--server-upload\fR=0
+.br
+.B
+@package@
+\fB\-u\fR @package@ \fB\-a\fR1,4,5 \fB\-\-arch\fR=noarch \fB\-\-rebuild\fR \fB\-\-ignore-test\fR 6,7
+.br
+.B
+@package@
+\fB\-u\fR @package@ \fB\-a\fR10 \fB\-\-norpm\fR \fB\-S\fR /var/tmp/specs/@package@.spec
+.br
+.B
+@package@
+\fB\-u\fR @package@ \fB\-a\fR11 \fB\-\-force\fR
+.br
+.B
+@package@
+\fB\-x\fR @package@\-@version@\-1mamba.src.rpm \fB\-F\fR \e*.spec \fB\-\-destdir=\fR/tmp/specs
+.br
+.B
+@package@
+\fB\-q\fR \fB\-C\fR @sysconfdir@/@package@.conf \fB\-\-eval=\fR"logging_dir"
+
+.SH AUTORI
+Davide Madrisan <davide.madrisan@gmail.com>
+.br
+Creatore e sviluppatore principale di @package@ (frontend, plugin, libspec.lib, documentazione).
+
+Stefano Cotta Ramusino (whitone) <stefano.cotta@openmamba.org>
+.br
+Patch varie. Controllo delle licenze indicati negli specfile.
+Modulo \fIAPSE\fR (Autospec Package Search Engine).
+Modularizzare dei file di configurazione personali di @package@.
+
+Silvan Calarco <silvan.calarco@mambasoft.it>
+.br
+Diverse patch, attivita' diffusa di beta testing.
+Codice per la generazione automatica della lista dei build requirements.
+Mofiche per permettere l'utilizzo di autospec in multi-architettura.
+
+.SH VEDERE ANCHE
+file:///usr/share/doc/@package@-@version@/@package@-it-HOWTO
+
+.SH "BACHI"
+Inviare patch, segnalazioni di bachi, richieste di funzionalita' a <davide.madrisan@gmail.com>.
+.br
+Nel caso di bachi riscontrati, effettuarne una descrizione accurata e possibilmente un modo per riprodurli.
+
+.SH COPYRIGHT
+Copyright (C) 2004\-2011 Davide Madrisan <davide.madrisan@gmail.com>
+.br
+.br
+Questo e' software libero. E' possibile redistribuirlo e/o modificarlo nei termini
+della GNU General Public License versione 2 cosi' come pubblicata dalla
+Free Software Foundation.
+Non e' fornita ALCUNA garanzia, neppure di NEGOZIABILITA' o di APPLICABILITA'
+PER UN PARTICOLARE SCOPO.

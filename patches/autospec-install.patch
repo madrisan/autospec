@@ -1,0 +1,12 @@
+--- pck-update.orig	2008-10-11 15:55:53.000000000 +0200
++++ pck-update	2008-10-11 15:56:00.000000000 +0200
+@@ -3608,8 +3608,7 @@
+                [ "$rpm_install_force" ] || notify.error "\
+ \`rpm_install_force': "$"unset in the configuration files"
+                notify.debug "$rpm_install_force $pck2install_list"
+-               $rpm_install_force $pck2install_list ||
+-                  notify.error $"cannot install the new rpm packages"
++               $rpm_install_force $pck2install_list
+             else
+                [ "$rpm_install" ] || notify.error "\
+ \`rpm_install': "$"unset in the configuration files"

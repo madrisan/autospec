@@ -1,0 +1,89 @@
+# translation of it.po to Italiana
+# Copyright (C) 2004-2008 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2004-09-01 22:48+0200\n"
+"PO-Revision-Date: 2008-10-08 16:15+0100\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+msgid "this script requires bash version 2 or better"
+msgstr "questo script richiede bash versione 2 o superiore"
+
+msgid ""
+"This program is free software; you can redistribute it and/or modify it under\n"
+"the terms of the GNU General Public License version 2 as published by the\n"
+"Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY\n"
+"or FITNESS FOR A PARTICULAR PURPOSE."
+msgstr ""
+"Questo è software libero; è possibile redistribuirlo e/o modificarlo nei termini\n"
+"della GNU General Public License versione 2 così come pubblicata dalla\n"
+"Free Software Foundation.  Non è fornita ALCUNA garanzia; neppure di NEGOZIABILITA'\n"
+"o di APPLICABILITA' PER UN PARTICOLARE SCOPO."
+
+msgid "Automatically update rpm packages and help creating new specfiles."
+msgstr "Aggiorna automaticamente pacchetti rpm ed assiste nella creazione di specfile."
+
+msgid "Operation modes"
+msgstr "Modalità operative"
+
+msgid "Update the given package to a specified version and release"
+msgstr "Aggiorna il pacchetto indicato ad una specifica versione e release"
+
+msgid "Try to create a specfile for the specified tarball"
+msgstr "Cerca di creare uno specfile per il tarball indicato"
+
+msgid "Extract a given file or list of files from a srpm archive"
+msgstr "Estrae da un archivio srpm un file o una lista di file indicati"
+
+msgid "Print the value of the given configuration variable"
+msgstr "Stampa il valore che la variabile indicata ha nei file di configurazione"
+
+msgid "Print this help, then exit"
+msgstr "Stampa questa schermata di aiuto e termina il programma"
+
+msgid "Print version number, then exit"
+msgstr "Stampa il numero di versione e termina il programma"
+
+msgid "Run in quiet mode"
+msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
+
+msgid "Enable the colorized output"
+msgstr "Abilita l'output colorato"
+
+msgid "Run in debugging mode (very verbose output)"
+msgstr "Attiva la modalità di debugging (output prolisso)"
+
+msgid "Usage"
+msgstr "Utilizzo"
+
+msgid "Use '-u -h', '-s -h', '-x -h', and '--eval -h' to display specific command line options."
+msgstr "Usa '-u -h', '-s -h', '-x -h', '--eval -h' per avere le opzioni a linea di comando specifiche."
+
+msgid "Report bugs to <davide.madrisan@gmail.com>."
+msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
+
+msgid "library not found"
+msgstr "libreria non trovata"
+
+msgid "version"
+msgstr "versione"
+
+msgid "unset in the configuration files"
+msgstr "non configurato nei file di configurazione"
+
+msgid "plugin not found"
+msgstr "plugin non trovato"
+
+msgid "can't create temporary files"
+msgstr "impossibile creare file temporanei"
+
+msgid "you're running $me as root"
+msgstr "stai eseguendo $me come root"

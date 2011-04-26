@@ -1,0 +1,58 @@
+%define perl_major_ver %(eval `perl -V:version`; echo ${version%*.[0-9]*}.0)
+
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ... - ...
+Group:         System/Libraries/Perl
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           http://www.cpan.org
+Source:        http://www.cpan.org/modules/by-module/...
+#Patch0:        %{name}-<pck-version>-<patch-description>.patch
+License:       GPL, Artistic
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+BuildRequires: perl-devel
+Requires:      perl >= %perl_major_ver
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+%prep
+%setup -q
+#%patch0 -p1
+
+%build
+%{__perl} Makefile.PL PREFIX=%{_prefix} INSTALLDIRS=vendor OPTIMIZE="%{optflags}"
+
+%make
+%make test
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+%makeinstall_perl
+
+packlist=`find %{buildroot} -name .packlist`
+[ -z "$packlist" ] && exit 1 || cat $packlist | \\
+\   sed "s,%{buildroot},,g;s,.*/man/.*,&.gz,g" | \\
+\   sort -u > .packlist && rm -f $packlist
+
+strid=`echo $packlist | sed 's,.*auto\\(.*\\)/.packlist,\\1,'`
+for dir in `find %{buildroot} -type d | grep $strid`; do
+\   echo "%dir ${dir#%buildroot}" >> .packlist
+done
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%files -f .packlist
+%defattr(-,root,root)
+@standard_docs@
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@
