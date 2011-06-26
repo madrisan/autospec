@@ -427,6 +427,17 @@ sed -n "s,Location: \(.*\)/download,\1,pi"`
       notify.debug "pck_file = \"$pck_file\""
       [ "$src_name" ] && unset src_name
       new_version=`echo $pck_file | sed "s|.*/\([0-9.]*\)/.*|\1|"`
+      [ "$new_version" ] || \
+      new_version=`echo $pck_file | sed -n "\
+/[0-9]/!q       # return nothing if no number is found in the package name
+s,.*/,,         # remove directory name, if any
+s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
+s|.*/\([0-9.]*\)/.*|\1|
+/-[0-9]*/{s/.*-\([0-9]*.*\)/\1/p;q}              # <pck_name>-<pck_ver>
+/_[0-9]*/{s/.*_\([0-9]*.*\)/\1/p;q}              # <pck_name>_<pck_ver>
+/[^-\.][0-9]\./{s/.*[^-\.]\([0-9]\..*\)/\1/p;q}  # <pck_name><pck_ver>
+# <pck_name> (no version, but <pck_name> can end with numbers)
+/^[^0-9]*[0-9]*$/q"`
    fi
 
    if [ "$new_version" ]; then
