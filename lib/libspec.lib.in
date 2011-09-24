@@ -564,10 +564,12 @@ $FUNCNAME: * blank unexpanded and undefined variables beginning by \`?'..."
    # i.e. 'rpmvars.solve(%{__install_info} $specfile)'
    case "$output" in *%*)
       notify.debug "$FUNCNAME: * expanding rpm variables, if any..."
-      # FIXME: hack to prevent a rpm segfault when parsing '%' with --eval
-      output=$(echo $output | sed "s@\%@\\\%@g;")
-      output=$(rpm --eval "$output")
-      output=$(echo $output | sed "s@\\\%@%@g;")
+      # hack to prevent a rpm segfault when evaluating urls containing '%' (e.g. python-pyslsk)
+      output_prefix=`echo ${output} | sed "s|\(^[a-z]://\)|\1|"`
+      output_suffix=${output/$output_prefix}
+      notify.debug "$FUNCNAME: rpm --eval \"${output_suffix}\""
+      output=$(rpm --eval "${output_suffix}")
+      output="${output_prefix}${output}"
       notify.debug "$FUNCNAME: output = \`$output'" ;;
    esac
 
