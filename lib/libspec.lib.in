@@ -565,8 +565,8 @@ $FUNCNAME: * blank unexpanded and undefined variables beginning by \`?'..."
    case "$output" in *%*)
       notify.debug "$FUNCNAME: * expanding rpm variables, if any..."
       # hack to prevent a rpm segfault when evaluating urls containing '%' (e.g. python-pyslsk)
-      output_prefix=`echo ${output} | sed "s|\(^[a-z]://\)|\1|"`
-      output_suffix=${output/$output_prefix}
+      output_prefix=`echo ${output} | sed "s|\(^[a-z]*://\).*|\1|"`
+      output_suffix=`echo ${output} | sed "s|$output_prefix||"`
       notify.debug "$FUNCNAME: rpm --eval \"${output_suffix}\""
       output=$(rpm --eval "${output_suffix}")
       output="${output_prefix}${output}"
