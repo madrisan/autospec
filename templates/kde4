@@ -12,12 +12,11 @@ Source:        ...
 License:       ...
 BuildRequires: cmake
 BuildRequires: libqt4-devel
-BuildRequires: kdelibs4-devel
+BuildRequires: kdelibs-devel
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
 ## AUTOBUILDREQ-END
-Requires:      kdelibs4
-Requires:      kdebase-runtime
+Requires:      kde-workspace
 BuildRoot:     @rpm_default_buildroot@
 
 %description
@@ -36,7 +35,7 @@ BuildRoot:     @rpm_default_buildroot@
 %makeinstall -C build
 
 @if:i18n
-%find_lang %{name} --all-name --with-kde
+%find_lang %{name} --all-name --with-kde || touch %{name}.lang
 @fi:i18n
 
 %clean
@@ -99,8 +98,9 @@ exit 0
 # %{_kde4_libdir}/kde4/*.so
 # %{_kde4_icondir}/hicolor/*/*/*.png
 # %{_kde4_icondir}/oxygen/*/*/*.png
+# %{_kde4_icondir}/hicolor/scalable/*/*.svgz
 # %{_kde4_icondir}/oxygen/scalable/*/*.svgz
-# %{_kde4_xdgappsdir}/*.desktop
+# %{_kde4_xdgappsdir}/%{name}.desktop
 # %{_kde4_servicesdir}/*.desktop
 # %config %{_kde4_configdir}/*.knsrc
 # %doc %lang(en) %{_kde4_htmldir}/en/%{name}
