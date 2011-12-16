@@ -1,3 +1,25 @@
+List of user visible changes in the release 1.8.1 - Christmas Release
+
+-- Bug fixes
+
+ * libspec - Silvan Calarco:
+   Quote '%' characters before passing strings to rpm --eval to avoid a
+   segmentation fault error.
+
+ * pck-update - Silvan Calarco:
+   Escape '<' and '>' characters when printing SPEC_OBSOLETES to infofile to
+   fix a syntax error.
+
+-- Improvements
+
+ * libapse - Silvan Calarco:
+   Improve searching in sourceforge sites.
+
+ * spec-create, templates - Davide Madrisan:
+   Several improvements and fixes.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.8.0
 
 -- Bug fixes
