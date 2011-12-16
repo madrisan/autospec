@@ -35,6 +35,10 @@ Changes in version 1.8.1
     if the devel package is not provided by the template.
     (Pointed out by Silvan Calarco)
 
++ bugfix
+  * templates/standard - Davide Madrisan:
+    Devel package does not exist: fix calls of the rpm scriplets.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.0

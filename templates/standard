@@ -56,12 +56,12 @@ This package includes the %{name} API documentation.
 [ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
 
 @if:infopages
-%post devel
+%post
 ## modify the infopage name as required
 %install_info %{name}.info
 exit 0
 
-%preun devel
+%preun
 ## modify the infopage name as required
 %uninstall_info %{name}.info
 exit 0
