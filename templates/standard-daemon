@@ -64,6 +64,10 @@ if [ $1 -eq 1 ]; then
 \   /sbin/chkconfig --add <daemon_name>
 \   /sbin/service <daemon_name> start
 fi
+@if:infopages
+## modify the infopage name as required
+%install_info %{name}.info
+@fi:infopages
 exit 0
 
 %preun
@@ -71,6 +75,10 @@ if [ $1 -eq 0 ]; then
 \   /sbin/service <daemon_name> stop &>/dev/null || :
 \   /sbin/chkconfig --del <daemon_name>
 fi
+@if:infopages
+## modify the infopage name as required
+%uninstall_info %{name}.info
+@fi:infopages
 exit 0
 
 %postun
@@ -78,18 +86,6 @@ if [ $1 -ge 1 ]; then
 \   /sbin/service <daemon_name> condrestart &>/dev/null || :
 fi
 exit 0
-
-@if:infopages
-%post devel
-## modify the infopage name as required
-%install_info %{name}.info
-exit 0
-
-%preun devel
-## modify the infopage name as required
-%uninstall_info %{name}.info
-exit 0
-@fi:infopages
 
 @if:i18n
 %files -f %{name}.lang

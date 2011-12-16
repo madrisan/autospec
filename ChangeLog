@@ -39,6 +39,10 @@ Changes in version 1.8.1
   * templates/standard - Davide Madrisan:
     Devel package does not exist: fix calls of the rpm scriplets.
 
+  * templates/standard-daemon - Davide Madrisan:
+    Devel package does not exist: move code for infopages installation/removal
+    to the main package scriplets.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.0
