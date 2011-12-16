@@ -115,6 +115,7 @@ exit 0
 @if:infopages
 # %{_infodir}/*.info.*
 @fi:infopages
+@standard_docs_devel@
 
 @if:pck_tools
 %files tools

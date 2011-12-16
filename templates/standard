@@ -82,6 +82,8 @@ exit 0
 # %{_infodir}/*.info.*
 @fi:infopages
 @standard_docs@
+## note: eventually add the remaining documents (if any)
+# @standard_docs_devel@
 
 @if:pck_apidocs
 %files apidocs

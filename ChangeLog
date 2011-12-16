@@ -29,6 +29,12 @@ Changes in version 1.8.1
     Support source packages with a makefile but no configure script.
     (Issue reported by Silvan Calarco)
 
++ update
+  * spec-create, templates/* - Davide Madrisan:
+    Move part of package documemtation to the devel package or add a comment
+    if the devel package is not provided by the template.
+    (Pointed out by Silvan Calarco)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.0

@@ -52,6 +52,8 @@ done
 %files -f .packlist
 %defattr(-,root,root)
 @standard_docs@
+## note: eventually add the remaining documents (if any)
+# @standard_docs_devel@
 
 %changelog
 * @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@

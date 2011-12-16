@@ -56,6 +56,8 @@ Requires:      gtk-doc
 %files
 %defattr(-,root,root)
 @standard_docs@
+## note: eventually add the remaining documents (if any)
+# @standard_docs_devel@
 
 @if:library_apidocs
 %files apidocs
