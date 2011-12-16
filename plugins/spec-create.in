@@ -46,6 +46,10 @@ spec_cmd_configure_cmake="%cmake -d build"
 spec_cmd_make_cmake="%make"
 spec_cmd_makeinstall_cmake="%makeinstall -C build"
 
+spec_cmd_configure_makefileonly=""
+spec_cmd_make_makefileonly="%make"
+spec_cmd_makeinstall_makefileonly="%makeinstall"
+
 spec_cmd_configure_default=""
 spec_cmd_make_default=""
 spec_cmd_makeinstall_default=""
@@ -312,6 +316,11 @@ shared-libraries:,\
       spec_cmd_make="$spec_cmd_make_autotools"
       spec_cmd_makeinstall="$spec_cmd_makeinstall_autotools"
    ;;
+   makefile)
+      spec_cmd_configure="$spec_cmd_configure_makefileonly"
+      spec_cmd_make="$spec_cmd_make_makefileonly"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_makefileonly"
+   ;;
    unknown)
       notify.warning $"unknown build techonology"
       spec_cmd_configure="$spec_cmd_configure_default"
@@ -345,6 +354,10 @@ shared-libraries:,\
          skipline=0
          continue
       ;;
+      @configure@)
+         [ "$spec_cmd_configure" ] && echo "$line" | \
+            sed "s,@configure@,$spec_cmd_configure,"
+      ;;      
       *) [ "$skipline" = 1 ] || echo "$line" | sed "\
 s,@DISTRO@,${DISTRO:-?DISTRO?},
 s,@DISTRO_rpm@,${DISTRO_rpm:-?DISTRO_rpm?},
@@ -362,7 +375,6 @@ s,^\(%setup.*\),${spec_setup_macro},
 /^[ \t]*License[ \t]*:[ \t]*\.\.\.$/{
    s,\(^[ \t]*License[ \t]*:[ \t]*\).*,\1${spec_license},}
 s,^\([ \t]*Source[ \t]*:[ \t]*\).*,\1${spec_source},
-s,@configure@,$spec_cmd_configure,
 s,@make@,$spec_cmd_make,
 s,@makeinstall@,$spec_cmd_makeinstall,
 s,@standard_docs@,${standard_docs:+%doc $standard_docs},
@@ -689,6 +701,8 @@ looks like a python module (use \`-t python' if this is true)" ;;
          build_techology="cmake"
       elif [ -x $tmpdir/$pck_rootdir/configure ]; then
          build_techology="autotools"
+      elif [ -e $tmpdir/$pck_rootdir/Makefile ]; then
+         build_techology="makefile"
       fi
    ;;
    esac

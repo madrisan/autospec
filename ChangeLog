@@ -24,6 +24,11 @@ Changes in version 1.8.1
  * templates/kde4 - Davide Madrisan:
    Update template to better support KDE 4.7.x.
 
++ bugfix
+  * spec-create - Davide Madrisan:
+    Support source packages with a makefile but no configure script.
+    (Issue reported by Silvan Calarco)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.0
