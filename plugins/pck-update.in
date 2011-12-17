@@ -478,7 +478,7 @@ rpm -q $USER_RPMDEFINE_OPTS --specfile --specedit $SRPM_SPECFILE_WITH_PATH \
         [ "$SPEC_BUILDREQUIRES" ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_BUILDREQUIRES
         [ "$SPEC_BUILDROOT"     ] || specfile.getvars -s $SPECFILE_PREPROCESSED SPEC_BUILDROOT
 
-     SPEC_OBSOLETES_ESCAPED = `echo "(${SPEC_OBSOLETES[*]})" | sed "s|<|\<|;s|>|\>|"`
+        SPEC_OBSOLETES_ESCAPED=`echo "(${SPEC_OBSOLETES[*]})" | sed "s|<|\<|;s|>|\>|"`
 
         echo "\
 SPEC_NAME=\"$SPEC_NAME\"
