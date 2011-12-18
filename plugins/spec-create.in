@@ -337,31 +337,46 @@ shared-libraries:,\
 
    [ -r "$templatefile" ] || notify.error $"file not found"": $templatefile"
 
-   local currvar line skipline=0
+   local currvar line if_value if_level=0
+   # FIXME: at most two nested @if statements are supported
+   if_value[0]='N/A'; if_value[1]='1'; if_value[2]='1';
+   local template_linenum=0
    while read line; do
-      # FIXME: this code does not support nested conditional statements
+      template_linenum=$(($template_linenum + 1))
       case "$line" in
       @if:*)
+         [ $if_level -ge 2 ] && notify.error "\
+$spec_type ("$"line""#$template_linenum): "$"too many nested @if blocks"
+         if_level=$(($if_level + 1))
          currvar="$(echo "$line" | sed "s,@if:\([^ \t]*\).*,\1,")"
-         [ "${!currvar}" = 1 ] || skipline=1
-         #echo "@if[$currvar]"
-         #unset currvar
+         [ "${!currvar}" = 1 ] || if_value[$if_level]='0'
+         notify.debug "\
+$FUNCNAME: @if:$currvar lev:$if_level val:${if_value[$if_level]})"
          continue
       ;;
       @else:*)
-         #currvar="$(echo "$line" | sed "s,@if:\([^ \t]*'http://search.cpan.org/CPAN/authors/id/K/KB/KBAUCOM/Term-Animation-%{version}.tar.gz'\).*,\1,")"
-         [ "$skipline" = 0 ] && skipline=1 || skipline=0         
+         [ "$if_level" = '0' ] && notify.error "\
+$spec_type ("$"line""#$template_linenum): "$"too many nested @if blocks"
+         if_value[$if_level]=$(( ! ${if_value[$if_level]} ))
+         notify.debug "\
+$FUNCNAME: @else:$currvar lev:$if_level val:${if_value[$if_level]})"
+         continue
       ;;
       @fi:*)
-         #currvar="$(echo "$line" | sed "s,@fi:\([^ \t]*\).*,\1,")"
-         skipline=0
+         [ "$if_level" = '0' ] && notify.error "\
+$spec_type ("$"line""#$template_linenum): "$"@fi without @if statement"
+         if_value[$if_level]='1'
+         if_level=$(($if_level - 1))
+         notify.debug "\
+$FUNCNAME: @fi:$currvar lev:$if_level val:${if_value[$if_level]})"
          continue
       ;;
       @configure@)
          [ "$spec_cmd_configure" ] && echo "$line" | \
             sed "s,@configure@,$spec_cmd_configure,"
-      ;;      
-      *) [ "$skipline" = 1 ] || echo "$line" | sed "\
+      ;;
+      *) [ "${if_value[1]}" = '1' -a ${if_value[2]} = '1' ] &&
+            echo "$line" | sed "\
 s,@DISTRO@,${DISTRO:-?DISTRO?},
 s,@DISTRO_rpm@,${DISTRO_rpm:-?DISTRO_rpm?},
 s,@VENDOR@,${VENDOR:-?VENDOR?},

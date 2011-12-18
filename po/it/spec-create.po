@@ -204,3 +204,16 @@ msgstr "sembra un modulo python (in questo caso usa \\`-t python')"
 
 msgid "created specfile"
 msgstr "creato specfile"
+
+msgid "line"
+msgstr "linea"
+
+msgid "too many nested @if blocks"
+msgstr "troppi livelli di blocchi @if"
+
+msgid "@else without @if statement"
+msgstr "@else senza un corrispondente @if"
+
+msgid "@fi without @if statement"
+msgstr "@fi senza un corrispondente @if"
+
