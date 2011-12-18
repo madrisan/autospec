@@ -1,5 +1,5 @@
 # Makefile for autospec
-# Copyright (C) 2008 by Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2011 by Davide Madrisan <davide.madrisan@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ srcdir = ..
 
 include $(srcdir)/Makefile.env
 
-pck_plugins := config-getvar pck-extract pck-update spec-create-old spec-create
+pck_plugins := config-getvar pck-extract pck-update spec-create
 pck_plugins_infiles := $(wildcard *.in)
 
 all:

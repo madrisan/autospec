@@ -113,7 +113,6 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %{_bindir}/config-getvar
 %{_bindir}/pck-extract
 %{_bindir}/pck-update
-%{_bindir}/spec-create-old
 %{_bindir}/spec-create
 %if %{packager_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
