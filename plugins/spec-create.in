@@ -356,7 +356,7 @@ $FUNCNAME: @if:$currvar lev:$if_level val:${if_value[$if_level]})"
       ;;
       @else:*)
          [ "$if_level" = '0' ] && notify.error "\
-$spec_type ("$"line""#$template_linenum): "$"too many nested @if blocks"
+$spec_type ("$"line""#$template_linenum): "$"@else without @if statement"
          if_value[$if_level]=$(( ! ${if_value[$if_level]} ))
          notify.debug "\
 $FUNCNAME: @else:$currvar lev:$if_level val:${if_value[$if_level]})"
