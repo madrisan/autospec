@@ -43,6 +43,11 @@ Changes in version 1.8.1
     Devel package does not exist: move code for infopages installation/removal
     to the main package scriplets.
 
++ update
+  * spec-create, templates/library - Davide Madrisan:
+    Support library packages with a name not starting by 'lib'.
+    (Feature asked by Silvan Calarco)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.0

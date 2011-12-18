@@ -16,7 +16,8 @@ List of user visible changes in the release 1.8.1 - Christmas Release
    Improve searching in sourceforge sites.
 
  * spec-create, templates - Davide Madrisan:
-   Several improvements and fixes.
+   Several improvements and fixes, notably for library packages with a name
+   not starting by 'lib'.
 
 -------------------------------------------------------------------------------
 

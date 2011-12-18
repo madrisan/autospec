@@ -233,7 +233,7 @@ function template.expand() {
 source:,standard-docs:,standard-docs-devel:,build-technology:,\
 i18n:,icons-mimetypes:,\
 infopages:,manpages:,\
-pck-apidocs:,pck-tools:,\
+pck-devel:,pck-library:,pck-apidocs:,pck-tools:,\
 shared-libraries:,\
    -n "${0}" -- "$@"`
 [ $? = 0 ] || exit 1
@@ -243,6 +243,9 @@ shared-libraries:,\
 
    local templatefile spec_type
    local pck_name pck_version
+   local pck_name_devel
+   local pck_name_tools
+   local pck_name_apidocs
    local spec_setup_macro
    local spec_summary="$spec_default_summary"
    local spec_license="$spec_default_license"
@@ -254,6 +257,8 @@ shared-libraries:,\
    local icons_mimetypes="0"
    local infopages="0"
    local manpages="0"
+   local pck_devel="0"
+   local pck_library="0"
    local pck_apidocs="0"
    local pck_tools="0"
    local shared_libraries="0"
@@ -290,6 +295,10 @@ shared-libraries:,\
          infopages="$2"; shift ;;
       --manpages)
          manpages="$2"; shift ;;
+      --pck-devel)
+         pck_devel="$2"; shift ;;
+      --pck-library)
+         pck_library="$2"; shift ;;
       --pck-apidocs)
          pck_apidocs="$2"; shift ;;
       --pck-tools)
@@ -374,7 +383,7 @@ $FUNCNAME: @fi:$currvar lev:$if_level val:${if_value[$if_level]})"
       @configure@)
          [ "$spec_cmd_configure" ] && echo "$line" | \
             sed "s,@configure@,$spec_cmd_configure,"
-      ;;
+      ;;      
       *) [ "${if_value[1]}" = '1' -a ${if_value[2]} = '1' ] &&
             echo "$line" | sed "\
 s,@DISTRO@,${DISTRO:-?DISTRO?},
@@ -777,6 +786,13 @@ grep -e "enable-gtk-doc")" ] && {
 $spec_cmd_configure_autotools --enable-gtk-doc"
     }
 
+   # 11. check for library packages
+   local pck_library="0"
+   local pck_tools="1"
+   case "$spec_type" in library)
+      [[ "$pck_name" =~ ^lib* ]] ||
+       { pck_library="1"; pck_tools="0"; }
+   esac
 
    # FIXME: missing support for:
    #   pkgconfig  files
@@ -799,7 +815,9 @@ $spec_cmd_configure_autotools --enable-gtk-doc"
       --infopages "$spec_infopages" \
       --manpages "$spec_manpages" \
       --pck-apidocs "$spec_gtk_doc" \
-      --pck-tools "1" \
+      --pck-devel "1" \
+      --pck-library "$pck_library" \
+      --pck-tools "$pck_tools" \
       --shared-libraries "1"
 
    [ "$outfile" ] && specfile.ckeck_defvalues "$outfile"

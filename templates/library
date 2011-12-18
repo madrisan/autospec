@@ -2,7 +2,11 @@ Name:          @pck_name@
 Version:       @pck_version@
 Release:       @spec_first_release@@DISTRO_rpm@
 Summary:       ...
+@if:pck_library
+Group:         ...
+@else:pck_library
 Group:         System/Libraries
+@fi:pck_library
 Vendor:        @VENDOR@
 Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
@@ -21,14 +25,37 @@ BuildRoot:     @rpm_default_buildroot@
 %description
 ...
 
-%package devel
-Group:         Development/Libraries
-Summary:       Static libraries and headers for %{name}
-Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+@if:pck_library
+%package -n lib%{name}
+Group:         System/Libraries
+Summary:       Shared libraries for %{name}
 
+%description -n lib%{name}
+This package contains shared libraries for %{name}.
+@fi:pck_library
+
+@if:pck_devel
+@if:pck_library
+%package -n lib%{name}-devel
+@else:pck_library
+%package devel
+@fi:pck_library
+Group:         Development/Libraries
+Summary:       Development files for %{name}
+@if:pck_library
+Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
+@else:pck_library
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+@fi:pck_library
+
+@if:pck_library
+%description -n lib%{name}-devel
+@else:pck_library
 %description devel
+@fi:pck_library
 ...
-This package contains static libraries and header files need for development.
+This package contains libraries and header files for developing applications that use %{name}.
+@fi:pck_devel
 
 @if:pck_tools
 %package tools
@@ -37,7 +64,7 @@ Summary:       Utility applications for %{name}
 Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
 
 %description tools
-The %{name}-tools package contains utility applications for %{name}.
+This package contains utility applications for %{name}.
 @fi:pck_tools
 
 @if:pck_apidocs
@@ -74,16 +101,29 @@ This package includes the %{name} API documentation.
 %clean
 [ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
 
+@if:pck_library
+%post -n lib%{name} -p /sbin/ldconfig
+%postun -n lib%{name} -p /sbin/ldconfig
+@else:pck_library
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
+@fi:pck_library
 
 @if:infopages
+@if:pck_library
+%post -n lib%{name}-devel
+@else:pck_library
 %post devel
+@fi:pck_library
 ## modify the infopage name as required
 %install_info %{name}.info
 exit 0
 
+@if:pck_library
+%preun -n lib%{name}-devel
+@else:pck_library
 %preun devel
+@fi:pck_library
 ## modify the infopage name as required
 %uninstall_info %{name}.info
 exit 0
@@ -96,11 +136,26 @@ exit 0
 @fi:i18n
 %defattr(-,root,root)
 ## note: this list is just an example; modify as required
+@if:pck_library
+@else:pck_library
 # %{_libdir}/*.so.*
+@fi:pck_library
 # %{_mandir}/man1/*
 @standard_docs@
 
+@if:pck_library
+%files -n lib%{name}
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_libdir}/*.so.*
+@fi:pck_library
+
+@if:pck_devel
+@if:pck_library
+%files -n lib%{name}-devel
+@else:pck_library
 %files devel
+@fi:pck_library
 %defattr(-,root,root)
 ## note: this list is just an example; modify as required
 # %{_bindir}/%{name}-config
@@ -116,6 +171,7 @@ exit 0
 # %{_infodir}/*.info.*
 @fi:infopages
 @standard_docs_devel@
+@fi:pck_devel
 
 @if:pck_tools
 %files tools
