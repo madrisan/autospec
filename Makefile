@@ -163,7 +163,8 @@ dist: clean
 	@rm -f history/$(dist_archive)
 	@echo "Creating the compressed tarball..."
 	@$(INSTALL_DIR) history
-	tar cf - --exclude=history -C .. $(distdir) |\
+	tar cf - --exclude=history --exclude=.git \
+	   -C .. $(distdir) |\
 	   bzip2 -9 -c > history/$(dist_archive)
 
 dist-rpm: dist $(PACKAGE).spec

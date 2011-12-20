@@ -1,5 +1,5 @@
 Changes in version 1.8.1 - Christmas Release
-Sun Dec 18 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
+Tue Dec 20 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + update
   * libapse - Silvan Calarco:
@@ -47,6 +47,9 @@ Sun Dec 18 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
   * spec-create, templates/library - Davide Madrisan:
     Support library packages with a name not starting by 'lib'.
     (Feature asked by Silvan Calarco)
+
++ update
+  * Makefile: do no package file located in the .git directory (make dist).
 
 --------------------------------------------------------------------------------
 
