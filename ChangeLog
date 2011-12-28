@@ -1,3 +1,12 @@
+Changes in version 1.8.2
+... ... .. 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ bugfix
+  * templates/library - Davide Madrisan:
+    Add a missing requirement.
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.8.1 - Christmas Release
 Tue Dec 20 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
 

@@ -17,6 +17,9 @@ License:       ...
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
 ## AUTOBUILDREQ-END
+@if:pck_library
+Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
+@fi:pck_library
 @if:infopages
 Requires(post): %{__install_info}
 @fi:infopages
