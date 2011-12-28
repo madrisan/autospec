@@ -44,7 +44,6 @@
             in fase di upload.
             Causa: parsing non corretto della riga (se "sitename" non è definito?)
                Name:          %{?sitename:%sitename-website-}bbpress
- [feature]  autoformat "make install" if lines are too long (like "configure")
  [feature]  action 8, test 4
             should check if `/usr/lib/libpopt.so' --> `libpopt.so.0.0.0' is a valid link
             should display a warning on broken symlinks
@@ -73,30 +72,9 @@
 * spec-create plugin
  [bug]      libmpcdec and http://www.directfb.org/download/DirectFB/DirectFB-0.9.22.tar.gz
             do not properly detect headers path
- [feature]  (python specfiles)
-            in the `%install' block, just after the lines
-               python setup.py install \
-                  --root=%{buildroot} \
-                  --install-headers=%{_includedir}/python \
-                  --install-lib=%{_libdir}/site-python
-            this command should be perhaps used
-               python -O %{_libdir}/python%{pyver}/compileall.py \
-                  %{buildroot}%{_libdir}/python%{pyver}/site-packages
-            to optimize the python compiled code
  [feature]  check for non standard (/usr/lib) library files path
- [feature]  man pages should be splitted between main and devel packages
-              o man1: User programs                       -- main
-              o man2: System calls                        -- (kernel related --> not in standard packages)
-              o man3: Library functions and subroutines   -- *** devel ***
-              o man4: Special files                       -- (system --> not in standard packages)
-              o man5: File formats                        -- main
-              o man6: Games                               -- main
-              o man7: Miscellaneous                       -- main (?)
-              o man8: System administration               -- main
 
-* missing english translation of `rpm4QiLinux-it-HOWTO', a tedious effort to
-  translate a doc that nobody is going to actually read.
-                                                     *** NEED EXTERNAL HELP ***
+* missing english translation of `autospec.1'.  *** NEED EXTERNAL HELP ***
 
 ******************
 * IMPORTANT NOTE *
