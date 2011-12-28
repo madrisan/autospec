@@ -74,7 +74,8 @@
             do not properly detect headers path
  [feature]  check for non standard (/usr/lib) library files path
 
-* missing english translation of `autospec.1'.  *** NEED EXTERNAL HELP ***
+* missing english translation of `autospec.1' and `autospec-it-HOWTO'.
+            *** NEED EXTERNAL HELP ***
 
 ******************
 * IMPORTANT NOTE *
