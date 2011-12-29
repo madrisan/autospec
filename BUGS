@@ -3,39 +3,12 @@
 *********************************
 
 * pck-update plugin
- [bug]      if the download fails, a HTML file is downloaded. See for instance:
-            http://kent.dl.sourceforge.net/sourceforge/inkscape/inkscape-0.44.tar.bz2
  [security] evaluation of `%define' directives could lead to security issues
             (the problem exists in the rpm itself)
  [bug]      '/usr/share/linuxdoc-tools/dist/linuxdoc-tools/info/mapping'
             should not be considered an info page
             hint: grep '/info/' is a broken test; the `file' tool cannot be used
                   because info pages are compressed
- [bug]      [silvan@buddha SPECS]$ autospec -u apt -a3 0.5.15cnc7
-            aggiornamento del pacchetto apt alla versione 0.5.15cnc7...
-            [step 3] -- dowload dei nuovi file sorgente
-            [1] https://moin.conectiva.com.br/AptRpm/apt-0.5.15cnc7.tar.bz2
-                --> /usr/src/RPM/SOURCES/apt-0.5.15cnc7.tar.bz2
-
-            curl: (60) SSL certificate problem, verify that the CA cert is OK. Details:
-            error:14090086:SSL routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify
-            failed
-            More details here: http://curl.haxx.se/docs/sslcerts.html
-
-            curl performs SSL certificate verification by default, using a "bundle"
-            of Certificate Authority (CA) public keys (CA certs). The default
-            bundle is named curl-ca-bundle.crt; you can specify an alternate file
-            using the --cacert option.
-            If this HTTPS server uses a certificate signed by a CA represented in
-            the bundle, the certificate verification probably failed due to a
-            problem with the certificate (it might be expired, or the name might
-            not match the domain name in the URL).
-            If you'd like to turn off curl's verification of the certificate, use
-            the -k (or --insecure) option.
-            autospec: impossibile scaricare: `apt-0.5.15cnc7.tar.bz2'
-
-            TRY USING THE CURL OPION "--no-check-certificate" (?) -- hint by Silvan Calarco
-
  [bug]      Il seguente comando:
                autospec -u bbpress -a1,5,10
             causa l'errore:
@@ -70,11 +43,10 @@
                   expr: sintax error
 
 * spec-create plugin
- [bug]      libmpcdec and http://www.directfb.org/download/DirectFB/DirectFB-0.9.22.tar.gz
-            do not properly detect headers path
  [feature]  check for non standard (/usr/lib) library files path
 
-* missing english translation of `autospec.1' and `autospec-it-HOWTO'.
+* documentation
+ [feature]  missing english translation of `autospec.1' and `autospec-it-HOWTO'.
             *** NEED EXTERNAL HELP ***
 
 ******************
