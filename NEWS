@@ -1,3 +1,22 @@
+List of user visible changes in the release 1.8.2
+
+-- Improvements
+
+ * templates/library - Davide Madrisan:
+   Add a missing requirement and some comments to help developers.
+
+ * templates/kde4 - Davide Madrisan:
+   Minor updates.
+
+ * Makefile - Davide Madrisan:
+   Provide a 'dist-rpm-install' target to install the autospec rpm packages by
+   a simple 'make dist-rpm-install' command.
+
+ * BUGS - Davide Madrisan:
+   Remove old stuff.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.8.1 - Christmas Release
 
 -- Bug fixes
