@@ -9,6 +9,10 @@ Changes in version 1.8.2
   * templates/kde4 - Davide Madrisan:
     Minor updates.
 
+  * Makefile - Davide Madrisan:
+    Provide a 'dist-rpm-install' target to install the rpm packages by a simple
+    'make dist-rpm-install' command.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.1 - Christmas Release

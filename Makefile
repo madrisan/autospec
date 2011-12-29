@@ -1,5 +1,5 @@
 # Makefile for autospec
-# Copyright (C) 2004-2008 by Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2008,2011 by Davide Madrisan <davide.madrisan@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
@@ -180,6 +180,13 @@ dist-rpm: dist $(PACKAGE).spec
 	 mv -f $(PACKAGE).spec $$rpm_specdir &&\
 	 rpmbuild --clean -ba $$rpm_specdir/$(PACKAGE).spec) || exit 1
 	@echo "All done. Enjoy using $(PACKAGE)..."
+
+dist-rpm-install: dist-rpm
+	@echo "Installing rpm packages..."
+	@rpm_pckdir=`rpm --eval=%{_rpmdir} 2>/dev/null`;\
+	sudo rpm -hUv --force\
+	   $$rpm_pckdir/noarch/$(PACKAGE)-*${VERSION}-${RELEASE}.noarch.rpm\
+	   || exit 1
 
 clean: mostlyclean
 	rm -f history/$(dist_archive)
