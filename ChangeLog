@@ -5,6 +5,10 @@ Changes in version 1.8.2
   * templates/library - Davide Madrisan:
     Add a missing requirement.
 
++ update
+  * templates/kde4 - Davide Madrisan:
+    Minor updates.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.1 - Christmas Release
