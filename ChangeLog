@@ -1,3 +1,12 @@
+Changes in version 1.8.3
+... ... .. .... Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ update
+  * templates/kde4 - Davide Madrisan:
+    Update %files section
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.8.2
 Thu Dec 29 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
 

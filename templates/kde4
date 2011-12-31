@@ -105,7 +105,9 @@ exit 0
 # %{_kde4_icondir}/hicolor/scalable/*/*.svgz
 # %{_kde4_icondir}/oxygen/scalable/*/*.svgz
 # %{_kde4_xdgappsdir}/%{name}.desktop
+# %{_kde4_xdgmimedir}/*.xml
 # %{_kde4_servicesdir}/*.desktop
+# %{_kde4_servicetypesdir}/*.desktop
 # %config %{_kde4_configdir}/*.knsrc
 # %doc %lang(en) %{_kde4_htmldir}/en/%{name}
 ## note: "man3" pages normally goes to devel package if any
