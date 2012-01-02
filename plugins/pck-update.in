@@ -181,7 +181,7 @@ for arg in $@; do
    esac
 done
 
-exec_options=`LANG=C getopt \
+exec_options=`LC_ALL=C getopt \
    -o ua:d:l:S:A:cfLRDqrhV \
    --long \
 update,action:,define:,login:,specfile:,arch:,\
@@ -2535,7 +2535,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
          #     -t|--tmpdir    the directory where the files will be extracted to
          function rpms.extract() {
             local rpminfofile tmpextractdir
-            TEMP=`LANG=C getopt \
+            TEMP=`LC_ALL=C getopt \
                -o i:t: --long infofile:,tmpdir: -n "$FUNCNAME" -- "$@"`
             [[ $? = 0 ]] || return 1
             eval set -- "$TEMP"

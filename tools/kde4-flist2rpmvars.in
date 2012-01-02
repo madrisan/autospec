@@ -71,7 +71,7 @@ function usage() {
 
 [ $# -eq 0 ] && usage
 
-TEMP=`LANG=C getopt \
+TEMP=`LC_ALL=C getopt \
    -o shv \
    --long nospaces,help,version \
    -n "$me" -- "$@"`

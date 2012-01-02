@@ -21,7 +21,7 @@ function alltests() {
    # FIXME: add to 'po' file
    notify.note "** ${NOTE}"$"performing quality checks""${NORM}""..."
 
-   TEMP=`LANG=C getopt \
+   TEMP=`LC_ALL=C getopt \
       -o i:t: --long infofile:,tmpdir: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || return 1
@@ -298,7 +298,7 @@ checking packages for wrong user and/or group ownerships""${NORM}..."
       notify.note "   - "$"checking"": \`${pck##*/}'"
       [[ -e $pck ]] || notify.error $"\
 package not found"": \`${pck##*/}'"
-      ( LANG=C rpm -p -qlv $pck | \
+      ( LC_ALL=C rpm -p -qlv $pck | \
         while read line; do
            set -- $line
            # FIXME : find a better check, perhaps using a range

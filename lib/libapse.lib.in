@@ -232,7 +232,7 @@ Copyright (C) 2007 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>""
  }
 
    local ARGS
-   ARGS=`LANG=C getopt -o han:s:w:p:u: \
+   ARGS=`LC_ALL=C getopt -o han:s:w:p:u: \
       --long help,allurl,pckname:,specname:,pckurl:,pckurlverbatim:,proxy:,proxy-user: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"\

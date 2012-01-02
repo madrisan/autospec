@@ -97,7 +97,7 @@ for arg in $@; do
    esac
 done
 
-exec_options=`LANG=C getopt \
+exec_options=`LC_ALL=C getopt \
    -o xF:DqrhV \
    --long \
 extract,files:,destdir:,\

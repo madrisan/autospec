@@ -92,7 +92,7 @@ for arg in $@; do
    esac
 done
 
-exec_options=`LANG=C getopt \
+exec_options=`LC_ALL=C getopt \
    -o C:DqrhV \
    --long eval:,config:,\
 debug,quiet,colorize,help,version,\

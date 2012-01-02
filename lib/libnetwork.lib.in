@@ -101,7 +101,7 @@ function repository.resolveURL() {
 #    0 on success, 1 otherwise
 function repository.get_SRPMS_name() {
    local ARGS
-   ARGS=`LANG=C getopt \
+   ARGS=`LC_ALL=C getopt \
       -o n:r:p:u: \
       --long urlnum:,urllist:,proxy:,proxy-user:,user: \
       -n "$FUNCNAME" -- "$@"`
@@ -262,7 +262,7 @@ $FUNCNAME: got_SPEC_FILENAME = $got_SPEC_FILENAME"
 #      i586:mbrowse-contrib-0.3.1-1qilnx.noarch.rpm
 #      ppc:mbrowse-contrib-0.3.1-1qilnx.noarch.rpm )
 function repository.get_RPMS_name() {
-   ARGS=`LANG=C getopt \
+   ARGS=`LC_ALL=C getopt \
       -o a:x:c:p:u: \
       --long archlist:,exclude:,target-cpu:,proxy:,proxy-user:,user: \
       -n "$FUNCNAME" -- "$@"`
@@ -434,7 +434,7 @@ ${proxy:+ --proxy ***}${proxy_user:+ --proxy-user ***}"
 
 function curl.download() {
    local ARGS
-   ARGS=`LANG=C getopt \
+   ARGS=`LC_ALL=C getopt \
       -o d:fn:o:xp:u: \
       --long destdir:,force,filenum:,options:,exit-on-err,proxy:,proxy-user: \
       -n "$FUNCNAME" -- "$@"`
@@ -576,7 +576,7 @@ ${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} $file_url"
 #    
 function curl.upload() {
    local ARGS
-   ARGS=`LANG=C getopt \
+   ARGS=`LC_ALL=C getopt \
       -o f:l:o:p:u:x \
       --long upload-file:,user:,options:,proxy:,proxy-user:,\
 repository-alias:,exit-on-err,debug-unsecure \
@@ -658,7 +658,7 @@ ${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} \
 #
 function curl.ftp_command() {
    local ARGS
-   ARGS=`LANG=C getopt \
+   ARGS=`LC_ALL=C getopt \
       -o l:o:p:u:a: \
       --long user:,options:,proxy:,proxy-user:,debug-unsecure,\
 action:,directory:,rename-from:,rename-to:,delete:,ftp-passive \

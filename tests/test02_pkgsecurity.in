@@ -21,7 +21,7 @@ function alltests() {
    # FIXME: add to 'po' file
    notify.note "** ${NOTE}"$"performing security checks""${NORM}""..."
 
-   TEMP=`LANG=C getopt \
+   TEMP=`LC_ALL=C getopt \
       -o i:t: --long infofile:,tmpdir: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || return 1

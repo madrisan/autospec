@@ -81,7 +81,7 @@ Copyright (C) 2005 Davide Madrisan <davide.madrisan@qilinux.it>""
 "$"Report bugs to <davide.madrisan@qilinux.it>."
 }
 
-OPTS=`LANG=C getopt -o bcdiup:h \
+OPTS=`LC_ALL=C getopt -o bcdiup:h \
    --long build,check,download,install,upload,pcklist:,help -n "$me" -- "$@"`
 [ $? = 0 ] || return 1
 

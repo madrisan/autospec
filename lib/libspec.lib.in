@@ -143,7 +143,7 @@ $FUNCNAME: boolean expression [ $boolexpr ] --> ${boolstr[$retval]} ($retval)"
 #    expr: sintax error
 function rpmvars.init() {
    local ARGS pckver
-   ARGS=`LANG=C getopt -o cv: --long clear,pckver: -n "$FUNCNAME" -- "$@"`
+   ARGS=`LC_ALL=C getopt -o cv: --long clear,pckver: -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
@@ -635,7 +635,7 @@ Copyright (C) 2005,2010 Davide Madrisan <davide.madrisan@gmail.com>""
  }
 
    local ARGS
-   ARGS=`LANG=C getopt -o hs:v --long help,specfile:,verbatim \
+   ARGS=`LC_ALL=C getopt -o hs:v --long help,specfile:,verbatim \
          -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"\`getopt' error"

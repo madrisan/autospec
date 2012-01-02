@@ -144,7 +144,7 @@ done
 # the user configuration file for @package@ is required
 config.check4user
 
-exec_options=`LANG=C getopt \
+exec_options=`LC_ALL=C getopt \
    -o s:n:v:t:o:DqrhV \
    --long \
 source:,pck-name:,pck-version:,type:,output:,\
@@ -227,7 +227,7 @@ remember to modify the value for \`${NOTE}$id${NORM}'" ;;
 }
 
 function template.expand() {
-   local OPTIONS=`LANG=C getopt \
+   local OPTIONS=`LC_ALL=C getopt \
    -o t:T:n:v:s:l:S:b: \
    --long template:,type:,pckname:,pckversion:,setupmacro:,summary:,license:,\
 source:,standard-docs:,standard-docs-devel:,build-technology:,\
@@ -579,10 +579,10 @@ python modules must have this name structure (use \`-n'):"" \
    rm -f $tmpdir/${pck_tarball##*/}
 
    local pck_rootdir_dirs=(`\
-LANG=C find $tmpdir -mindepth 1 -maxdepth 1 -type d -printf "%f "`)
+LC_ALL=C find $tmpdir -mindepth 1 -maxdepth 1 -type d -printf "%f "`)
    notify.debug "$FUNCNAME: pck_rootdir_dirs = \"$pck_rootdir_dirs\""
    local pck_rootdir_files=(`\
-LANG=C find $tmpdir -mindepth 1 -maxdepth 1 -type f -printf "%f "`)
+LC_ALL=C find $tmpdir -mindepth 1 -maxdepth 1 -type f -printf "%f "`)
    notify.debug "$FUNCNAME: pck_rootdir_files = \"$pck_rootdir_files\""
 
    # 0. set 'spec_setup_macro'
@@ -751,35 +751,35 @@ ${standard_docs_devel:+$standard_docs_devel }$currdoc"
 
    local spec_i18n="0"
    # note: in the 'tar' tarball there is no 'intl' folder, so we use 'po'
-   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -type d -name po 2>/dev/null)" ] &&
+   [ "$(LC_ALL=C find $tmpdir/$pck_rootdir/ -type d -name po 2>/dev/null)" ] &&
       spec_i18n="1"
 
    # 8. check for manpages
 
    local spec_manpages="0"
-   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
+   [ "$(LC_ALL=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
 -exec grep "MANS[ ]*=" {} \; 2>/dev/null)" ] && spec_manpages="1"
 
    [ "$spec_manpages" = 0 ] &&
-     { [ "$(LANG=C find $tmpdir/$pck_rootdir/ \
+     { [ "$(LC_ALL=C find $tmpdir/$pck_rootdir/ \
 -type f -name "*.[0-9]" 2>/dev/null)" ] && spec_manpages="1"; }
 
    # 9. check for infopages
 
    local spec_infopages="0"
-   [ "$(LANG=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
+   [ "$(LC_ALL=C find $tmpdir/$pck_rootdir/ -name Makefile.am \
 -exec grep "info_TEXINFOS[ ]*=" {} \; 2>/dev/null)" ] && spec_infopages="1"
    notify.debug "$FUNCNAME: spec_infopages = $spec_infopages"
 
    [ "$spec_infopages" = 0 ] &&
-     { [ "$(LANG=C find $tmpdir/$pck_rootdir/ \
+     { [ "$(LC_ALL=C find $tmpdir/$pck_rootdir/ \
 -type f -name "*.info" 2>/dev/null)" ] && spec_infopages="1"; }
    notify.debug "$FUNCNAME: spec_infopages = $spec_infopages"
 
    # 10. check for gtk-doc documentation
 
    local spec_gtk_doc="0"
-   [ "$(LANG=C $tmpdir/$pck_rootdir/configure --help 2>/dev/null | \
+   [ "$(LC_ALL=C $tmpdir/$pck_rootdir/configure --help 2>/dev/null | \
 grep -e "enable-gtk-doc")" ] && {
       spec_gtk_doc="1"
       [ "$build_techology" = "autotools" ] && spec_cmd_configure="\
