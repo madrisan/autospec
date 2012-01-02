@@ -13,7 +13,7 @@
 \fB@pck_lib@\fR - libreria di funzioni per l'analisi degli specfile.
 
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.8.0 di @package@.
+Questo documento e' aggiornato alla versione 1.8.2 di @package@.
 
 .SH DESCRIZIONE
 @package@ e' una suite di script che permette di velocizzare ed automatizzare una parte
@@ -67,8 +67,6 @@ categoria dello specfile da generare:
 \fIkde4\fR : specfile per pacchetti kde4
 .br
 \fIlibrary\fR : specfile per librerie
-.br
-\fIlibrarytools\fR : specfile per librerie con tool
 .br
 \fIperl\fR : specfile per singoli moduli perl
 .br
@@ -306,7 +304,7 @@ Inviare patch, segnalazioni di bachi, richieste di funzionalita' a <davide.madri
 Nel caso di bachi riscontrati, effettuarne una descrizione accurata e possibilmente un modo per riprodurli.
 
 .SH COPYRIGHT
-Copyright (C) 2004\-2011 Davide Madrisan <davide.madrisan@gmail.com>
+Copyright (C) 2004\-2012 Davide Madrisan <davide.madrisan@gmail.com>
 .br
 .br
 Questo e' software libero. E' possibile redistribuirlo e/o modificarlo nei termini

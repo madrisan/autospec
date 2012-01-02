@@ -3,7 +3,18 @@ Changes in version 1.8.3
 
 + update
   * templates/kde4 - Davide Madrisan:
-    Update %files section
+    Update %files section.
+
+  * lib/libapse.lib, lib/libnetwork.lib, lib/libspec.lib
+    config-getvar, pck-extract, pck-update, spec-create
+    tests/test01_pkgquality, tests/test02_pkgsecurity
+    tools/extract-specs, tools/kde4-flist2rpmvars - Davide Madrisan:
+    Use LC_ALL instead of LANG.
+
++ documentation
+  * italian manpage - Davide Madrisan:
+    Remove 'librarytools' from the list of available templates: it does not
+    exist.
 
 --------------------------------------------------------------------------------
 
