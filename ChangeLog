@@ -16,6 +16,14 @@ Changes in version 1.8.3
     Remove 'librarytools' from the list of available templates: it does not
     exist.
 
++ update
+  * spec-create
+    templates/gnome
+    templates/kde3, templates/kde4
+    templates/library
+    templates/standard, templates/standard-daemon - Davide Madrisan:
+    Add the %debug_package macro when required.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2

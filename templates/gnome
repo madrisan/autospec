@@ -22,6 +22,10 @@ License:       GPL
 BuildRequires: gtk-doc
 BuildRoot:     @rpm_default_buildroot@
 
+@if:debug_package
+%debug_package
+@fi:debug_package
+
 %description
 ...
 

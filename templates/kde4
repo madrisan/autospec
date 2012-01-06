@@ -19,6 +19,10 @@ BuildRequires: kdelibs-devel
 Requires:      kde-workspace
 BuildRoot:     @rpm_default_buildroot@
 
+@if:debug_package
+%debug_package
+@fi:debug_package
+
 %description
 ...
 

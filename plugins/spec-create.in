@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-create -- plugin for @package@
-# Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -79,7 +79,7 @@ or FITNESS FOR A PARTICULAR PURPOSE."
 function version() {
    echo "\
 ${me[0]} ${me[1]}
-Copyright (C) 2004-2011 Davide Madrisan <davide.madrisan@gmail.com>"
+Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>"
 }
 
 # $1: optional exit code (default is '1')
@@ -234,7 +234,7 @@ source:,standard-docs:,standard-docs-devel:,build-technology:,\
 i18n:,icons-mimetypes:,\
 infopages:,manpages:,\
 pck-devel:,pck-library:,pck-apidocs:,pck-tools:,\
-shared-libraries:,\
+shared-libraries:,debug-package:,\
    -n "${0}" -- "$@"`
 [ $? = 0 ] || exit 1
 
@@ -262,6 +262,7 @@ shared-libraries:,\
    local pck_apidocs="0"
    local pck_tools="0"
    local shared_libraries="0"
+   local debug_package="0"
 
    while :; do
       case $1 in
@@ -305,6 +306,8 @@ shared-libraries:,\
          pck_tools="$2"; shift ;;
       --shared-libraries)
          shared_libraries="$2"; shift ;;
+      --debug-package)
+         debug_package="$2"; shift ;;
       --) shift; break ;;
       *) notify.error $"unrecognized option"" -- \`$1'" ;;
       esac
@@ -794,6 +797,10 @@ $spec_cmd_configure_autotools --enable-gtk-doc"
        { pck_library="1"; pck_tools="0"; }
    esac
 
+   # 12. debug package
+   local debug_package="0"
+   [ -n "$rpm_macro_debug_package" ] && debug_package="1"
+
    # FIXME: missing support for:
    #   pkgconfig  files
    #   includedir files
@@ -818,7 +825,8 @@ $spec_cmd_configure_autotools --enable-gtk-doc"
       --pck-devel "1" \
       --pck-library "$pck_library" \
       --pck-tools "$pck_tools" \
-      --shared-libraries "1"
+      --shared-libraries "1" \
+      --debug-package "1"
 
    [ "$outfile" ] && specfile.ckeck_defvalues "$outfile"
 
