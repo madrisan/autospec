@@ -19,7 +19,7 @@ TEXTDOMAIN="test02_pkgsecurity"; export TEXTDOMAIN
 
 function alltests() {
    # FIXME: add to 'po' file
-   notify.note "** ${NOTE}"$"performing security checks""${NORM}""..."
+   notify.note " * ${NOTE}"$"performing security checks""${NORM}""..."
 
    TEMP=`LC_ALL=C getopt \
       -o i:t: --long infofile:,tmpdir: \
@@ -69,11 +69,10 @@ function alltests() {
    }
 
    notify.note \
-" * ${NOTE}"$"checking for RPATH vulnerabilities""${NORM}..."
+"   * ${NOTE}"$"checking for RPATH vulnerabilities""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
 
       # find ELF binaries (ELF 32-bit LSB executable)
@@ -81,40 +80,41 @@ function alltests() {
       for f in $(find -mindepth 2 -perm +111 -type f); do
          if [[ "$(file $f | grep " ELF ")" ]]; then
             rpath="$(security.filecheckrpath $f)"
-            [[ "$rpath" ]] && notify.warning "${f/./}\nRPATH:   $rpath"
+            if [ "$rpath" ]; then
+               notify.warning "${NOTE}${pck##*/}${NORM}"
+               notify.note "${f/./}\nRPATH:   $rpath"
+            fi
          fi
       done
       popd >/dev/null
       let "i += 1"
    done
-###
 
    notify.note \
-" * ${NOTE}"$"checking for setuid binaries""${NORM}..."
+"   * ${NOTE}"$"checking for setuid binaries""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       # find setuid binaries
       # NOTE: find output is different for normal and root users
       for f in $(find -mindepth 2 -perm +111 -type f); do
-         [[ "$(file $f | grep " setuid ")" ]] &&
-            notify.warning "${NOTE}${f/./}${NORM}"
+         if [[ "$(file $f | grep " setuid ")" ]]; then
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note "${NOTE}${f/./}${NORM}"
+         fi
       done
       popd >/dev/null
       let "i += 1"
    done
-###
 
    # checking for unsecure use of $$ as random source in shell scripts
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
 
    vulnerable=0
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $(find -mindepth 1 -perm +111 -type f); do
          # we are interesting only in shell scripts
@@ -127,8 +127,9 @@ checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
 -n "$(grep $f -m1 -s -rl -e"[^[:space:]]*=.*\$\$")" ||
 -n "$(grep $f -m1 -s -rl -e">[[:space:]]*.*[[:space:]]*[^[:space:]]*\$\$")" ]] &&
             let "vulnerable = 1" &&
-               notify.warning $"\
-seems to be affected"": \`${NOTE}${f/./}${NORM}'"
+             { notify.warning "${NOTE}${pck##*/}${NORM}"
+               notify.note $"\
+seems to be affected"": \`${NOTE}${f/./}${NORM}'"; }
       done
       popd >/dev/null
       let "i += 1"

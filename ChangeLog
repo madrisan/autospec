@@ -24,6 +24,10 @@ Changes in version 1.8.3
     templates/standard, templates/standard-daemon - Davide Madrisan:
     Add the %debug_package macro when required.
 
+  * tests/test01_pkgquality
+    tests/test02_pkgsecurity - Davide Madrisan:
+    Be less verbose.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2

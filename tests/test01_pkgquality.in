@@ -1,6 +1,6 @@
 #!/bin/bash
 # test01_pkgquality -- @package@ test (rpm quality checks)
-# Copyright (C) 2008 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2012 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
@@ -19,7 +19,7 @@ TEXTDOMAIN="test01_pkgquality"; export TEXTDOMAIN
 
 function alltests() {
    # FIXME: add to 'po' file
-   notify.note "** ${NOTE}"$"performing quality checks""${NORM}""..."
+   notify.note " * ${NOTE}"$"performing quality checks""${NORM}""..."
 
    TEMP=`LC_ALL=C getopt \
       -o i:t: --long infofile:,tmpdir: \
@@ -61,7 +61,7 @@ function alltests() {
    #    (usable for a symlink attacks)
    #  - symlinks not pointing to existing files
    notify.note \
-" * ${NOTE}"$"checking for wrong symbolic links""${NORM}..."
+"   * ${NOTE}"$"checking for wrong symbolic links""${NORM}..."
 
    # local rpmbuildroot=`sed -n "/%description/q;{
    #    /^BuildRoot[ ]*:/{s/[^ ]*[ ]*//;p}}" \
@@ -80,7 +80,6 @@ function alltests() {
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $(find -mindepth 1 -type l); do
          notify.debug "$f --> `readlink $f`"
@@ -89,72 +88,73 @@ function alltests() {
          # note: the first condition check for wrong links, like
          #    /usr/share/man/man1/zcmp.1.gz -> .gz
          # made by the broken `brp-compress' script in rpm 4.0.4
-         [[ "$(readlink $f)" = ".gz" || \
-            "$(readlink $f)" =~ $tmppath_dir ]] && notify.warning $"\
+         if [[ "$(readlink $f)" = ".gz" || \
+               "$(readlink $f)" =~ $tmppath_dir ]]; then
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note $"\
 wrong symlink"": \`${NOTE}${f/./}${NORM}' --> \`${NOTE}$(readlink $f)${NORM}'"
+         fi
       done
       popd >/dev/null
       let "i += 1"
    done
-###
 
    # check for `%buildroot' strings
    if [ "$rpm_ignores_buildroot" = 1 ]; then
-      notify.note \
-" * ${NOTE}"$"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"\
+      [ "$SPEC_BUILDROOT" ] && notify.note \
+"   * ${NOTE}"$"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"\
 "${NORM}... "$"skipped"
    else
       notify.note \
-         " * "$"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"
-
-      [ "$SPEC_BUILDROOT" ] ||
-         notify.error \
+         "   * "$"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"
+ 
+      [ "$SPEC_BUILDROOT" ] || notify.error \
             $"(bug)"" -- $FUNCNAME: ""empty string"" (SPEC_BUILDROOT)"
 
       let "i = 0"
       for pck in ${rpmpkg_name[@]}; do
-         notify.note "   - "$"checking"": \`${pck##*/}'"
          find $tmpextractdir/$i -type f \
             -exec grep -ls "$SPEC_BUILDROOT" {} \; | \
          while read filename; do
-            notify.note "      ${NOTE}$(\
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note "\
+   ${NOTE}$(\
 echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
             notify.note "$(\
 strings -a $filename | grep "^$SPEC_BUILDROOT" | sort -bu | \
-sed "s,$SPEC_BUILDROOT\(.*\),       - [%buildroot]\1,")"
+sed "s,$SPEC_BUILDROOT\(.*\),    - [%buildroot]\1,")"
          done
          let "i += 1"
       done
    fi
-###
 
    # check for `%_builddir' strings
    BUILDDIR="$(rpm --eval=%_builddir 2>/dev/null)"
    notify.note \
-" * ${NOTE}"$"checking for \`$BUILDDIR' (%_builddir) strings""${NORM}... "
+"   * ${NOTE}"$"checking for \`$BUILDDIR' (%_builddir) strings""${NORM}... "
 
    [ "$BUILDDIR" ] ||
       notify.error $"(bug)"" -- $FUNCNAME: ""empty string"" (BUILDDIR)"
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       find $tmpextractdir/$i -type f \
          -exec grep -ls "$BUILDDIR" {} \; | \
          while read filename; do
-            notify.note "      ${NOTE}$(\
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note "\
+   ${NOTE}$(\
 echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
             notify.note "$(\
 strings -a $filename | grep "$BUILDDIR" | sort -bu | \
-sed "s,$BUILDDIR,[%_builddir],g;s,.*,       - &,")"
+sed "s,$BUILDDIR,[%_builddir],g;s,.*,    - &,")"
          done
       let "i += 1"
    done
-###
 
    # check for suspected plugins (.la, .so) in devel packages
    # note: pure plugins must be in the main package, not in devel
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking for suspicious plugins in devel packages""${NORM}..."
 
    let "i = 0"
@@ -162,28 +162,25 @@ checking for suspicious plugins in devel packages""${NORM}..."
       # skip non devel packages
       [[ "${pck##*/}" =~ -devel- ]] || { let "i += 1"; continue; }
 
-      notify.note "   - "$"checking"": \`${pck##*/}'"
-
       pushd $tmpextractdir/$i >/dev/null
       # find *.so files that are not symlinks to dynamic libraries
       for f in `\
 find -mindepth 1 -type f -name \*.so -exec file {} \; | \
 grep ' shared object,' | sed -n 's/.\(.*\):.*/\1/p'`; do
-         notify.warning $"found suspect plugin \`${NOTE}$f${NORM}'"
+         notify.warning "${NOTE}${pck##*/}${NORM}"
+         notify.note $"found suspect plugin \`${NOTE}$f${NORM}'"
       done
       popd >/dev/null
       let "i += 1"
    done
-###
 
    # check for wrong file attributes in lib and bin dirs
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking for wrong file attributes in bin and lib directories""${NORM}..."
 
    warning=0
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $( find . -type f \
          \( -name '*.so*' -not -perm 755 \) -or \
@@ -193,7 +190,8 @@ checking for wrong file attributes in bin and lib directories""${NORM}..."
                -path './usr/sbin/*' \) \
              -not -perm -111 \) 2>/dev/null ); do
          let "warning = 1" &&
-         notify.warning $"found suspect file"": \
+         notify.warning "${NOTE}${pck##*/}${NORM}"
+         notify.note $"found suspect file"": \
 \`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]"
       done
       let "i += 1"
@@ -210,22 +208,21 @@ ${NOTE}"$"Hint"":${NORM}
    ...
    %attr(0755,root,root) %{_bindir}/<program>
 -----------------------------"
-###
 
    # check for binary files in etc (see FHS-2.2)
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking for binary files installed in /etc (see FHS)""${NORM}..."
 
    warning=0
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $( find ./etc -type f -perm +111 2>/dev/null ); do
          case $f in
          ./etc/rc.d/init.d/*) ;;
          *) let "warning = 1" &&
-            notify.warning $"found suspect file"": \
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note $"found suspect file"": \
 \`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]" ;;
          esac
       done
@@ -240,16 +237,15 @@ ${NOTE}"$"Hint"":${NORM}
    ...
    %attr(0644,root,root) %{_sysconfdir}/<...file>
 -----------------------------" #|| exit 1
-###
 
    # check for installation code needed by info pages
    notify.note \
-" * ${NOTE}"$"checking if the info catalog is updated when necessary""${NORM}..."
+"   * ${NOTE}"$"\
+checking if the info catalog is updated when necessary""${NORM}..."
 
    error=0
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       [[ -e $pck ]] || notify.error $"package not found"": \`${pck##*/}'"
 
       [[ "$(rpm -p -ql $pck |
@@ -265,8 +261,9 @@ ${NOTE}"$"Hint"":${NORM}
 /preuninstall /,${/\/sbin\/install-info.*--[delete\|remove].*/p}')" ]] || \
          let "error+=1"
 
-      [[ "$error" = "0"  ]] || notify.warning "\
-"$"info pages should be installed/uninstalled""${NORM}
+      [ "$error" = "0" ] ||
+       { notify.warning "${NOTE}${pck##*/}${NORM}"
+         notify.note $"info pages should be installed/uninstalled""${NORM}
 ---------------------------------------
 ${NOTE}"$"Hint"":${NORM}
 $([[ "$rpm_macro_installinfo_binary" ]] &&
@@ -283,19 +280,17 @@ $([[ "$rpm_macro_uninstallinfo" ]] &&
    echo "$rpm_macro_uninstallinfo %{name}.info" ||
    echo "${path_installinfo:-/sbin/install-info} --delete %{name}.info")
 exit 0
----------------------------------------"
+---------------------------------------"; }
    done
-###
 
    # check packages for wrong user and/or group ownerships
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking packages for wrong user and/or group ownerships""${NORM}..."
 
    error=0
    idun="$(id -un)" idgn="$(id -gn)"
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       [[ -e $pck ]] || notify.error $"\
 package not found"": \`${pck##*/}'"
       ( LC_ALL=C rpm -p -qlv $pck | \
@@ -303,28 +298,29 @@ package not found"": \`${pck##*/}'"
            set -- $line
            # FIXME : find a better check, perhaps using a range
            # of uid reserved for users
-           [[ "$idun" = "$3" || "$idgn" = "$4" ]] &&
-              notify.warning $"found suspect file"": \
+           if [[ "$idun" = "$3" || "$idgn" = "$4" ]]; then
+              notify.warning "${NOTE}${pck##*/}${NORM}"
+              notify.note $"found suspect file"": \
 \`${NOTE}$9${NORM}' [uid:\`${NOTE}$3${NORM}', gid:\`${NOTE}$4${NORM}']"
+           fi
         done )
    done
-###
 
    # check for desktop files installed in non standard applnk dir
-   notify.note " * ${NOTE}"$"\
+   notify.note "   * ${NOTE}"$"\
 checking packages for desktop files installed in the applnk dir""${NORM}..."
 
    warning=0
    rpmdatadir=$(rpm --eval %_datadir 2>/dev/null)
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $( find .${rpmdatadir} -type f 2>/dev/null ); do
          case $f in
          .${rpmdatadir}/applnk/*.desktop)
             let "warning = 1" &&
-            notify.warning $"found suspect file"": \
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            notify.note $"found suspect file"": \
 \`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]" ;;
          *) ;;
          esac
@@ -337,16 +333,14 @@ ${NOTE}"$"Hint"":${NORM}
    "$"create desktop files for:"" ${rpmdatadir}/applications
    "$"see:"" <http://www.freedesktop.org/>
 -----------------------------"
-###
 
    # check if a package that do not contains binaries is tagged noarch
    notify.note \
-" * ${NOTE}"$"checking for packages with bad BuildArch tag""${NORM}..."
+"   * ${NOTE}"$"checking for packages with bad BuildArch tag""${NORM}..."
 
    warning=0
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      notify.note "   - "$"checking"": \`${pck##*/}'"
       pushd $tmpextractdir/$i >/dev/null
       for f in $(find -mindepth 2 -perm +111 -type f \
          -exec file {} \; | grep -E "( ELF | library )"); do
@@ -357,11 +351,12 @@ ${NOTE}"$"Hint"":${NORM}
       popd >/dev/null
    done
    if [ "$warning" = 0 ]; then
-      [ "$SPEC_BUILDARCH" = "noarch" ] || notify.warning "\
-"$"this package should be tagged \`noarch'""
+      [ "$SPEC_BUILDARCH" = "noarch" ] || 
+       { notify.warning "${NOTE}${pck##*/}${NORM}"
+         notify.note $"this package should be tagged \`noarch'""
 -----------------------------
 ${NOTE}"$"Hint"":${NORM}
 BuildArch:     noarch
------------------------------"
+-----------------------------"; }
    fi
 }
