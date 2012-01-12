@@ -26,7 +26,12 @@ Changes in version 1.8.3
 
   * tests/test01_pkgquality
     tests/test02_pkgsecurity - Davide Madrisan:
-    Be less verbose.
+    Be less verbose and write the grand total of the issues detected by each
+    plugin.
+
+  * po/it/test01_pkgquality
+    po/it/test02_pkgsecurity.po - Davide Madrisan:
+    Updated.
 
 --------------------------------------------------------------------------------
 

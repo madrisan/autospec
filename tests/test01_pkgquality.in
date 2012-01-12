@@ -56,6 +56,8 @@ function alltests() {
    [ -d "$tmpextractdir" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"no such file or directory"" \`$tmpextractdir'"
 
+   local total_issues=0
+
    # check for broken symlinks
    #  - symlinks to files in the buildroot directory for rpm
    #    (usable for a symlink attacks)
@@ -93,6 +95,7 @@ function alltests() {
             notify.warning "${NOTE}${pck##*/}${NORM}"
             notify.note $"\
 wrong symlink"": \`${NOTE}${f/./}${NORM}' --> \`${NOTE}$(readlink $f)${NORM}'"
+            let "total_issues += 1"
          fi
       done
       popd >/dev/null
@@ -123,6 +126,7 @@ echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
             notify.note "$(\
 strings -a $filename | grep "^$SPEC_BUILDROOT" | sort -bu | \
 sed "s,$SPEC_BUILDROOT\(.*\),    - [%buildroot]\1,")"
+            let "total_issues += 1"
          done
          let "i += 1"
       done
@@ -148,6 +152,7 @@ echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
             notify.note "$(\
 strings -a $filename | grep "$BUILDDIR" | sort -bu | \
 sed "s,$BUILDDIR,[%_builddir],g;s,.*,    - &,")"
+            let "total_issues += 1"
          done
       let "i += 1"
    done
@@ -169,6 +174,7 @@ find -mindepth 1 -type f -name \*.so -exec file {} \; | \
 grep ' shared object,' | sed -n 's/.\(.*\):.*/\1/p'`; do
          notify.warning "${NOTE}${pck##*/}${NORM}"
          notify.note $"found suspect plugin \`${NOTE}$f${NORM}'"
+         let "total_issues += 1"
       done
       popd >/dev/null
       let "i += 1"
@@ -193,6 +199,7 @@ checking for wrong file attributes in bin and lib directories""${NORM}..."
          notify.warning "${NOTE}${pck##*/}${NORM}"
          notify.note $"found suspect file"": \
 \`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]"
+         let "total_issues += 1"
       done
       let "i += 1"
       popd >/dev/null
@@ -221,9 +228,10 @@ checking for binary files installed in /etc (see FHS)""${NORM}..."
          case $f in
          ./etc/rc.d/init.d/*) ;;
          *) let "warning = 1" &&
-            notify.warning "${NOTE}${pck##*/}${NORM}"
-            notify.note $"found suspect file"": \
-\`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]" ;;
+             { notify.warning "${NOTE}${pck##*/}${NORM}"
+               notify.note $"found suspect file"": \
+\`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]"
+               let "total_issues += 1"; } ;;
          esac
       done
       popd >/dev/null
@@ -280,7 +288,8 @@ $([[ "$rpm_macro_uninstallinfo" ]] &&
    echo "$rpm_macro_uninstallinfo %{name}.info" ||
    echo "${path_installinfo:-/sbin/install-info} --delete %{name}.info")
 exit 0
----------------------------------------"; }
+---------------------------------------"
+         let "total_issues += $error"; }
    done
 
    # check packages for wrong user and/or group ownerships
@@ -302,6 +311,7 @@ package not found"": \`${pck##*/}'"
               notify.warning "${NOTE}${pck##*/}${NORM}"
               notify.note $"found suspect file"": \
 \`${NOTE}$9${NORM}' [uid:\`${NOTE}$3${NORM}', gid:\`${NOTE}$4${NORM}']"
+              let "total_issues += 1"
            fi
         done )
    done
@@ -319,9 +329,10 @@ checking packages for desktop files installed in the applnk dir""${NORM}..."
          case $f in
          .${rpmdatadir}/applnk/*.desktop)
             let "warning = 1" &&
-            notify.warning "${NOTE}${pck##*/}${NORM}"
-            notify.note $"found suspect file"": \
-\`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]" ;;
+             { notify.warning "${NOTE}${pck##*/}${NORM}"
+               notify.note $"found suspect file"": \
+\`${NOTE}${f/./}${NORM}' [$(ls -l "$f" | sed 's, .*,,')]"
+               let "total_issues += 1"; } ;;
          *) ;;
          esac
       done
@@ -357,6 +368,11 @@ ${NOTE}"$"Hint"":${NORM}
 -----------------------------
 ${NOTE}"$"Hint"":${NORM}
 BuildArch:     noarch
------------------------------"; }
+-----------------------------"
+         let "total_issues += 1"; }
    fi
+
+   notify.note "\
+ --> ${NOTE}"$"Quality checks: \
+${#rpmpkg_name[@]} package(s) checked: $total_issues warning(s).""${NORM}"
 }
