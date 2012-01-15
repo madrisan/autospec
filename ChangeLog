@@ -1,4 +1,4 @@
-Changes in version 1.9.0
+Changes in version 1.9.0 - Silvan Birthday Release
 Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + update
@@ -33,10 +33,14 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     po/it/test02_pkgsecurity.po - Davide Madrisan:
     Updated.
 
++ improvement
   * libspec.lib - Davide Madrisan:
     Rework rpmvars.init() in order to support rpm macro expressions.
     (Feature asked ages ago by Silvan Calarco...)
     Modify debug output to get it more readable.
+
+  * tests/test02_pkgsecurity - Davide Madrisan:
+    New test: check for setgid directories.
 
 --------------------------------------------------------------------------------
 

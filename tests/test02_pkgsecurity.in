@@ -112,6 +112,21 @@ function alltests() {
       let "i += 1"
    done
 
+   notify.note \
+"   * ${NOTE}"$"checking for setgid directories""${NORM}..."
+
+   let "i = 0"
+   for pck in ${rpmpkg_name[@]}; do
+      pushd $tmpextractdir/$i >/dev/null
+      # find setuid directories
+      for d in $(find -mindepth 2 -perm -2000 -type d 2>/dev/null); do
+         notify.warning "${NORM}${pck##*/} --> ${NOTE}${d/./}${NORM}"
+         let "total_issues += 1"
+      done
+      popd >/dev/null
+      let "i += 1"
+   done
+
    # checking for unsecure use of $$ as random source in shell scripts
    notify.note "   * ${NOTE}"$"\
 checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."

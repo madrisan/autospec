@@ -49,6 +49,9 @@ msgstr "controllo"
 msgid "checking for setuid binaries"
 msgstr "ricerca di binari setuid"
 
+msgid "checking for setgid directories"
+msgstr "ricerca di directory setgid"
+
 msgid "checking for unsecure use of \\`\\$\\$' in shell and perl scripts"
 msgstr "ricerca di script shell e perl che utilizzano \\`\\$\\$' in modo insicuro"
 
