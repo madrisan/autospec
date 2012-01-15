@@ -1,5 +1,5 @@
 # translation of it.po to Italiana
-# Copyright (C) 2004-2008 Davide Madrisan
+# Copyright (C) 2004-2008,2012 Davide Madrisan
 # Davide Madrisan <davide.madrisan@gmail.com>
 
 msgid ""
@@ -497,3 +497,6 @@ msgstr "rimozione dei pacchetti sorgente e delle patch, se presenti"
 
 msgid "removing"
 msgstr "rimozione di"
+
+msgid "It seems good but do not forget to run quality and security tests."
+msgstr "Sembra ok ma non dimenticare di eseguire i test di qualità e sicurezza."
