@@ -1,3 +1,33 @@
+List of user visible changes in the release 1.9.0
+
+-- Improvements
+
+ * templates/kde4 - Davide Madrisan:
+   Minor update.
+
+ * spec-create - Davide Madrisan:
+   templates/gnome
+   templates/kde3, templates/kde4
+   templates/library
+   templates/standard, templates/standard-daemon - Davide Madrisan:
+   Add the %debug_package macro.
+
+ * libspec.lib - Davide Madrisan:
+   Rework rpmvars.init() in order to support rpm macro expressions.
+   (Feature asked by Silvan Calarco ages ago ...:)
+   Debug output is now more readable.
+
+ * tests/test01_pkgquality
+   tests/test02_pkgsecurity - Davide Madrisan:
+   - Be less verbose and make output a bit more compact;
+   - rework coloring schema; 
+   - write the grand total of the issues detected by each plugin.
+
+ * tests/test02_pkgsecurity - Davide Madrisan:
+   New test: check for setgid directories.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.8.2
 
 -- Improvements
