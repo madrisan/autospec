@@ -189,7 +189,8 @@ checking for wrong file attributes in bin and lib directories""${NORM}..."
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
       for f in $( find . -type f \
-         \( -name '*.so*' -not -perm 755 \) -or \
+         \( -name '*.so.*' -not -perm 755 \) -or \
+         \( -name '*.so' -not -perm 755 \) -or \
          \( \( -path './bin/*' -or \
                -path './sbin/*' -or \
                -path './usr/bin/*' -or \

@@ -51,6 +51,12 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Action 5: add a message asking developers to run quality and security
     tests.
 
++ bugfix
+  * tests/test01_pkgquality - Davide Madrisan:
+    Fix find command used when checking for wrong file attributes in bin and lib
+    directories, to avoid false positives (seen for files whose names include
+    the substring '.so', like 'net.sourceforge.kile.main.xml').
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2
