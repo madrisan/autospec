@@ -373,6 +373,6 @@ BuildArch:     noarch
    fi
 
    notify.note "\
- --> ${NOTE}"$"Quality checks: \
-${#rpmpkg_name[@]} package(s) checked: $total_issues warning(s).""${NORM}"
+ --> ${NOTE}"$"Quality checks: ${#rpmpkg_name[@]} \
+package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}"
 }

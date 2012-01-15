@@ -83,8 +83,8 @@ function alltests() {
          if [[ "$(file $f | grep " ELF ")" ]]; then
             rpath="$(security.filecheckrpath $f)"
             if [ "$rpath" ]; then
-               notify.warning "${NOTE}${pck##*/}${NORM}"
-               notify.note "${f/./}\nRPATH:   $rpath"
+               notify.warning "${NORM}${pck##*/} --> ${f/./}"
+               notify.note "RPATH:   $rpath"
                let "total_issues += 1"
             fi
          fi
@@ -99,12 +99,9 @@ function alltests() {
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      # find setuid binaries
-      # NOTE: find output is different for normal and root users
-      for f in $(find -mindepth 2 -perm +111 -type f); do
-         if [[ "$(file $f | grep " setuid ")" ]]; then
-            notify.warning "${NOTE}${pck##*/}${NORM}"
-            notify.note "${NOTE}${f/./}${NORM}"
+      for f in $(find -mindepth 2 -perm +111 -type f 2>/dev/null); do
+         if [[ "$(LC_ALL=C file $f | grep " setuid ")" ]]; then
+            notify.warning "${NORM}${pck##*/} --> ${f/./}"
             let "total_issues += 1"
          fi
       done
@@ -118,9 +115,8 @@ function alltests() {
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      # find setuid directories
       for d in $(find -mindepth 2 -perm -2000 -type d 2>/dev/null); do
-         notify.warning "${NORM}${pck##*/} --> ${NOTE}${d/./}${NORM}"
+         notify.warning "${NORM}${pck##*/} --> ${d/./}"
          let "total_issues += 1"
       done
       popd >/dev/null
@@ -169,6 +165,6 @@ ${NOTE}"$"Hint for perl scripts"":${NORM}
 -----------------------------"
 
    notify.note "\
- --> ${NOTE}"$"Security checks: \
-${#rpmpkg_name[@]} package(s) checked: $total_issues warning(s).""${NORM}"
+ --> ${NOTE}"$"Security checks: ${#rpmpkg_name[@]} \
+package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}"
 }

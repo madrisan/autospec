@@ -42,6 +42,11 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * tests/test02_pkgsecurity - Davide Madrisan:
     New test: check for setgid directories.
 
++ update
+    tests/test01_pkgquality
+    tests/test02_pkgsecurity - Davide Madrisan:
+    Rework coloring schema and make output a bit more compact.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2

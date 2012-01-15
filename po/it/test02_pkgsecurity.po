@@ -64,5 +64,5 @@ msgstr "Suggerimento per script bash (richiede \\`mktemp')"
 msgid "Hint for perl scripts"
 msgstr "Suggerimento per script perl"
 
-msgid "Security checks: ${#rpmpkg_name[@]} package(s) checked: $total_issues warning(s)."
-msgstr "Ccntrolli di sicurezza: pacchetti controllati: ${#rpmpkg_name[@]}; problemi riscontrati: $total_issues"
+msgid "Security checks: ${#rpmpkg_name[@]} package(s) checked: ${WARN}$total_issues${NOTE} warning(s)."
+msgstr "Controlli di sicurezza: pacchetti rpm: ${#rpmpkg_name[@]}; problemi riscontrati: ${WARN}$total_issues${NOTE}"
