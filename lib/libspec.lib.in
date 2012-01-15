@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # libspec.lib -- @package@ library to manage rpm specfiles
-# Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2010,2012 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
@@ -369,7 +369,7 @@ $FUNCNAME: "$"FIXME: sorry, not implemented yet..."" (\`%{!?<VAR>:<DEFVALUE>')"
 
       # [1] variable expansion using user `--define' values
       notify.debug "\
-$FUNCNAME: * variable expansion using user \`--define' values..."
+$FUNCNAME: [1] variable expansion using user's \`--define' values..."
       local define_applied
       for i in `seq 0 1 $(( ${#define_list_name[*]} - 1 ))`; do
          let "define_applied = 0"
@@ -379,9 +379,9 @@ $FUNCNAME: * variable expansion using user \`--define' values..."
                let "define_applied = 1"
                notify.debug "\
 $FUNCNAME: ${rpmvar_name[$j]} = \"${define_list_value[$i]}\" (forced by user)"
-               # FIXME : advanced users may --define variables by
-               # expressions, but for now expression are not supported by
-               # autospec, so we force '0' value
+               # FIXME : advanced users may --define variables by using
+               # expressions, but for now expressions are unsupported by
+               # autospec, so we set 'rpmvar_expr' to '0'
                rpmvar_expr[$j]="0"; }
          done
          if [[ "$define_applied" = "0" ]]; then
@@ -393,22 +393,19 @@ $FUNCNAME: added not existing user defined variable \`%${define_list_name[$i]}'"
             rpmvar_expr[${#rpmvar_expr[*]}]="0"
          fi
       done
-      notify.debug "\
-$FUNCNAME: [1] rpmvar_name  = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
-echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
-      notify.debug "\
-$FUNCNAME: [1] rpmvar_value = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
-echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+      notify.debug "$FUNCNAME: [1] rpmvar_name[], rpmvar_value[]"
+      for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+         notify.debug "\
+$FUNCNAME:       \"%${rpmvar_name[$i]}\", \"${rpmvar_value[$i]}\""
+      done
 
       # [2] variable expansion using 'rpmvar_value[]'
       local tmpvar tmpval
       notify.debug "\
-$FUNCNAME: * variable expansion using user \`rpmvar_value[]'..."
+$FUNCNAME: [2] variable expansion using user \`rpmvar_value[]'..."
       for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
          for j in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
-            # do not expand one variable with itself
+            # never expand a variable with itself
             [[ $i -eq $j ]] && continue
 
             # use 'pck_newver' if defined
@@ -418,13 +415,9 @@ $FUNCNAME: * variable expansion using user \`rpmvar_value[]'..."
 echo ${rpmvar_value[$i]} | sed "s#%[{]*version[}]*#$pck_newver#g")"
                continue; } ;;
             esac
-            # NOTE: old code
-#            rpmvar_value[$i]="$(\
-#echo ${rpmvar_value[$i]} | sed "\
-#s#%[{]*[?]*${rpmvar_name[$j]}[}]*#${rpmvar_value[$j]}#g")"
             tmpvar="${rpmvar_name[$j]}"; tmpvalue="${rpmvar_value[$j]}"
-            notify.debug "\
-$FUNCNAME:    * \`${rpmvar_value[$i]}' : \`$tmpvar' --> \`$tmpvalue'..."
+#           notify.debug "\
+#$FUNCNAME:    * \`${rpmvar_value[$i]}' : \`$tmpvar' --> \`$tmpvalue'..."
             rpmvar_value[$i]="$(\
 echo ${rpmvar_value[$i]} | sed -n "\
 /%{?$tmpvar:%$tmpvar.*}/{s#%{?$tmpvar:%$tmpvar\(.*\)}#$tmpvalue\1#gp;q};
@@ -434,36 +427,64 @@ echo ${rpmvar_value[$i]} | sed -n "\
 p")"
          done
          notify.debug "\
-$FUNCNAME:    result: \`${rpmvar_value[$i]}'"
+$FUNCNAME:  * ${rpmvar_name[$i]} --> ${rpmvar_value[$i]}"
       done
-      notify.debug "\
-$FUNCNAME: [2] rpmvar_name  = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
-echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
-      notify.debug "\
-$FUNCNAME: [2] rpmvar_value = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
-echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+      notify.debug "$FUNCNAME: [2] rpmvar_name[], rpmvar_value[]"
+      for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+         notify.debug "\
+$FUNCNAME:       \"%${rpmvar_name[$i]}\", \"${rpmvar_value[$i]}\""
+      done
+
+      local rpmvar_value_unexpanded
 
       # [3] expand rpm variables using 'rpm --eval=<rpm_var>'
       notify.debug "\
-$FUNCNAME: * variable expansion using \`rpm --eval=<rpm_var>'..."
-      local rpmvar_value_unexpanded
+$FUNCNAME: [3] variable expansion using \`rpm --eval=<rpm_var>'..."
       for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
          case "${rpmvar_value[$i]}" in
          %*) rpmvar_value_unexpanded="${rpmvar_value[$i]}"
              rpmvar_value[$i]=$(\
-rpm --eval="${rpmvar_value[$i]}" 2>/dev/null) ;;
+rpm --eval="${rpmvar_value[$i]}" 2>/dev/null) 
+             notify.debug "\
+$FUNCNAME:  * rpm --eval=\"$rpmvar_value_unexpanded\"\
+ --> ${rpmvar_value[$i]}" ;;
          esac
       done
+      notify.debug "$FUNCNAME: [3] rpmvar_name[], rpmvar_value[]"
+      for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+         notify.debug "\
+$FUNCNAME:       \"%${rpmvar_name[$i]}\", \"${rpmvar_value[$i]}\""
+      done
+
+      # [4] expand rpm variables using 'eval'
       notify.debug "\
-$FUNCNAME: [3] rpmvar_name  = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
-echo -n "\"%${rpmvar_name[$i]}\" "; done)]"
-      notify.debug "\
-$FUNCNAME: [3] rpmvar_value = [ \
-$(for i in `seq 0 1 $(( ${#rpmvar_value[*]} - 1 ))`; do
-echo -n "\"${rpmvar_value[$i]}\" "; done)]"
+$FUNCNAME: [4] variable expansion using \`eval'..."
+      for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
+         [ "${rpmvar_expr[$i]}" = "1" ] || continue
+
+         # FIXME : the eval command could lead to security issues!
+         #         ex. %define foo %(rm -f <a_writable_file>)
+         # it's also a problem for rpm itself (at least for rpm 4.0.4)
+         eval "${rpmvar_value[$i]}" &>/dev/null
+         # note: %define BUILD_CC ccache gcc33
+         #         --> eval "ccache gcc33" --> $? == 1
+         if [ $? -eq 0 ]; then
+            tmpvalue="$(eval "${rpmvar_value[$i]}" 2>/dev/null)"
+            notify.debug "\
+$FUNCNAME:  * eval \"${rpmvar_value[$i]}\" --> $tmpvalue"
+            rpmvar_value[$i]="$tmpvalue"
+            # we assume all the expressions are now evaluated
+            rpmvar_expr[$i]="0"
+         else
+            notify.warning $"\
+cannot evaluate:"" \"${rpmvar_value[$i]}\""
+         fi
+      done
+      notify.debug "$FUNCNAME: [4] rpmvar_name[], rpmvar_value[]"
+      for i in `seq 0 1 $(( ${#rpmvar_name[*]} - 1 ))`; do
+         notify.debug "\
+$FUNCNAME:       \"%${rpmvar_name[$i]}\", \"${rpmvar_value[$i]}\""
+      done
 
       for i in $( seq 0 1 $(( ${#rpmvar_name[*]} - 1 )) ); do
          # note: we strip the '"' chars from 'rpmvar_value' because
@@ -475,18 +496,6 @@ echo -n "\"${rpmvar_value[$i]}\" "; done)]"
 rpmvar_name[$i]=\"${rpmvar_name[$i]}\"
 rpmvar_value[$i]=\"${rpmvar_value[$i]//\"/}\"
 rpmvar_expr[$i]=\"${rpmvar_expr[$i]}\"" >> ${infofile:-/dev/null} # `
-
-         if [[ "${rpmvar_expr[$i]}" = "1" ]]; then
-            notify.debug "$FUNCNAME: eval \"${rpmvar_value[$i]}\""
-            # FIXME : the eval command could lead to security issues!
-            #         ex. %define foo %(rm -f <a_file_in_HOME_dir>)
-            # it's also a problem for rpm itself (at least for rpm 4.0.4)
-            eval "${rpmvar_value[$i]}" &>/dev/null
-            # note: %define BUILD_CC ccache gcc33
-            #         --> eval "ccache gcc33" --> $? == 1
-            [[ $? -eq 0 ]] || notify.warning $"\
-cannot evaluate:"" \"${rpmvar_value[$i]}\""
-         fi
       done
    fi
 }

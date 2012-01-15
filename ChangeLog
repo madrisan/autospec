@@ -1,5 +1,5 @@
-Changes in version 1.8.3
-... ... .. .... Davide Madrisan <davide.madrisan(a)gmail.com>
+Changes in version 1.9.0
+Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + update
   * templates/kde4 - Davide Madrisan:
@@ -32,6 +32,11 @@ Changes in version 1.8.3
   * po/it/test01_pkgquality
     po/it/test02_pkgsecurity.po - Davide Madrisan:
     Updated.
+
+  * libspec.lib - Davide Madrisan:
+    Rework rpmvars.init() in order to support rpm macro expressions.
+    (Feature asked ages ago by Silvan Calarco...)
+    Modify debug output to get it more readable.
 
 --------------------------------------------------------------------------------
 
