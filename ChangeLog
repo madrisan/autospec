@@ -65,6 +65,10 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * pck-update - Davide Madrisan:
     Print the list of packages before running the tests.
 
++ bugfix
+  * tests/test01_pkgquality - Davide Madrisan:
+    Avoid pipes otherwise the error counter will not display a correct value.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2

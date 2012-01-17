@@ -116,18 +116,18 @@ wrong symlink"": \`${NOTE}${f/./}${NORM}' --> \`${NOTE}$(readlink $f)${NORM}'"
 
       let "i = 0"
       for pck in ${rpmpkg_name[@]}; do
-         find $tmpextractdir/$i -type f \
-            -exec grep -ls "$SPEC_BUILDROOT" {} \; | \
-         while read filename; do
+         pushd $tmpextractdir/$i >/dev/null
+         for f in $(find -type f \
+                     -exec grep -ls "$SPEC_BUILDROOT" {} \;2>/dev/null); do
             notify.warning "${NOTE}${pck##*/}${NORM}"
             notify.note "\
-   ${NOTE}$(\
-echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
+   ${NOTE}$(echo $f | sed "s,$tmpextractdir/$i,," )${NORM}"
             notify.note "$(\
-strings -a $filename | grep "^$SPEC_BUILDROOT" | sort -bu | \
+strings -a $f | grep "^$SPEC_BUILDROOT" | sort -bu | \
 sed "s,$SPEC_BUILDROOT\(.*\),    - [%buildroot]\1,")"
             let "total_issues += 1"
          done
+         popd >/dev/null
          let "i += 1"
       done
    fi
@@ -142,18 +142,18 @@ sed "s,$SPEC_BUILDROOT\(.*\),    - [%buildroot]\1,")"
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
-      find $tmpextractdir/$i -type f \
-         -exec grep -ls "$BUILDDIR" {} \; | \
-         while read filename; do
-            notify.warning "${NOTE}${pck##*/}${NORM}"
-            notify.note "\
-   ${NOTE}$(\
-echo $filename | sed "s,$tmpextractdir/$i,," )${NORM}"
-            notify.note "$(\
-strings -a $filename | grep "$BUILDDIR" | sort -bu | \
+      pushd $tmpextractdir/$i >/dev/null
+      for f in $(find -type f \
+                  -exec grep -ls "$BUILDDIR" {} \; 2>/dev/null); do
+         notify.warning "${NOTE}${pck##*/}${NORM}"
+         notify.note "\
+   ${NOTE}$(echo $f | sed "s,$tmpextractdir/$i,," )${NORM}"
+         notify.note "$(\
+strings -a $f | grep "$BUILDDIR" | sort -bu | \
 sed "s,$BUILDDIR,[%_builddir],g;s,.*,    - &,")"
-            let "total_issues += 1"
-         done
+         let "total_issues += 1"
+      done
+      popd >/dev/null
       let "i += 1"
    done
 
