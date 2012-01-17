@@ -712,6 +712,8 @@ use rpm macros if possible:"" \`$token' --> \`$rpm_macro_make'" ;;
          sed -n '/%install/,/%changelog/p' $specfile | \
          while read -a tokens; do
             for token in ${tokens[*]}; do
+               # ignore comments
+               [[ "${tokens[0]}" =~ ^\# ]] && continue
                case "$token" in
                make)
                   [[ "$rpm_macro_make" ]] && notify.warning $"\
