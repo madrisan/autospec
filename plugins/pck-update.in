@@ -695,6 +695,8 @@ missing at least one \`%defattr' directive"
          local token tokens
          sed -n '/%build/,/%install/p' $specfile | \
          while read -a tokens; do
+            # ignore comments
+            [[ "${tokens[0]}" =~ ^\# ]] && continue
             for token in ${tokens[*]}; do
                case "$token" in
                configure|./configure)
