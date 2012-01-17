@@ -79,7 +79,7 @@ or FITNESS FOR A PARTICULAR PURPOSE."
 function version() {
    echo "\
 ${me[0]} ${me[1]}
-Copyright (C) 2004-2010 Davide Madrisan <davide.madrisan@gmail.com>"
+Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>"
 }
 
 # $1: optional exit code (default is '1')
