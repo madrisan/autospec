@@ -711,9 +711,9 @@ use rpm macros if possible:"" \`$token' --> \`$rpm_macro_make'" ;;
          # - look in the block : `%install' to `%changelog'
          sed -n '/%install/,/%changelog/p' $specfile | \
          while read -a tokens; do
+            # ignore comments
+            [[ "${tokens[0]}" =~ ^\# ]] && continue
             for token in ${tokens[*]}; do
-               # ignore comments
-               [[ "${tokens[0]}" =~ ^\# ]] && continue
                case "$token" in
                make)
                   [[ "$rpm_macro_make" ]] && notify.warning $"\
@@ -2526,6 +2526,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/noarch/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
+               notify.note " $pcknew_name"
             else
                pcknew_name="\
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
@@ -2533,6 +2534,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/$target_cpu/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
+               notify.note " $pcknew_name"
             fi
             notify.debug "$FUNCNAME: pcknew_name[$i] = $pcknew_name"
             let "i += 1"

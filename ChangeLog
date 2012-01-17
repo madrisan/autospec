@@ -57,6 +57,14 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     directories, to avoid false positives (seen for files whose names include
     the substring '.so', like 'net.sourceforge.kile.main.xml').
 
+  * pck-update - Davide Madrisan:
+    Ignore lines starting with '#' while checking for 'configure' and 'make'
+    calls in the specfile.
+
++ update
+  * pck-update - Davide Madrisan:
+    Print the list of packages before running the tests.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2
