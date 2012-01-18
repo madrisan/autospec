@@ -61,7 +61,7 @@ This package includes the %{name} API documentation.
 
 %pre
 /usr/sbin/useradd -s /bin/false -r -d <service_homedir> \\
-\   -c "service description" <service_name> &>/dev/null || :
+\   -c "service description" <service_name> >/dev/null 2>&1 || :
 
 %post
 if [ $1 -eq 1 ]; then
@@ -76,7 +76,7 @@ exit 0
 
 %preun
 if [ $1 -eq 0 ]; then
-\   /sbin/service <daemon_name> stop &>/dev/null || :
+\   /sbin/service <daemon_name> stop >/dev/null 2>&1 || :
 \   /sbin/chkconfig --del <daemon_name>
 fi
 @if:infopages
@@ -87,7 +87,7 @@ exit 0
 
 %postun
 if [ $1 -ge 1 ]; then
-\   /sbin/service <daemon_name> condrestart &>/dev/null || :
+\   /sbin/service <daemon_name> condrestart >/dev/null 2>&1 || :
 fi
 exit 0
 

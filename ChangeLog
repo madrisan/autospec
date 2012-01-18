@@ -69,6 +69,10 @@ Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * tests/test01_pkgquality - Davide Madrisan:
     Avoid pipes otherwise the error counter will not display a correct value.
 
++ update
+  * templates/kde4, templates/standard-daemon
+    Do not use '&>/dev/null'. It's not dash compatible.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.8.2

@@ -52,9 +52,9 @@ BuildRoot:     @rpm_default_buildroot@
 @fi:shared_libraries
 @if:icons_mimetypes
 ## remove the following line if this package has no hicolor icons
-touch --no-create %{_kde4_icondir}/hicolor &>/dev/null
+touch --no-create %{_kde4_icondir}/hicolor >/dev/null 2>&1
 ## remove the following line if this package has no oxygen icons
-touch --no-create %{_kde4_icondir}/oxygen &>/dev/null
+touch --no-create %{_kde4_icondir}/oxygen >/dev/null 2>&1
 @fi:icons_mimetypes
 exit 0
 
@@ -64,12 +64,12 @@ exit 0
 ## remove the following line if no dynamic libraries are provided by this package
 /sbin/ldconfig
 @fi:shared_libraries
-update-desktop-database -q &>/dev/null
-update-mime-database %{_kde4_mimedir} &>/dev/null
+update-desktop-database -q >/dev/null 2>&1
+update-mime-database %{_kde4_mimedir} >/dev/null 2>&1
 ## remove the following line if this package has no hicolor icons
-gtk-update-icon-cache %{_kde4_icondir}/hicolor &>/dev/null
+gtk-update-icon-cache %{_kde4_icondir}/hicolor >/dev/null 2>&1
 ## remove the following line if this package has no oxygen icons
-gtk-update-icon-cache %{_kde4_icondir}/oxygen &>/dev/null
+gtk-update-icon-cache %{_kde4_icondir}/oxygen >/dev/null 2>&1
 exit 0
 @fi:icons_mimetypes
 
@@ -80,14 +80,14 @@ exit 0
 @fi:shared_libraries
 @if:icons_mimetypes
 if [ $1 -eq 0 ]; then
-\   update-desktop-database -q &>/dev/null
-\   update-mime-database %{_kde4_mimedir} &>/dev/null
+\   update-desktop-database -q >/dev/null 2>&1
+\   update-mime-database %{_kde4_mimedir} >/dev/null 2>&1
 ## remove the following two lines if this package has no hicolor icons
-\   touch --no-create %{_kde4_icondir}/hicolor &>/dev/null
-\   gtk-update-icon-cache %{_kde4_icondir}/hicolor &>/dev/null
+\   touch --no-create %{_kde4_icondir}/hicolor >/dev/null 2>&1
+\   gtk-update-icon-cache %{_kde4_icondir}/hicolor >/dev/null 2>&1
 ## remove the following two lines if this package has no oxygen icons
-\   touch --no-create %{_kde4_icondir}/oxygen &>/dev/null
-\   gtk-update-icon-cache %{_kde4_icondir}/oxygen &>/dev/null
+\   touch --no-create %{_kde4_icondir}/oxygen >/dev/null 2>&1
+\   gtk-update-icon-cache %{_kde4_icondir}/oxygen >/dev/null 2>&1
 fi
 @fi:icons_mimetypes
 exit 0
