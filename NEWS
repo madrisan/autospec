@@ -10,7 +10,7 @@ List of user visible changes in the release 1.9.0
    templates/kde3, templates/kde4
    templates/library
    templates/standard, templates/standard-daemon - Davide Madrisan:
-   Add the %debug_package macro.
+   Add the %debug_package macro. Avoid bashisms in the rpm scriptlets.
 
  * libspec.lib - Davide Madrisan:
    Rework rpmvars.init() in order to support rpm macro expressions.
