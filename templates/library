@@ -60,7 +60,6 @@ Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
 @else:pck_library
 %description devel
 @fi:pck_library
-...
 This package contains libraries and header files for developing applications that use %{name}.
 @fi:pck_devel
 
@@ -144,10 +143,11 @@ exit 0
 %defattr(-,root,root)
 ## note: this list is just an example; modify as required
 @if:pck_library
+# %{_bindir}/%{name}
 @else:pck_library
 # %{_libdir}/*.so.*
 @fi:pck_library
-# %{_mandir}/man1/*
+# %{_mandir}/man1/%{name}.*
 @standard_docs@
 
 @if:pck_library
@@ -173,6 +173,7 @@ exit 0
 # %{_libdir}/*.la
 # %{_libdir}/*.so
 # %{_libdir}/pkgconfig/*.pc
+# %{_mandir}/man1/%{name}-config.*
 # %{_mandir}/man3/*
 @if:infopages
 # %{_infodir}/*.info.*

@@ -6,6 +6,9 @@ Changes in version 1.9.1
     Display the error detected by the command 'rpm -q --specfile --specedit'
     when a specfile contains errors.
 
+  * templates/library - Davide Madrisan:
+    Update template.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release
