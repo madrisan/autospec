@@ -439,12 +439,20 @@ done)"
 
      # create the specfile_preprocessed only once
      if [ ! -s "$specfile_preprocessed" ]; then
+        local tmpspreprerr=$(mktemp -q -t $me.XXXXXXXX)
+        [ $? -eq 0 ] || notify.error $"can't create temporary files"
+        notify.debug "tmpspreprerr = \`${NOTE}$tmpspreprerr${NORM}'"
+        
         notify.debug "running: \
 rpm -q $USER_RPMDEFINE_OPTS --specfile --specedit $SRPM_SPECFILE_WITH_PATH ..."
+
         eval "\
 rpm -q $USER_RPMDEFINE_OPTS --specfile --specedit $SRPM_SPECFILE_WITH_PATH \
-           2>/dev/null >> $specfile_preprocessed" ||
-        notify.error $"rpm exited with error code \`$?'"
+           2> $tmpspreprerr >> $specfile_preprocessed"
+        [ -s "$tmpspreprerr" ] &&
+         { notify.error $"specfile has errors:""\n$(\
+           while read line; do echo "   $line"; done < $tmpspreprerr)"; }
+        rm -f $tmpspreprerr
      fi
 
      SPECFILE_PREPROCESSED="$specfile_preprocessed"

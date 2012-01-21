@@ -1,3 +1,13 @@
+Changes in version 1.9.1
+--- --- -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ improvement
+  * pck-update - Davide Madrisan:
+    Display the error detected by the command 'rpm -q --specfile --specedit'
+    when a specfile contains errors.
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.9.0 - Silvan Birthday Release
 Sun Jan 15 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
