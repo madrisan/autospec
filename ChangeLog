@@ -27,6 +27,9 @@ Changes in version 1.9.1
   * po/it/pck-update - Davide Madrisan:
     Updated.
 
+  * kde4-flist2rpmvars - Davide Madrisan:
+    Remove file: it's superseded by the last added pck-update feature.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release

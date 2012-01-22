@@ -139,11 +139,13 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %defattr(-,root,root)
 %{_bindir}/extract-specs
 %{_bindir}/autoupdate-*
-%{_bindir}/kde4-flist2rpmvars
 
 %changelog
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
+
+* Sun Jan 15 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.9.0-1mamba
+- update to 1.9.0
 
 * Thu Dec 29 2011 Davide Madrisan <davide.madrisan@gmail.com> 1.8.2-1mamba
 - update to 1.8.2
