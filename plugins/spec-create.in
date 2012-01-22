@@ -383,7 +383,8 @@ $spec_type ("$"line""#$template_linenum): "$"@fi without @if statement"
 $FUNCNAME: @fi:$currvar lev:$if_level val:${if_value[$if_level]})"
          continue
       ;;
-      @configure@)
+      @configure@*)
+         [ "${if_value[1]}" = '1' -a ${if_value[2]} = '1' ] || continue
          [ "$spec_cmd_configure" ] && echo "$line" | \
             sed "s,@configure@,$spec_cmd_configure,"
       ;;      

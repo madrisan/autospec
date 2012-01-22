@@ -9,6 +9,11 @@ Changes in version 1.9.1
   * templates/library - Davide Madrisan:
     Update template.
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    Fix expansion of templates containing '@configure@' or a line starting by
+    '@configure@'.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release
