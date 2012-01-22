@@ -14,6 +14,19 @@ Changes in version 1.9.1
     Fix expansion of templates containing '@configure@' or a line starting by
     '@configure@'.
 
++ improvement
+  * pck-update - Davide Madrisan:
+    Convert the list of unpackaged files discovered by rpmbuild into a list
+    thak make use of rpm macros (that is, do a /usr/bin --> %{_bindir}, ...
+    conversion for all discovered files).
+
+  * autospec.conf - Davide Madrisan:
+    New variable `format_unpackaged_file_list'.
+
++ update
+  * po/it/pck-update - Davide Madrisan:
+    Updated.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release

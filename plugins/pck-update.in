@@ -2223,7 +2223,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
          eval "rpmbuild --nobuild \
 $rpmbuild_opts $rpm_root_opts $USER_RPMDEFINE_OPTS \
 $SRPM_SPECFILE_WITH_PATH 2>&1" ||
-            notify.error $"rpmbuild exited with error code \`$?'"
+            notify.error $"rpmbuild exited with error code":" \`$?'"
 
          notify.debug "define_list_name = (${define_list_name[*]})"
          notify.debug "define_list_value = (${define_list_value[*]})"
@@ -2275,11 +2275,38 @@ $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
 rpmbuild -ba $rpmbuild_opts --nodeps \
 $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
          fi
-         if [ $? -eq 0 ]; then
+         local rpmbuild_retcode="$?"
+         if [ $rpmbuild_retcode -eq 0 ]; then
             notify.note "\n${NOTE}"$"\
 It seems good but do not forget to run quality and security tests.""${NORM}"
          else
-            notify.error $"rpmbuild exited with error code \`$?'"
+            local tmpunpackfiles=$(mktemp -q -t $me.XXXXXXXX)
+            [ $? -eq 0 ] || notify.error $"can't create temporary files"
+            notify.debug "tmpunpackfiles = \`${NOTE}$tmpunpackfiles${NORM}'"
+
+            LC_ALL=C \
+            rpmbuild -bl --nodeps --nobuild \
+               $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1 | \
+               sed -e '/./{H;$!d;}' -e 'x;/RPM build errors:/!d;' | \
+               while read line; do
+                  case "$line" in *\ /*|/*) echo "$line" ;; esac
+               done | sed -e "$format_unpackaged_file_list" \
+                  > $tmpunpackfiles
+
+            if [ -s "$tmpunpackfiles" ]; then
+               notify.error $"\
+rpmbuild exited with error code":" \`$rpmbuild_retcode'""
+""
+""${NOTE}"$"Hint"":${NORM}""
+"$"Add the following files in the right %files blocks"":""
+""
+$(cat $tmpunpackfiles; rm -f $tmpunpackfiles)""
+"
+            else
+               rm -f $tmpunpackfiles
+               notify.error $"\
+rpmbuild exited with error code":" \`$rpmbuild_retcode'"
+            fi
          fi
       ;;
       6) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
@@ -2293,7 +2320,7 @@ build the list of the build requirements""${NORM}"
 
 #         rpmbuild -bs $SRPM_SPECFILE_WITH_PATH 2>&1
 #         [[ $? -eq 0 ]] ||
-#            notify.error $"rpmbuild exited with error code \`$?'"
+#            notify.error $"rpmbuild exited with error code":" \`$?'"
 
          local frequires=$(mktemp -q -t frequires.XXXXXXXX) ||
             notify.error $"can't create temporary files"
