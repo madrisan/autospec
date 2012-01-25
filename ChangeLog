@@ -36,8 +36,9 @@ Changes in version 1.9.1
 
 + bugfix
   * lib/libspec.lib - Davide Madrisan:
-    Workaround the problem of lines containing an 'Obsoletes' followed by a '<='
-    (or similar) operator.
+    Correctly parse lines containing more complex 'obsoletes' directives, like
+    the following one:
+       Obsoletes: pck1 <= <v1>[,] pck2 > <v2>
     (Bug discovered by Silvan Calarco)
 
 --------------------------------------------------------------------------------
