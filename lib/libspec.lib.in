@@ -1092,8 +1092,8 @@ rpmvars.solve "$filesname" "$specfile")" )
                unset tok[0]
                notify.debug "\
 $FUNCNAME: * entry found at line $linenum: \"${tok[*]}\""
-               SPEC_OBSOLETES[${#SPEC_OBSOLETES[*]}]="\
-$(rpmvars.solve "${tok[*]}" "$specfile")"
+               SPEC_OBSOLETES[${#SPEC_OBSOLETES[*]}]="\"\
+$(rpmvars.solve "${tok[*]}" "$specfile")\""
 
                notify.debug "\
 $FUNCNAME: SPEC_OBSOLETES = ( ${SPEC_OBSOLETES[*]} )"

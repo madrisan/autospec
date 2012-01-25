@@ -34,6 +34,12 @@ Changes in version 1.9.1
     Action 5: for better readability do add a newline to the message asking
     developers to run quality and security tests.
 
++ bugfix
+  * lib/libspec.lib - Davide Madrisan:
+    Workaround the problem of lines containing an 'Obsoletes' followed by a '<='
+    (or similar) operator.
+    (Bug discovered by Silvan Calarco)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release
