@@ -1,3 +1,46 @@
+List of user visible changes in the release 1.9.1
+
+-- Improvements
+
+ * pck-update - Davide Madrisan:
+   Display a proper error message when a specfile contains errors.
+
+ * pck-update - Davide Madrisan:
+   Convert the list of unpackaged files discovered by rpmbuild into a list
+   thah make use of rpm macros (that is, do a /usr/bin --> %{_bindir}, ...
+   (using the new variable `format_unpackaged_file_list' set in autospec.conf)
+
+ * pck-update - Davide Madrisan:
+   Some code cleanups.
+
+-- Update
+
+ * kde4-flist2rpmvars - Davide Madrisan:
+   Remove this script; it's superseded by the code improvements made in the
+   plugin 'pck-update'.
+
+ * templates/library - Davide Madrisan:
+   This template has been updated.
+
+ * po/it/pck-update - Davide Madrisan:
+   Update messages and translations.
+
+-- Bug fixes
+
+ * pck-update - Davide Madrisan:
+   Fix expansion of templates containing '@configure@' or a line starting by
+   '@configure@'.
+
+ * lib/libspec.lib - Davide Madrisan:
+   Correctly parse lines containing complex 'obsoletes' directives, as shown in
+   the following example:
+
+      Obsoletes: pck1 <= <v1>[,] pck2 > <v2>
+
+   (Bug discovered by Silvan Calarco).
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.9.0
 
 -- Improvements

@@ -1,5 +1,5 @@
 Changes in version 1.9.1
---- --- -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+Wed Jan 25 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
   * pck-update - Davide Madrisan:
@@ -288,7 +288,7 @@ Sun Mar 20 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
 --------------------------------------------------------------------------------
 
 Changes in version 1.7.2
-Sat Dec 15 2010 Davide Madrisan <davide.madrisan(a)gmail.com>
+Sat Jan 15 2011 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + update
   * spec-create - Davide Madrisan:

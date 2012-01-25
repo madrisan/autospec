@@ -163,7 +163,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 - restored requirements for autospec-plugins, autospec-libs and autospec-tests
 - removed %dir entry for non empty directories
 
-* Sat Dec 15 2010 Davide Madrisan <davide.madrisan@gmail.com> 1.7.2-1mamba
+* Sat Jan 15 2011 Davide Madrisan <davide.madrisan@gmail.com> 1.7.2-1mamba
 - update to 1.7.2
 
 * Wed Dec 29 2010 Davide Madrisan <davide.madrisan@gmail.com> 1.7.1-1mamba
