@@ -2278,7 +2278,8 @@ $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
          local rpmbuild_retcode="$?"
          if [ $rpmbuild_retcode -eq 0 ]; then
             notify.note "\n${NOTE}"$"\
-It seems good but do not forget to run quality and security tests.""${NORM}"
+It seems good but do not forget to run quality and security tests.""${NORM}""
+"
          else
             local tmpunpackfiles=$(mktemp -q -t $me.XXXXXXXX)
             [ $? -eq 0 ] || notify.error $"can't create temporary files"

@@ -30,6 +30,10 @@ Changes in version 1.9.1
   * kde4-flist2rpmvars - Davide Madrisan:
     Remove file: it's superseded by the last added pck-update feature.
 
+  * pck-update - Davide Madrisan:
+    Action 5: for better readability do add a newline to the message asking
+    developers to run quality and security tests.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release
