@@ -1103,7 +1103,7 @@ $FUNCNAME: * entry found at line $linenum: \"${tok[*]}\""
                      ",") skiptok="0"; continue ;;
                   esac
                   tok_pck="$(rpmvars.solve "$currtok" "$specfile")"
-                  SPEC_OBSOLETES[${#SPEC_OBSOLETES[*]}]="\"$currtok\""
+                  SPEC_OBSOLETES[${#SPEC_OBSOLETES[*]}]="$currtok"
                   notify.debug "\
 $FUNCNAME: SPEC_OBSOLETES = ( ${SPEC_OBSOLETES[*]} )"
                done

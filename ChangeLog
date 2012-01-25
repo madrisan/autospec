@@ -41,6 +41,10 @@ Changes in version 1.9.1
        Obsoletes: pck1 <= <v1>[,] pck2 > <v2>
     (Bug discovered by Silvan Calarco)
 
++ update
+  * pck-update - Davide Madrisan:
+    Remove SPEC_OBSOLETES_ESCAPED; it's no more required.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.0 - Silvan Birthday Release
