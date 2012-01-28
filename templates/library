@@ -54,6 +54,8 @@ Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
 @else:pck_library
 Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
 @fi:pck_library
+## note: you can add this requirement if .pc files are provided by this package
+#Requires:      pkgconfig
 
 @if:pck_library
 %description -n lib%{name}-devel
