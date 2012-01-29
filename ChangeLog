@@ -5,6 +5,10 @@ Changes in version 1.9.2
   * templates/library - Davide Madrisan:
     Add requirements for pkgconfig.
 
++ update
+  * pck-update - Davide Madrisan:
+    Action 6: code cleanups.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.1

@@ -2317,18 +2317,8 @@ rpmbuild exited with error code":" \`$rpmbuild_retcode'"
       6) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
 build the list of the build requirements""${NORM}"
 
-#         notify.warning $"\
-#deprecated option"": "$"use"" -a5 --norpm [--force-build]"
-
          infofile.create
          . $infofile
-
-#         rpmbuild -bs $SRPM_SPECFILE_WITH_PATH 2>&1
-#         [[ $? -eq 0 ]] ||
-#            notify.error $"rpmbuild exited with error code":" \`$?'"
-
-         local frequires=$(mktemp -q -t frequires.XXXXXXXX) ||
-            notify.error $"can't create temporary files"
 
          target_cpu.set_and_check
 
@@ -2346,8 +2336,7 @@ build the list of the build requirements""${NORM}"
 
          notify.debug "SPEC_TARGET = [${SPEC_TARGET[*]}]"
 
-         PERL_PREFIXES=`perl -V | grep "^    /usr/lib/perl5"`
-
+         local perl_prefixes=`perl -V | grep "^[[:space:]]\+/usr/lib/perl5"`
          unset provides
          for pck in ${SPEC_TARGET[*]}; do
             # FIXME : we should check and complain if the package has
@@ -2359,7 +2348,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
                filename="$rpms_dir/$target_cpu/\
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
             fi
-            #notify.note " * $filename"
+
             [ -e $filename ] ||
                notify.error $"package not found"": \`$filename'"
 
@@ -2368,9 +2357,10 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                while read line; do echo -n "${line/ */} "; done`"
          done
 
+         local frequires=$(mktemp -q -t frequires.XXXXXXXX) ||
+            notify.error $"can't create temporary files"
+
          for pck in ${SPEC_TARGET[*]}; do
-            # FIXME : we should check and complain if the package has
-            # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                filename="$rpms_dir/noarch/\
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
@@ -2379,11 +2369,9 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
             fi
             notify.note " * $filename"
-            #[ -e $filename ] ||
-            #   notify.error $"package not found"": \`$filename'"
 
             # display all the build requirements
-            rpm -p -q $filename --requires | \
+          ( rpm -p -q $filename --requires | \
             while read line; do
                buildreq=""
                req=${line/ */}
@@ -2393,22 +2381,26 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                elif [ "${req:0:1}" = "/" ]; then
                   # file requirement; ignore
                   :
-               elif [ "${req:0:5}" = "perl(" ]; then
-                  # a perl requirement
-                  preq=`echo $req | sed "s|perl(\(.*\))|\1|g"`
-                  preq="`echo $preq | sed 's|::|/|g'`.pm"
-                  for p in $PERL_PREFIXES; do
-                     [ -e ${p}/${preq} ] &&
-                        buildreq=`rpm -qf ${p}/${preq} 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
-                     [ "$buildreq" ] && break
-                  done
-                  [ ! "$buildreq" ] &&
-                     echo "# $req: perl requirement not resolved" >> $frequires
                elif [ "${req:0:7}" = "rpmlib(" -o \
                       "${req:0:7}" = "config(" -o \
                       "${req:0:11}" = "executable(" ]; then
                   # not a build requirement
                   :
+               elif [ "${req:0:5}" = "perl(" ]; then
+                  # a perl requirement
+                  preq="`echo $req | \
+                         sed -e 's|perl(\(.*\))|\1|g' -e 's|::|/|g'`"".pm"
+                  for pp in $perl_prefixes; do
+                     [ -e $pp/$preq ] && buildreq=`\
+                        rpm -qf $pp/${preq} 2>/dev/null | \
+                           sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+                     [ "$buildreq" ] && break
+                  done
+                  [ "$buildreq" ] ||
+                     echo "# $req: perl requirement not resolved"
+               elif [ "${req}" = "python(abi)" ]; then
+                     # python requirement
+                     buildreq=libpython-devel
                elif [ "${req/.so*/}" != "$req" ]; then
                   # requirement is a shared library
                   req=${req/(*)/}
@@ -2418,46 +2410,46 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                   if [ "$libpath" ]; then
                      libpath=${libpath/* => /}
                      solibpath="${libpath/.so*/}.so"
-                     if [ ! -e $solibpath -a "${solibpath:0:5}" = "/lib/" ]; then
+                     if [ ! -e $solibpath \
+                          -a "${solibpath:0:5}" = "/lib/" ]; then
                         solibpath="/usr$solibpath"
                      fi
                      eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
-                                    sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
+                        sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
                      if [ ! "$buildreq" -o $? -ne 0 ]; then
                         # let's try removing version extension in libname
                         # (eg. liblber-2.2.so => liblber.so) 
                         solibpath=`echo $solibpath | sed "s|-[0-9.]*\.so|.so|"`
                         eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
-                                       sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
+                           sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
                         [ ! "$buildreq" -o $? -ne 0 ] &&
-                           echo "#$req: .so link not found" >> $frequires
+                           echo "#$req: .so link not found"
                      fi
                   else
                      echo "\
-#$req: library not reported by ldconfig; run \`ldconfig' and try again" >> $frequires
+#$req: library not reported by ldconfig; run \`ldconfig' and try again"
                   fi
-               elif [ "${req}" = "python(abi)" ]; then
-                     # python requirement
-                     buildreq=libpython-devel
                else
                   # unidentified requirement
-                  buildreq=`rpm -q --whatprovides $req 2>/dev/null | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
-                  [ "$buildreq" ] || echo "#$req: not found; what is this?" >> $frequires
+                  buildreq=`rpm -q --whatprovides $req 2>/dev/null | \
+                            sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+                  [ "$buildreq" ] || \
+                     echo "#$req: not found; what is this?"
                fi
-               if [ "${buildreq}" -a "${buildreq/%-devel/}" = "${buildreq}" ]; then
+               if [ "${buildreq}" \
+                    -a "${buildreq/%-devel/}" = "${buildreq}" ]; then
                   # if a -devel exists for this package, use it
                   develpkg=`rpm -q ${buildreq}-devel 2>/dev/null` &&
                      buildreq=`echo $develpkg | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
                fi
-               # finally print buildrequires line
-               [ "$buildreq" ] && echo "BuildRequires: $buildreq" >> $frequires
-            done
+               # finally print buildrequires block
+               [ "$buildreq" ] && echo "BuildRequires: $buildreq"
+            done ) >> $frequires
          done
 
          notify.note "## AUTOBUILDREQ-BEGIN"
          cat $frequires | sort -u
          notify.note "## AUTOBUILDREQ-END"
-
          rm -f $frequires
       ;;
       7) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
