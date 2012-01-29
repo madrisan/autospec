@@ -9,6 +9,11 @@ Changes in version 1.9.2
   * pck-update - Davide Madrisan:
     Action 6: code cleanups.
 
++ bugfix
+  * autospec.conf - Davide Madrisan:
+    format_unpackaged_file_list:
+    swap %{_libexecdir} and %{_libdir} substitutions. 
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.1

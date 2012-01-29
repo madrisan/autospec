@@ -506,8 +506,8 @@ format_autoformat=0
 format_unpackaged_file_list="\
 s,^/usr/bin,%{_bindir},
 s,^/usr/sbin,%{_sbindir},
-s,^/usr/lib,%{_libdir},
 s,^/usr/libexec,%{_libexecdir},
+s,^/usr/lib,%{_libdir},
 s,^/usr/share/info,%{_infodir},
 s,^/usr/share/man,%{_mandir},
 s,^/usr/share,%{_datadir},
