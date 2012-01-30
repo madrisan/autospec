@@ -2367,11 +2367,11 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
          # display all the build requirements
        ( rpm -p -q --requires ${pcks_list[*]} | sort -u | \
          while read line; do
-            buildreq=
+            buildreq=""
             req=${line// /}
             if [ -n "$(for p in ${pcks_provides[*]}; do
-                  # self-provided requirement
-                  [ "$p" = "${req}" ] && echo "$p"; done)" ]; then
+               # self-provided requirement
+               [ "$p" = "${req}" ] && echo "$p"; done)" ]; then
                :
             elif [ "${req:0:1}" = "/" ]; then
                # file requirement; ignore
@@ -2394,32 +2394,42 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                [ "$buildreq" ] ||
                   echo "# $req: perl requirement not resolved"
             elif [ "${req}" = "python(abi)" ]; then
-                  # FIXME: libpython-devel should be defined in autospec.conf
-                  # python requirement
-                  buildreq=libpython-devel
-            elif [ "${req/.so*/}" != "$req" ]; then
-               # requirement is a shared library
-               req=${req/(*)/}
-               lib=${req/.*/}.so
-               libpath=`$path_ldconfig -p | grep $req`
-               libpath=${libpath/\(*\)/}
-               if [ "$libpath" ]; then
-                  libpath=${libpath/* => /}
-                  solibpath="${libpath/.so*/}.so"
-                  if [ ! -e $solibpath \
-                       -a "${solibpath:0:5}" = "/lib/" ]; then
-                     solibpath="/usr$solibpath"
-                  fi
-                  eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
-                     sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
-                  if [ ! "$buildreq" -o $? -ne 0 ]; then
+               # FIXME: libpython-devel should be defined in autospec.conf
+               # python requirement
+               buildreq="libpython-devel"
+            elif [[ "$req" =~ .*\.so\.[0-9]* ]]; then
+               solibpath_catch=""
+               # is a shared library
+               # req="libGL.so.1(libc6)" => /usr/lib/libGL.so
+               solibpath=$($path_ldconfig -Np | \
+                  sed -n "s, ,,g;/${req/(*)/}/{
+                     s,.*=>,,;s,\.so\..*,.so,p}")
+               notify.debug "req=\"$req\" => solibpath=\"$solibpath\""
+               if [ "$solibpath" ]; then
+                  if [ -e $solibpath ]; then
+                     solibpath_catch="$solibpath"
+                  else
                      # let's try removing version extension in libname
                      # (eg. liblber-2.2.so => liblber.so) 
-                     solibpath=`echo $solibpath | sed "s|-[0-9.]*\.so|.so|"`
-                     eval buildreq=`rpm -qf $solibpath 2>/dev/null | \
-                        sed "s|\(.*\)-[^-]*-[^-]*|\1|"` 2>/dev/null
-                     [ ! "$buildreq" -o $? -ne 0 ] &&
-                        echo "#$req: .so link not found"
+                     solibpath_alternate="\
+$(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
+                     if [ -e $solibpath_alternate ]; then
+                        solibpath_catch="$solibpath_alternate"
+                     else
+                        if [ "${solibpath:0:5}" = "/lib/" -o \
+                             "${solibpath:0:7}" = "/lib64/" ]; then
+                           [ -e "/usr${solibpath}" ] &&
+                              solibpath_catch="/usr${solibpath}"
+                        fi
+                     fi
+                  fi
+                  if [ "$solibpath_catch" ]; then
+                     eval buildreq="\
+$(rpm --qf %{name} -qf $solibpath_catch 2>/dev/null)" 2>/dev/null
+                     [ -z "$buildreq" -o $? -ne 0 ] && echo "\
+#$req: $solibpath_catch: file not owned by any package"
+                  else
+                     echo "#$req: .so link not found"
                   fi
                else
                   echo "\
@@ -2427,16 +2437,16 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                fi
             else
                # unidentified requirement
-               buildreq=`rpm -q --whatprovides $req 2>/dev/null | \
-                         sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
-               [ "$buildreq" ] || \
+               eval buildreq="$(\
+                  rpm -q --qf %{name} --whatprovides $req 2>/dev/null)"
+               [ -z "$buildreq" -o $? -ne 0 ] &&
                   echo "#$req: not found; what is this?"
             fi
-            if [ "${buildreq}" \
-                 -a "${buildreq/%-devel/}" = "${buildreq}" ]; then
-                  # if a -devel exists for this package, use it
-               develpkg=`rpm -q ${buildreq}-devel 2>/dev/null` &&
-                  buildreq=`echo $develpkg | sed "s|\(.*\)-[^-]*-[^-]*|\1|"`
+            if [ -n "$buildreq" \
+                 -a "${buildreq/%-devel/}" = "$buildreq" ]; then
+               # if a -devel exists for this package, use it
+               rpm -q ${buildreq}-devel &>/dev/null &&
+                  buildreq="$(rpm -q --qf %{name} ${buildreq}-devel)"
             fi
             # finally print buildrequires block
             [ "$buildreq" ] && echo "BuildRequires: $buildreq"
