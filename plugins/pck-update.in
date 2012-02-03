@@ -2401,13 +2401,20 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                solibpath_catch=""
                # is a shared library
                # req="libGL.so.1(libc6)" => /usr/lib/libGL.so
-               solibpath=$($path_ldconfig -Np | \
-                  sed -n "s, ,,g;/${req/(*)/}/{
-                     s,.*=>,,;s,\.so\..*,.so,p}")
-               notify.debug "req=\"$req\" => solibpath=\"$solibpath\""
+               reqpath=$($path_ldconfig -Np | \
+                  sed -n "s, ,,g;/${req/(*)/}/{s,.*=>,,;p}")
+               solibpath="${reqpath/\.so\.*/.so}"
+               notify.debug "\
+req=\"$req\" ($reqpath) =?> solibpath=\"$solibpath\""
                if [ "$solibpath" ]; then
-                  if [ -e $solibpath ]; then
+                  # example: /lib/ld-linux.so.2
+                  if [[ -L $reqpath && \
+                        "$(readlink -f $reqpath)" =~ .*\.so$ ]]; then
+                     solibpath_catch="$(readlink -f $reqpath)"
+                     notify.debug " solibpath_catch = $solibpath_catch"
+                  elif [ -e $solibpath ]; then
                      solibpath_catch="$solibpath"
+                     notify.debug " solibpath_catch = $solibpath_catch"
                   else
                      # let's try removing version extension in libname
                      # (eg. liblber-2.2.so => liblber.so) 
@@ -2415,11 +2422,14 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
 $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                      if [ -e $solibpath_alternate ]; then
                         solibpath_catch="$solibpath_alternate"
+                        notify.debug " solibpath_catch = $solibpath_catch"
                      else
                         if [ "${solibpath:0:5}" = "/lib/" -o \
                              "${solibpath:0:7}" = "/lib64/" ]; then
                            [ -e "/usr${solibpath}" ] &&
-                              solibpath_catch="/usr${solibpath}"
+                            { solibpath_catch="/usr${solibpath}"
+                              notify.debug \
+                                 " solibpath_catch = $solibpath_catch"; }
                         fi
                      fi
                   fi

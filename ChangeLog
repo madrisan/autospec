@@ -14,6 +14,9 @@ Changes in version 1.9.2
     format_unpackaged_file_list:
     swap %{_libexecdir} and %{_libdir} substitutions. 
 
+  * pck-update - Davide Madrisan:
+    Action 6: fix for /lib/ld-linux.so.2 -> ld-2.14.1.so
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.1
