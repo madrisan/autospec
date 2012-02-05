@@ -2372,10 +2372,13 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
        ( rpm -p -q --requires ${pcks_list[*]} | sort -u | \
          while read line; do
             buildreq=""
-            req=${line// /}
+            # ex: libresolv.so.2(GLIBC_2.2) > 2.10
+            #  --> libresolv.so.2(GLIBC_2.2)
+            req="$(echo "$line" | sed "s, ,,g;s,<.*,,;s,>.*,,;s,=.*,,")"
             if [ -n "$(for p in ${pcks_provides[*]}; do
-               # self-provided requirement
-               [ "$p" = "${req}" ] && echo "$p"; done)" ]; then
+                          # self-provided requirement
+                          [ "$p" = "${req}" ] && echo "$p"
+                       done)" ]; then
                :
             elif [ "${req:0:1}" = "/" ]; then
                # file requirement; ignore
