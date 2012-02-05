@@ -1,3 +1,28 @@
+List of user visible changes in the release 1.9.2
+
+-- Improvement
+
+ * templates/library - Davide Madrisan:
+   Add requirements for pkgconfig.
+
+ * pck-update - Davide Madrisan:
+   Action 6: The code has been rewritten for better readability.
+   Some bugs have been fixed too.
+
+-- Bug fixes
+
+ * pck-update - Davide Madrisan:
+   Honour `%_specdir' and `%_sourcedir' when checking for syntax errors in the
+   specfiles. This fix building of package containing patches and build in a
+   non standard path. (Problem detected by Silvan Calarco).
+
+ * autospec.conf - Davide Madrisan:
+   swap %{_libexecdir} and %{_libdir} substitutions in the variable
+   'format_unpackaged_file_list' to correctly translate files located in
+   '/usr/libexec/...'.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.9.1
 
 -- Improvements
