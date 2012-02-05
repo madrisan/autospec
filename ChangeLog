@@ -25,6 +25,10 @@ Changes in version 1.9.2
   * pck-update - Davide Madrisan:
     Action 6: do support static requirements containing <,>,<=,>=,...
 
+  * pck-update - Davide Madrisan:
+    Action 6: never include in the list of build requirements an rpm provided
+    by the package itself.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.1
