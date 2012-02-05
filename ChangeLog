@@ -17,6 +17,11 @@ Changes in version 1.9.2
   * pck-update - Davide Madrisan:
     Action 6: fix for /lib/ld-linux.so.2 -> ld-2.14.1.so
 
+  * pck-update - Davide Madrisan:
+    Honour `%_specdir' and `%_sourcedir' when checking for syntax errors in the
+    specfiles by running `rpm -q --specfile --specedit ...'.
+    (Problem detected by Silvan Calarco).
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.1
