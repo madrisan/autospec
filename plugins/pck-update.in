@@ -2465,12 +2465,12 @@ $(rpm --qf %{name} -qf $solibpath_catch 2>/dev/null)" 2>/dev/null
                rpm -q ${buildreq}-devel &>/dev/null &&
                   buildreq="$(rpm -q --qf %{name} ${buildreq}-devel)"
             fi
-            if [ -z "$(for p in ${SPEC_TARGET[*]}; do
+            if [ "$buildreq" ]; then
+               # finally print buildrequires block
+               [ -z "$(for p in ${SPEC_TARGET[*]}; do
                           # self-provided package
                           [ "$p" = "$buildreq" ] && echo "$p"
-                       done)" ]; then
-               # finally print buildrequires block
-               [ "$buildreq" ] && echo "BuildRequires: $buildreq"
+                       done)" ] && echo "BuildRequires: $buildreq"
             fi
          done ) >> $frequires
 
