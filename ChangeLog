@@ -1,3 +1,15 @@
+Changes in version 1.9.3
+           2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ update
+  * pck-update - Davide Madrisan:
+    Action 6: better check for self-provided packages.
+
+  * templates/library - Davide Madrisan:
+    Modify requirement for pkgconfig (the package is now called pkg-config).
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.9.2
 Sun Feb 05 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
