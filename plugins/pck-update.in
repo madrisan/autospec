@@ -2454,7 +2454,7 @@ $(rpm --qf %{name} -qf $solibpath_catch 2>/dev/null)" 2>/dev/null
                fi
             else
                # unidentified requirement
-               eval buildreq="$(\
+               buildreq="$(\
                   rpm -q --qf %{name} --whatprovides $req 2>/dev/null)"
                [ -z "$buildreq" -o $? -ne 0 ] &&
                   echo "#$req: not found; what is this?"

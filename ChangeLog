@@ -8,6 +8,12 @@ Changes in version 1.9.3
   * templates/library - Davide Madrisan:
     Modify requirement for pkgconfig (the package is now called pkg-config).
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    Fix for the error message:
+    /usr/bin/pck-update: line 2458: package: command not found
+    (Problem pointed out by Silvan Calarco.)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
