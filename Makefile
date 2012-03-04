@@ -31,6 +31,7 @@ dist_archive = $(distdir).tar.bz2
 DESTDIR =
 
 pck_conf = $(PACKAGE).conf
+pck_root := $(sort $(patsubst %.in,%,$(wildcard *.in)))
 pck_libs := $(sort $(patsubst %.in,%,$(wildcard lib/*)))
 pck_manpages := $(patsubst %.in,%,$(wildcard man/*.in man/*/*.in))
 pck_plugins := $(sort $(patsubst %.in,%,$(wildcard plugins/*)))
@@ -168,7 +169,6 @@ dist: clean
 	   bzip2 -9 -c > history/$(dist_archive)
 
 dist-rpm: dist $(PACKAGE).spec
-	@echo "Creating rpm and srpm packages..."
 	@rpm_name=$(PACKAGE)-$(VERSION)-$(RELEASE);\
 	rpm_sourcedir=`rpm --eval=%{_sourcedir} 2>/dev/null`;\
 	rpm_specdir=`rpm --eval=%{_specdir} 2>/dev/null`;\
@@ -176,9 +176,11 @@ dist-rpm: dist $(PACKAGE).spec
 	   [ -d "$$d" ] || \
 	    { echo "not found: $$d" 1>&2; exit 1; };\
 	done;\
+	echo "Copying $(dist_archive) to $$rpm_sourcedir...";\
 	(cp -p history/$(dist_archive) $$rpm_sourcedir &&\
 	 mv -f $(PACKAGE).spec $$rpm_specdir &&\
-	 rpmbuild --clean -ba $$rpm_specdir/$(PACKAGE).spec) || exit 1
+	echo "Creating rpm and srpm packages..." &&\
+	rpmbuild --clean -ba $$rpm_specdir/$(PACKAGE).spec) || exit 1
 	@echo "All done. Enjoy using $(PACKAGE)..."
 
 dist-rpm-install: dist-rpm
@@ -193,6 +195,7 @@ clean: mostlyclean
 
 mostlyclean:
 	@echo "Cleaning up unpackaged files..."
+	@rm -f $(pck_root)
 	@$(MAKE) clean -C lib || exit 1
 	@$(MAKE) clean -C plugins || exit 1
 	@$(MAKE) clean -C templates || exit 1

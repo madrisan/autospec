@@ -14,6 +14,10 @@ Changes in version 1.9.3
     /usr/bin/pck-update: line 2458: package: command not found
     (Problem pointed out by Silvan Calarco.)
 
+  * Makefile - Davide Madrisan:
+    Fix make clean target: the files in the root directory generated from .in
+    files must be removed too.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
