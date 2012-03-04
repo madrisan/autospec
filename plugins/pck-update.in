@@ -2365,7 +2365,12 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
          # look for RPMs provides
          local pcks_provides=(
             $(rpm -p -q --provides ${pcks_list[*]} 2>/dev/null | sort -u | \
-              while read line; do echo "${line// /}"; done) )
+              while read line; do
+              #  [[ "$line" =~ ^pkgconfig\(.* ]] && \
+              #     notify.debug "ignoring pck provide: $line" || \
+              #     echo "${line// /}"
+                 echo "${line// /}"
+              done) )
          notify.debug "pcks_provides = [${pcks_provides[*]}]"
 
          # display all the build requirements
@@ -2377,9 +2382,9 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
             req="$(echo "$line" | sed "s, ,,g;s,<.*,,;s,>.*,,;s,=.*,,")"
             if [ -n "$(for p in ${pcks_provides[*]}; do
                           # self-provided requirement
-                          [ "$p" = "${req}" ] && echo "$p"
+                          [ "${p//=*/}" = "${req}" ] && echo "$p"
                        done)" ]; then
-               :
+               notify.debug "self-provided requirement: $line"
             elif [ "${req:0:1}" = "/" ]; then
                # file requirement; ignore
                :
@@ -2441,9 +2446,9 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                      fi
                   fi
                   if [ "$solibpath_catch" ]; then
-                     eval buildreq="\
-$(rpm --qf %{name} -qf $solibpath_catch 2>/dev/null)" 2>/dev/null
-                     [ -z "$buildreq" -o $? -ne 0 ] && echo "\
+                     rpm --qf %{name} -qf $solibpath_catch &>/dev/null &&
+                        buildreq="$(rpm --qf %{name} -qf $solibpath_catch)" ||
+                        echo "\
 #$req: $solibpath_catch: file not owned by any package"
                   else
                      echo "#$req: .so link not found"
@@ -2454,10 +2459,9 @@ $(rpm --qf %{name} -qf $solibpath_catch 2>/dev/null)" 2>/dev/null
                fi
             else
                # unidentified requirement
-               buildreq="$(\
-                  rpm -q --qf %{name} --whatprovides $req 2>/dev/null)"
-               [ -z "$buildreq" -o $? -ne 0 ] &&
-                  echo "#$req: not found; what is this?"
+               rpm -q --qf %{name} --whatprovides "$req" &>/dev/null &&
+                  buildreq="$(rpm -q --qf %{name} --whatprovides "$req")" ||
+                  echo "#$req: unidentified build requirement"
             fi
             if [ -n "$buildreq" \
                  -a "${buildreq/%-devel/}" = "$buildreq" ]; then

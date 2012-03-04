@@ -18,6 +18,14 @@ Changes in version 1.9.3
     Fix make clean target: the files in the root directory generated from .in
     files must be removed too.
 
+  * pck-update - Davide Madrisan:
+    Action 6: correctly parse self-provided build requirements containing a '='
+    character followed by a version number.
+
+  * pck-update - Davide Madrisan:
+    Action 6: do not display the rpm message "no package provides...": it
+    will be a duplicate entry in the list of unresolved build requirements.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
