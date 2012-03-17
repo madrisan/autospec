@@ -26,6 +26,11 @@ Changes in version 1.9.3
     Action 6: do not display the rpm message "no package provides...": it
     will be a duplicate entry in the list of unresolved build requirements.
 
+  * pck-update - Davide Madrisan:
+    infofile.create(): "rpm --specfile --specedit" is buggy so it's better to
+    treat errors as warnings in autospec and not to stop the script execution.
+    (Problem detected by Silvan Calarco.)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2

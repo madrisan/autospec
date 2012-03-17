@@ -454,8 +454,10 @@ rpm -q $rpmbuild_opts $USER_RPMDEFINE_OPTS --specfile --specedit\
        $SRPM_SPECFILE_WITH_PATH \
        2> $tmpspreprerr >> $specfile_preprocessed"
         [ -s "$tmpspreprerr" ] &&
-         { notify.error $"specfile has errors:""\n$(\
-           while read line; do echo "   $line"; done < $tmpspreprerr)"; }
+         { notify.warning $"specfile has errors:"
+           while read line; do
+              notify.warning "   $line"
+           done < $tmpspreprerr; }
         rm -f $tmpspreprerr
      fi
 
