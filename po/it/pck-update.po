@@ -505,4 +505,4 @@ msgid "It seems good but do not forget to run quality and security tests."
 msgstr "Sembra ok ma non dimenticare di eseguire i test di qualità e sicurezza."
 
 msgid "Add the following files in the right %files blocks"
-msgstr "Smista i seguenti file nelle sezioni %files corrispondenti"
+msgstr "Smistare i seguenti file nelle sezioni %files corrispondenti"
