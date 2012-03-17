@@ -51,6 +51,8 @@ let "logging = 0"
 let "nosrpm = 0"
 # do upload rpms packages
 let "norpms = 0"
+# do a "list check"
+let "list_check = 0"
 # do not use rpm variables for unix tools
 let "format_unix_tools = 0"
 
@@ -136,6 +138,7 @@ function usage() {
                     "$"action"" 10: "$"Do not upload the srpm package""
      --norpm        "$"action"" 5: "$"Only build the srpm package""
                     "$"action"" 10: "$"Do not upload the rpm packages""
+     --list-check   "$"action"" 5: "$"Do a \"list check\"""
  -c, --clear        "$"Remove all the temporary files except (s)rpm packages""
  -f, --format       "$"Enable specfile autoformatting""
  -L, --log          "$"Unable logging to file (logging dir: \`\$logging_dir')""
@@ -186,7 +189,7 @@ exec_options=`LC_ALL=C getopt \
    --long \
 update,action:,define:,login:,specfile:,arch:,\
 server-download:,server-upload:,server:,\
-changelog:,nosrpm,norpm,\
+changelog:,nosrpm,norpm,list-check,\
 force-update,force-build,force-install,force-download,force,\
 ignore-test:,clear,format,log,rebuild,root:,\
 debug,quiet,colorize,help,version,\
@@ -234,6 +237,8 @@ while :; do
          let "nosrpm = 1" ;;
       --norpm)
          let "norpms = 1" ;;
+      --list-check)
+         let "list_check = 1" ;;
       --force-update)
          let "force_update = 1" ;;
       --force-build)
@@ -2263,6 +2268,12 @@ specfile is newer than srpm (according to modification date)"
 
          if [[ "$norpms" = 1 && "$nosrpm" = 1 ]]; then
             :
+         elif [ "$list_check" = 1 ]; then
+            notify.note \
+"${NOTE}"$"checking for unpackaged files""${NORM}..."
+            eval "\
+rpmbuild -bl $rpmbuild_opts --nodeps \
+$SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
          elif [ "$norpms" = 1 ]; then
             notify.note "${NOTE}"$"building the srpm package""${NORM}..."
             # as the dependencies check is done before, it is safe to pass

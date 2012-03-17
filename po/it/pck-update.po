@@ -420,6 +420,9 @@ msgstr "creazione del pacchetto srpm"
 msgid "specfile is newer than srpm (according to modification date)"
 msgstr "lo specfile è più recente del file srpm"
 
+msgid "checking for unpackaged files"
+msgstr "ricerca di file non inseriti nei blocchi %files"
+
 msgid "build requirement found"
 msgstr "trovato build requirement"
 

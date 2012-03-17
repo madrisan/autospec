@@ -31,6 +31,15 @@ Changes in version 1.9.3
     treat errors as warnings in autospec and not to stop the script execution.
     (Problem detected by Silvan Calarco.)
 
++ update
+  * pck-update - Davide Madrisan:
+    Action 5: new option "--list-check" for simply running "rpmbuild -bl" and
+    displaying the list of unpackaged files.
+    (Feature asked by Silvan Calarco.)
+
+  * i18n - Davide Madrisan:
+    Updated.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
