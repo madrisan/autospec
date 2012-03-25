@@ -256,6 +256,7 @@ shared-libraries:,debug-package:,\
    local standard_docs
    local standard_docs_devel
    local build_technology
+   local buildrequires_buildtool
 
    local i18n="0"
    local icons_mimetypes="0"
@@ -329,6 +330,7 @@ shared-libraries:,debug-package:,\
       spec_cmd_configure="$spec_cmd_configure_cmake"
       spec_cmd_make="$spec_cmd_make_cmake"
       spec_cmd_makeinstall="$spec_cmd_makeinstall_cmake"
+      buildrequires_buildtool="cmake"
    ;;
    autotools)
       spec_cmd_configure="$spec_cmd_configure_autotools"
@@ -344,6 +346,7 @@ shared-libraries:,debug-package:,\
       spec_cmd_configure="$spec_cmd_configure_scons"
       spec_cmd_make="$spec_cmd_make_scons"
       spec_cmd_makeinstall="$spec_cmd_makeinstall_scons"
+      buildrequires_buildtool="scons"
    ;;
    unknown)
       notify.warning $"unknown build techonology"
@@ -355,6 +358,8 @@ shared-libraries:,debug-package:,\
    notify.debug "$FUNCNAME: spec_cmd_configure   = \"$spec_cmd_configure\""
    notify.debug "$FUNCNAME: spec_cmd_make        = \"$spec_cmd_make\""
    notify.debug "$FUNCNAME: spec_cmd_makeinstall = \"$spec_cmd_makeinstall\""
+   notify.debug "\
+$FUNCNAME: buildrequires_buildtool = \"$buildrequires_buildtool\""
 
    [ -r "$templatefile" ] || notify.error $"file not found"": $templatefile"
 
@@ -370,7 +375,9 @@ shared-libraries:,debug-package:,\
 $spec_type ("$"line""#$template_linenum): "$"too many nested @if blocks"
          if_level=$(($if_level + 1))
          currvar="$(echo "$line" | sed "s,@if:\([^ \t]*\).*,\1,")"
-         [ "${!currvar}" = 1 ] || if_value[$if_level]='0'
+         [[ "${!currvar}" = 1 || \
+           ( -n "${!currvar}" && "${!currvar}" != 0 ) ]] || \
+            if_value[$if_level]='0'
          notify.debug "\
 $FUNCNAME: @if:$currvar lev:$if_level val:${if_value[$if_level]})"
          continue
@@ -417,6 +424,7 @@ s,^\(%setup.*\),${spec_setup_macro},
 s,^\([ \t]*Source[ \t]*:[ \t]*\).*,\1${spec_source},
 s,@make@,$spec_cmd_make,
 s,@makeinstall@,$spec_cmd_makeinstall,
+s,@build_tool@,$buildrequires_buildtool,
 s,@standard_docs@,${standard_docs:+%doc $standard_docs},
 s,@standard_docs_devel@,${standard_docs_devel:+%doc $standard_docs_devel},
 s,@spec_changelog_date@,$spec_changelog_date,

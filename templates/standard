@@ -13,6 +13,9 @@ License:       ...
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
 ## AUTOBUILDREQ-END
+@if:buildrequires_buildtool
+BuildRequires: @build_tool@
+@fi:buildrequires_buildtool
 @if:infopages
 Requires(post): %{__install_info}
 @fi:infopages

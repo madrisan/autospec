@@ -45,6 +45,12 @@ Changes in version 1.9.3
     Preliminary support for scon.
     (Feature asked by Silvan Calarco.)
 
+  * spec-create - Davide Madrisan:
+    Add a build requirent for cmake and scons when required.
+
+  * templetes/{library,standard,standard-daemon} - Davide Madrisan:
+    Add a 'buildrequires_buildtool' conditional block.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
