@@ -46,6 +46,10 @@ spec_cmd_configure_cmake="%cmake -d build"
 spec_cmd_make_cmake="%make"
 spec_cmd_makeinstall_cmake="%makeinstall -C build"
 
+spec_cmd_configure_scons=""
+spec_cmd_make_scons="scons"
+spec_cmd_makeinstall_scons="scons install DESTDIR=%{buildroot}/<ADDME>"
+
 spec_cmd_configure_makefileonly=""
 spec_cmd_make_makefileonly="%make"
 spec_cmd_makeinstall_makefileonly="%makeinstall"
@@ -335,6 +339,11 @@ shared-libraries:,debug-package:,\
       spec_cmd_configure="$spec_cmd_configure_makefileonly"
       spec_cmd_make="$spec_cmd_make_makefileonly"
       spec_cmd_makeinstall="$spec_cmd_makeinstall_makefileonly"
+   ;;
+   scons)
+      spec_cmd_configure="$spec_cmd_configure_scons"
+      spec_cmd_make="$spec_cmd_make_scons"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_scons"
    ;;
    unknown)
       notify.warning $"unknown build techonology"
@@ -747,6 +756,10 @@ ${standard_docs_devel:+$standard_docs_devel }$currdoc"
          build_techology="autotools"
       elif [ -e $tmpdir/$pck_rootdir/Makefile ]; then
          build_techology="makefile"
+      elif [ -e $tmpdir/$pck_rootdir/SConstruct -o \
+             -e $tmpdir/$pck_rootdir/Sconstruct -o \
+             -e $tmpdir/$pck_rootdir/sconstruct ]; then
+         build_techology="scons"
       fi
    ;;
    esac

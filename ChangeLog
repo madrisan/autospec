@@ -40,6 +40,11 @@ Changes in version 1.9.3
   * i18n - Davide Madrisan:
     Updated.
 
++ update
+  * spec-create - Davide Madrisan:
+    Preliminary support for scon.
+    (Feature asked by Silvan Calarco.)
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.2
