@@ -1,3 +1,30 @@
+List of user visible changes in the release 1.9.3
+
+-- Improvement
+
+ * pck-update - Davide Madrisan:
+   Action 6: several improvements and fixes.
+
+ * pck-update - Davide Madrisan:
+   Action 5: new option "--list-check" for simply running "rpmbuild -bl" and
+   displaying the list of unpackaged files.
+
+ * spec-create - Davide Madrisan:
+   Preliminary support for scon.
+ 
+-- Bug Fixes
+
+ * pck-update - Davide Madrisan:
+   infofile.create(): "rpm --specfile --specedit" is buggy so transform
+   errors in warnings and do never stop autospec execution.
+
+-- Update
+
+ * templates/library - Davide Madrisan:
+   Modify requirement for pkgconfig (the package is now called pkg-config).
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.9.2
 
 -- Improvement
