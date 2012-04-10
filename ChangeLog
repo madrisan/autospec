@@ -1,3 +1,12 @@
+Changes in version 1.9.4 -
+           2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ improvement
+  * templates/{library,kde4,python} - Davide Madrisan:
+    Several minor fixes and improvements.
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.9.3 - April Fools' Day Release
 Sun Apr 01 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 

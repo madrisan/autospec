@@ -106,7 +106,7 @@ This package includes the %{name} API documentation.
 @makeinstall@
 
 @if:i18n
-%find_lang %{name}
+%find_lang %{name} || touch %{name}.lang
 @fi:i18n
 
 %clean

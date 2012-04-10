@@ -41,6 +41,9 @@ sed -i "\\,\\.egg-info/,d;s,.*/man/.*,&.gz," %{name}.filelist
 
 %files -f %{name}.filelist
 %defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{python_sitearch}/%{name}.py*
+# %{python_sitearch}/%{name}.so
 @standard_docs@
 ## note: eventually add the remaining documents (if any)
 # @standard_docs_devel@

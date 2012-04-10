@@ -504,6 +504,9 @@ format_autoformat=0
 
 # Set this variable to modify the rpm unpackaged file list conversion
 format_unpackaged_file_list="\
+# translations for python packages
+s,^/usr/lib/python2.6/site-packages,%{python_sitearch},
+# generic translations
 s,^/usr/bin,%{_bindir},
 s,^/usr/sbin,%{_sbindir},
 s,^/usr/libexec,%{_libexecdir},
