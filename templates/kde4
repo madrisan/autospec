@@ -19,10 +19,6 @@ BuildRequires: kdelibs-devel
 Requires:      kde-workspace
 BuildRoot:     @rpm_default_buildroot@
 
-@if:debug_package
-%debug_package
-@fi:debug_package
-
 %description
 ...
 
@@ -34,6 +30,10 @@ Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
 
 %description devel
 This package contains libraries and header files for developing applications that use %{name}.
+
+@if:debug_package
+%debug_package
+@fi:debug_package
 
 %prep
 %setup -q
