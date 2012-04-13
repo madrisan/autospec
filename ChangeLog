@@ -6,7 +6,7 @@ Changes in version 1.9.4 -
     Several minor fixes and improvements.
 
 + bugfix
-  * templates/kde4 - Davide Madrisan:
+  * templates/{gnome,kde*,library,standard,standard-daemon} - Davide Madrisan:
     Move %debug_package macro after all %description blocks.
 
 --------------------------------------------------------------------------------

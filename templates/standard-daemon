@@ -21,10 +21,6 @@ Requires(post): %{__install_info}
 @fi:infopages
 BuildRoot:     @rpm_default_buildroot@
 
-@if:debug_package
-%debug_package
-@fi:debug_package
-
 %description
 ...
 
@@ -38,6 +34,10 @@ Requires:      gtk-doc
 %description apidocs
 This package includes the %{name} API documentation.
 @fi:pck_apidocs
+
+@if:debug_package
+%debug_package
+@fi:debug_package
 
 %prep
 %setup -q

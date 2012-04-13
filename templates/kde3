@@ -15,12 +15,12 @@ License:       ...
 ## AUTOBUILDREQ-END
 BuildRoot:     @rpm_default_buildroot@
 
+%description
+...
+
 @if:debug_package
 %debug_package
 @fi:debug_package
-
-%description
-...
 
 %prep
 %setup -q
