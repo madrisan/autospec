@@ -8,7 +8,6 @@ Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
 URL:           http://www.kde.org
 Source:        ...
-#Patch0:        %{name}-<pck-version>-<patch-description>.patch
 License:       ...
 BuildRequires: cmake
 BuildRequires: libqt4-devel
@@ -37,7 +36,6 @@ This package contains libraries and header files for developing applications tha
 
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
 %cmake_kde4 -d build
