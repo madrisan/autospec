@@ -57,7 +57,7 @@ function repository.get_srpm_pckname_from_HTML() {
       # remove HTML tags --> get a better input
       /<[aA] [hH][rR][eE][fF]=\".*\.src\.rpm\"/{
          s|.*<[aA] [hH][rR][eE][fF]=\"\([^\"]*\)\".*|\1|
-            {/$regexpr/{s,\.src\.rpm,,;p}}
+            {/$regexpr/p}
       }" $infile) )
    echo "${pckname_from_HTML[*]}"
 }
