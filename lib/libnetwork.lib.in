@@ -34,7 +34,7 @@ function repository.is_reachable() {
 # function repository.get_srpm_pckname_from_HTML()
 #    ... ADDME ...
 function repository.get_srpm_pckname_from_HTML() {
-   local pck_name="$1"
+   local pck_name="$(echo "$1" | tr A-Z a-z)"
    local infile="$2"
 
    [ "$pck_name" ] || notify.error $"\
@@ -53,12 +53,11 @@ function repository.get_srpm_pckname_from_HTML() {
       regexpr="^$pck_name-[^-]\+-[^-]\+$" || regexpr="$pck_name"
    notify.debug "$FUNCNAME: regexpr = \"$regexpr\""
 
-   local pckname_from_HTML=( $(sed -n "\
-      # remove HTML tags --> get a better input
-      /<[aA] [hH][rR][eE][fF]=\".*\.src\.rpm\"/{
-         s|.*<[aA] [hH][rR][eE][fF]=\"\([^\"]*\)\".*|\1|
-            {/$regexpr/p}
-      }" $infile) )
+   local pckname_from_HTML=($(tr A-Z a-z < $infile | \
+      sed -n "# remove HTML tags --> get a better input
+         /<[aA] [hH][rR][eE][fF]=\".*\.src\.rpm\"/{
+            s|.*<[aA] [hH][rR][eE][fF]=\"\([^\"]*\)\".*|\1|
+               {/$regexpr/p}}"))
    echo "${pckname_from_HTML[*]}"
 }
 
