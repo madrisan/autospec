@@ -1179,10 +1179,14 @@ check for available versions in the $DISTRO repositories""${NORM}"
 
             if [[ "$got_SPEC_FILENAME" ]]; then
                [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
-                  notify.warning $"found too many candidates"
+                  notify.warning $"several occurrences found"
                notify.note \
-$"Repository"" : ${NOTE}(#$ftp_server_download_num) ${got_SPEC_FILENAME_URL}${NORM}"
-               notify.note $"Package(s)"" : ${NOTE}${got_SPEC_FILENAME[@]}${NORM}"
+$"Repository""\
+: ${NOTE}(#$ftp_server_download_num) ${got_SPEC_FILENAME_URL}${NORM}"
+               for j in `seq 1 1 ${#got_SPEC_FILENAME[*]}`; do
+                  notify.note \
+$"Package:  - ""${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
+               done
             else
                notify.warning $"\
 cannot find a matching SRPM package in the given repositories"
@@ -1199,11 +1203,13 @@ cannot find a matching SRPM package in the given repositories"
 
                if [[ "$got_SPEC_FILENAME" ]]; then
                   [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
-                     notify.warning $"found too many candidates"
+                     notify.warning $"several occurrences found"
                   notify.note \
 $"Repository"" : ${NOTE}(#$(($i-1))) ${got_SPEC_FILENAME_URL}${NORM}"
-                  notify.note $"Package(s)"" : ${NOTE}${got_SPEC_FILENAME[@]}${NORM}"
-
+                  for j in `seq 1 1 ${#got_SPEC_FILENAME[*]}`; do
+                     notify.note \
+$"Package:  - ""${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
+                  done
                   let "srpm_pck_found += 1"
                fi
             done
@@ -1233,7 +1239,7 @@ cannot find a matching SRPM package in the given repositories"
 
          [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]] &&
             notify.error $"\
-found too many candidates"": $(
+too many packages found"": $(
             for f in ${got_SPEC_FILENAME[*]}; do
                echo -en "\n * $f"
             done )"
@@ -2797,12 +2803,12 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
          if [[ ${#got_SPEC_FILENAME[@]} -gt 1 ]]; then
             if [ "$force_upload" = 1 ]; then
                # FIXME : add some extra checks
-               notify.warning $"found too many candidates"": $(
+               notify.warning $"too many packages found"": $(
                for f in ${got_SPEC_FILENAME[*]}; do
                   echo -en "\n * \`$f' "
                done )"
             else
-               notify.error $"found too many candidates"": $(
+               notify.error $"too many packages found"": $(
                for f in ${got_SPEC_FILENAME[*]}; do
                   echo -en "\n * \`$f' "
                done )"

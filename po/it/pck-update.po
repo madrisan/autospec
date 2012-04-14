@@ -330,14 +330,17 @@ msgstr "aggiornamento del pacchetto ${NOTE}${pck_name##*/}${NORM} alla versione 
 msgid "updating package"
 msgstr "aggiornamento del pacchetto"
 
-msgid "found too many candidates"
+msgid "too many packages found"
 msgstr "trovati troppi pacchetti candidati"
+
+msgid "several occurrences found"
+msgstr "trovati diversi pacchetti candidati"
 
 msgid "Repository"
 msgstr "Archivio"
 
-msgid "Package(s)"
-msgstr "Pacchetto"
+msgid  "Package:  - "
+msgstr "Pacchetto:  "
 
 msgid "cannot find a matching SRPM package in the given repositories"
 msgstr "impossibile trovare il pacchetto SRPM nei repository indicati"

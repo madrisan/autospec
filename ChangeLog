@@ -13,6 +13,16 @@ Changes in version 1.9.4 -
   * templates/kde4 - Davide Madrisan:
     Remove 'Patch0' and '#%patch0 -p1' directives.
 
+  * lib/libnetwork.lib - Davide Madrisan:
+    repository.get_pckname_from_HTML: reworked to accept regular expessions.
+    
+  * pck-update - Davide Madrisan:
+    Action 0: display the entire list of packages when the user query is a
+    regular expression.
+
+  * i18n - Davide Madrisan:
+    Updated.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.3 - April Fools' Day Release
