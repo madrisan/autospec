@@ -51,15 +51,14 @@ function repository.get_srpm_pckname_from_HTML() {
    local regexpr
    [[ "$pck_name" =~ ^[a-zA-Z0-9-]+$ ]] && \
       regexpr="^$pck_name-[^-]\+-[^-]\+$" || regexpr="$pck_name"
+   notify.debug "$FUNCNAME: regexpr = \"$regexpr\""
 
    local pckname_from_HTML=( $(sed -n "\
       # remove HTML tags --> get a better input
-      /<a href=\".*\.src\.rpm\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
-      /<A HREF=\".*\.src\.rpm\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
-      # exit loop (skip print) if the line do not match regexpr
-      /$regexpr/bm;be;
-      :m;/$regexpr/p;:e" $infile) )
-
+      /<[aA] [hH][rR][eE][fF]=\".*\.src\.rpm\"/{
+         s|.*<[aA] [hH][rR][eE][fF]=\"\([^\"]*\)\".*|\1|
+            {/$regexpr/p}
+      }" $infile) )
    echo "${pckname_from_HTML[*]}"
 }
 
