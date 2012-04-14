@@ -31,9 +31,9 @@ function repository.is_reachable() {
    return $?
 }
 
-# function repository.get_pckname_from_HTML()
+# function repository.get_srpm_pckname_from_HTML()
 #    ... ADDME ...
-function repository.get_pckname_from_HTML() {
+function repository.get_srpm_pckname_from_HTML() {
    local pck_name="$1"
    local infile="$2"
 
@@ -48,13 +48,17 @@ function repository.get_pckname_from_HTML() {
 
    notify.debug "$FUNCNAME: infile = \"$infile\""
 
+   local regexpr
+   [[ "$pck_name" =~ ^[a-zA-Z0-9-]+$ ]] && \
+      regexpr="^$pck_name-[^-]\+-[^-]\+$" || regexpr="$pck_name"
+
    local pckname_from_HTML=( $(sed -n "\
-         # remove HTML tags --> get a better input
-         /<a href=\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
-         /<A HREF=\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
-         # exit loop if the line do not match the following regexpr
-         /^$pck_name-[^-]\+-[^-]\+$/bm;be;
-         :m;/^$pck_name-[^-]\+-[^-]\+$/p;:e" $infile) )
+      # remove HTML tags --> get a better input
+      /<a href=\".*\.src\.rpm\"/{s|.*<a href=\"\([^\"]*\)\".*|\1|;bm;};
+      /<A HREF=\".*\.src\.rpm\"/{s|.*<A HREF=\"\([^\"]*\)\".*|\1|;bm;};
+      # exit loop (skip print) if the line do not match regexpr
+      /$regexpr/bm;be;
+      :m;/$regexpr/p;:e" $infile) )
 
    echo "${pckname_from_HTML[*]}"
 }
@@ -219,7 +223,7 @@ getting list of files from"" \`${NOTE}$currurl/${NORM}'..."
 
          if [ -s "${flist[$i]}" ]; then
             got_SPEC_FILENAME=($(\
-repository.get_pckname_from_HTML "$pck_name" "${flist[$i]}"))
+repository.get_srpm_pckname_from_HTML "$pck_name" "${flist[$i]}"))
 
             [ "$got_SPEC_FILENAME" ] &&
              { notify.debug "\
