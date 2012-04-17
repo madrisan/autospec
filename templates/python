@@ -8,7 +8,6 @@ Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
 URL:           ...
 Source:        ...
-#Patch0:        %{name}-<pck-version>-<patch-description>.patch
 License:       ...
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
@@ -18,11 +17,10 @@ Requires:      python >= %python_version
 BuildRoot:     @rpm_default_buildroot@
 
 %description
-...
+%{summary}.
 
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
 CFLAGS="%{optflags}" %{__python} setup.py build

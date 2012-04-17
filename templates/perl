@@ -10,7 +10,6 @@ Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
 URL:           http://www.cpan.org
 Source:        http://www.cpan.org/modules/by-module/...
-#Patch0:        %{name}-<pck-version>-<patch-description>.patch
 License:       GPL, Artistic
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
@@ -24,7 +23,6 @@ BuildRoot:     @rpm_default_buildroot@
 
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
 %{__perl} Makefile.PL PREFIX=%{_prefix} INSTALLDIRS=vendor OPTIMIZE="%{optflags}"

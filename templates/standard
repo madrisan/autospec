@@ -8,7 +8,6 @@ Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
 URL:           ...
 Source:        ...
-#Patch0:        %{name}-<pck-version>-<patch-description>.patch
 License:       ...
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
@@ -41,7 +40,6 @@ This package includes the %{name} API documentation.
 
 %prep
 %setup -q
-#%patch0 -p1
 
 %build
 @if:pck_apidocs

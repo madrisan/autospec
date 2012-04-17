@@ -26,6 +26,9 @@ Changes in version 1.9.4 -
   * lib/libnetwork.lib - Davide Madrisan:
     repository.get_pckname_from_HTML: make package search case insensitive.
 
+  * templates/{kde3,library,perl,python,standard{-daemon}} - Davide Madrisan:
+    Remove 'Patch0' and '#%patch0 -p1' directives.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.3 - April Fools' Day Release
