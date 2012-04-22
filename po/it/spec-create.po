@@ -1,5 +1,5 @@
 # translation of it.po to Italiana
-# Copyright (C) 2004-2008 Davide Madrisan
+# Copyright (C) 2004-2008,2012 Davide Madrisan
 # Davide Madrisan <davide.madrisan@gmail.com>
 
 msgid ""
@@ -144,6 +144,12 @@ msgstr "ignorato"
 
 msgid "cannot download"
 msgstr "impossibile scaricare"
+
+msgid "cloning git repository"
+msgstr "clonazione del repository git"
+
+msgid "cannot clone git repository"
+msgstr "impossibile clonare il repository git"
 
 msgid "unsupported protocol"
 msgstr "protocollo non supportato"

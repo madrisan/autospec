@@ -1,3 +1,15 @@
+List of user visible changes in the release 1.10.0
+
+-- Improvement
+
+ * spec-create - Davide Madrisan:
+   Specfile can now be created directly from a git repository.
+   Here an example:
+     autospec -s git://git.kernel.org/pub/scm/utils/cpu/mce/mcelog.git \
+        -o mcelog.spec
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.9.4
 
 -- Improvement

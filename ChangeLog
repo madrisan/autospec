@@ -1,3 +1,15 @@
+Changes in version 1.10.0
+Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ improvement
+  * spec-create - Davide Madrisan:
+    Add code to create specfiles directly from git repositories.
+    Example:
+    autospec -s git://git.kernel.org/pub/scm/utils/cpu/mce/mcelog.git \
+       -o mcelog.spec
+
+--------------------------------------------------------------------------------
+
 Changes in version 1.9.4
 Tue Apr 17 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 

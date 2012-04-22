@@ -467,6 +467,7 @@ function specfile.create() {
 
    # 'pck_tarball' = absolute path of '$1'
    local pck_tarball
+   local pck_name pck_version
 
    case "$2" in
       http://*|https://*|ftp://*)
@@ -479,6 +480,48 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 --exit-on-err --destdir="$source_dir" "$spec_source"
 
          pck_tarball=$source_dir/$pck_tarball
+      ;;
+      git://*)
+         tmpgitdir=$(mktemp -q -d -t tmpgit.XXXXXXXX)
+         [ $? -eq 0 ] ||
+            notify.error $"can't create temporary files"
+         notify.debug "$FUNCNAME: tmpgitdir = $tmpgitdir"
+
+         pushd $tmpgitdir &>/dev/null
+
+         # create a tarball by cloning the git repository
+         notify.note "${NOTE}"$"cloning git repository"" <$2>${NORM}""..."
+         git clone --quiet "$2"
+         [ $? -eq 0 ] ||
+          { popd &>/dev/null
+            rm -fr $tmpgitdir
+            notify.error $"cannot clone git repository"; }
+
+         pck_tarball="$(find -mindepth 1 -maxdepth 1 -type d -printf "%f")"
+
+         # remove git files
+         rm -fr $pck_tarball/.git
+         rm -f $pck_tarball/.gitignore
+
+         pck_version="$(date "+%Y%m%dgit")"
+         mv $pck_tarball ${pck_tarball}-${pck_version}
+         pck_tarball="${pck_tarball}-${pck_version}"
+
+         # create a compressed tarball
+         tar -cvf ${pck_tarball}.tar $pck_tarball/ >/dev/null &&
+         bzip2 ${pck_tarball}.tar &&
+         mv ${pck_tarball}.tar.bz2 $source_dir/
+         [ $? -eq 0 ] ||
+          { popd &>/dev/null
+            rm -fr $tmpgitdir
+            notify.error $"\
+an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
+
+         spec_source="${pck_tarball}.tar.bz2"
+         pck_tarball=$source_dir/${spec_source}
+
+         popd &>/dev/null
+         rm -fr $tmpgitdir
       ;;
       *://*)
          notify.error $"unsupported protocol"": \`${2//\:*}'"
@@ -495,7 +538,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
       notify.error $"cannot find the package $pck_tarball"
 
    # get the package name from the tarball name
-   local pck_name=${3:-`echo $2 | sed -n "\
+   [ "$pck_name" ] || pck_name=${3:-`echo $2 | sed -n "\
       s/.*\///  # remove directory name, if any
       s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
       /-[0-9]*/{s/-[0-9].*//p;q}  # <pck_name>-<pck_ver>
@@ -509,7 +552,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
    [[ "${pck_newver//[0-9\.]/}" ]] &&
       notify.error $"invalid version number"" -- \`$pck_newver'"
 
-   local pck_version=${4:-`echo $2 | sed -n "\
+   [ "$pck_version" ] || pck_version=${4:-`echo $2 | sed -n "\
       /[0-9]/!q  # return nothing if no number is found in the package name
       s,.*/,,  # remove directory name, if any
       s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
