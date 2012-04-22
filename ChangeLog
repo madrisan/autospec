@@ -8,6 +8,10 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     autospec -s git://git.kernel.org/pub/scm/utils/cpu/mce/mcelog.git \
        -o mcelog.spec
 
+  * spec-create - Davide Madrisan:
+    Add a "## GITSOURCE" comment containing the URL of the git repository.
+    This information will instruct pck-update on how to update the package.
+
 --------------------------------------------------------------------------------
 
 Changes in version 1.9.4

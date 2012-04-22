@@ -234,9 +234,8 @@ function template.expand() {
    local OPTIONS=`LC_ALL=C getopt \
    -o t:T:n:v:s:l:S:b: \
    --long template:,type:,pckname:,pckversion:,setupmacro:,summary:,license:,\
-source:,standard-docs:,standard-docs-devel:,build-technology:,\
-i18n:,icons-mimetypes:,\
-infopages:,manpages:,\
+source:,source-comment:,standard-docs:,standard-docs-devel:,\
+build-technology:,i18n:,icons-mimetypes:,infopages:,manpages:,\
 pck-devel:,pck-library:,pck-apidocs:,pck-tools:,\
 shared-libraries:,debug-package:,\
    -n "${0}" -- "$@"`
@@ -253,6 +252,8 @@ shared-libraries:,debug-package:,\
    local spec_setup_macro
    local spec_summary="$spec_default_summary"
    local spec_license="$spec_default_license"
+   local spec_source
+   local spec_source_comment
    local standard_docs
    local standard_docs_devel
    local build_technology
@@ -287,6 +288,8 @@ shared-libraries:,debug-package:,\
          spec_license="$2"; shift ;;
       -S|--source)
          spec_source="$2"; shift ;;
+      --source-comment)
+         spec_source_comment="$2"; shift ;;      
       --standard-docs)
          standard_docs="$2"; shift ;;
       --standard-docs-devel)
@@ -421,7 +424,8 @@ s,^\(%setup.*\),${spec_setup_macro},
    s,\(^[ \t]*Summary[ \t]*:[ \t]*\).*,\1${spec_summary},}
 /^[ \t]*License[ \t]*:[ \t]*\.\.\.$/{
    s,\(^[ \t]*License[ \t]*:[ \t]*\).*,\1${spec_license},}
-s,^\([ \t]*Source[ \t]*:[ \t]*\).*,\1${spec_source},
+s,^\([ \t]*Source[ \t]*:[ \t]*\).*,\
+${spec_source_comment:+$spec_source_comment\n}\1${spec_source},
 s,@make@,$spec_cmd_make,
 s,@makeinstall@,$spec_cmd_makeinstall,
 s,@build_tool@,$buildrequires_buildtool,
@@ -518,6 +522,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
 
          spec_source="${pck_tarball}.tar.bz2"
+         spec_source_comment="## GITSOURCE $2"
          pck_tarball=$source_dir/${spec_source}
 
          popd &>/dev/null
@@ -531,6 +536,7 @@ an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
    esac
    notify.debug "$FUNCNAME: pck_tarball = $pck_tarball"
    notify.debug "$FUNCNAME: spec_source = $spec_source"
+   notify.debug "$FUNCNAME: spec_source_comment = $spec_source_comment"
 
    [ "$pck_tarball" ] || notify.error $"missing tarball name"
 
@@ -879,6 +885,7 @@ $spec_cmd_configure_autotools --enable-gtk-doc"
       --summary="$spec_summary" \
       --license "$spec_license" \
       --source "${spec_preamble_source:-$spec_preamble_tarball}" \
+      --source-comment "$spec_source_comment" \
       --standard-docs "$standard_docs" \
       --standard-docs-devel "$standard_docs_devel" \
       --build-technology "$build_techology" \
