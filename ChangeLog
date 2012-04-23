@@ -18,6 +18,10 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * spec-create - Davide Madrisan:
     Exist with error when git is required but cannot be found.
 
++ bugfix
+  * pck-update, lib/libnetwork.lib - Davide Madrisan:
+    `host' is not required by pck-update; move the requirement to libnetwork.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

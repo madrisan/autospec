@@ -309,7 +309,7 @@ fi
 [ "$logging_dir" ] || logging_dir="${tmppath_dir:-/var/tmp}/@package@"
 
 # check if all the needed tools are available
-for tool in cat chmod cpio date file find fold ftp getopt grep host \
+for tool in cat chmod cpio date file find fold ftp getopt grep \
    mktemp objdump readlink rpm rpmbuild rpm2cpio sed seq sort strings; do
    [ "$(type -p $tool)" ] ||
       notify.error $"utility not found"": \`$tool'"

@@ -18,6 +18,11 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
 fi
 TEXTDOMAIN="libnetwork"; export TEXTDOMAIN
 
+# check if all the needed tools are available
+for tool in curl host mktemp; do
+   [ "$(type -p curl)" ] || notify.error $"utility not found"": \`curl'"
+done
+
 # function repository.is_reachable()
 #    check if the server '$1' is reachable (test = DNS lookup query)
 # args:
@@ -524,8 +529,6 @@ function curl.download() {
    fi
 
    notify.note $"downloading"" ${NOTE}$file_name${NORM} ..."
-
-   [ "$(type -p curl)" ] || notify.error $"utility not found"": \`curl'"
 
    [ -d "$destdir" ] ||
       if [ "$exitonerror" = 1 ]; then
