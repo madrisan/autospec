@@ -475,6 +475,9 @@ function specfile.create() {
 
    case "$2" in
       git://*|http://*.git|https://*.git)
+         which git &>/dev/null ||
+            notify.error $"utility not found"": \`git'"
+
          tmpgitdir=$(mktemp -q -d -t tmpgit.XXXXXXXX)
          [ $? -eq 0 ] ||
             notify.error $"can't create temporary files"
