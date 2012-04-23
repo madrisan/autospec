@@ -17,7 +17,8 @@ Requires(pre): rpm
 Requires:      cpio, coreutils, curl, findutils, grep, sed
 Requires:      /bin/mktemp
 Requires:      /usr/bin/getopt
-Requires:      /usr/bin/host
+# host (and 'bind-utils') is not available in early stage platform development
+#Requires:      /usr/bin/host
 Requires:      bzip2
 Requires:      gzip
 Requires:      unzip
@@ -144,7 +145,11 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
 
+* Wed Apr 18 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.9.4-1mamba
+- update to 1.9.4
+
 * Sun Apr 01 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.9.3-1mamba
+- update to 1.9.3
 
 * Sun Feb 05 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.9.2-1mamba
 - update to 1.9.2

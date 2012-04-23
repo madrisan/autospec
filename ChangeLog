@@ -22,6 +22,13 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * pck-update, lib/libnetwork.lib - Davide Madrisan:
     `host' is not required by pck-update; move the requirement to libnetwork.
 
++ update
+  * lib/libnetwork.lib.in - Davide Madrisan:
+    Do not require 'host'. Just display a warning message when not available.
+    This tool (and the package 'bind-utils') is not available in early stage
+    platform development.
+    (Asked by Silvan Calarco.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

@@ -19,7 +19,9 @@ fi
 TEXTDOMAIN="libnetwork"; export TEXTDOMAIN
 
 # check if all the needed tools are available
-for tool in curl host mktemp; do
+# note: 'host' has been removed from this list because the package
+#   bind-utils is not available in early stage platform development
+for tool in curl mktemp; do
    [ "$(type -p curl)" ] || notify.error $"utility not found"": \`curl'"
 done
 
@@ -32,7 +34,11 @@ function repository.is_reachable() {
    [ "$ftpserver" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
 
-   host -W3 $ftpserver >&/dev/null
+   if [ "$(type -p host)" ]; then
+      host -W3 $ftpserver >&/dev/null
+   else
+      notify.warning $"utility not found"": \`host'"
+   fi
    return $?
 }
 
