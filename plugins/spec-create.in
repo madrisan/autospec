@@ -474,18 +474,7 @@ function specfile.create() {
    local pck_name pck_version
 
    case "$2" in
-      http://*|https://*|ftp://*)
-         pck_tarball="${2##*/}"
-         spec_source="$2"
-
-         curl.download \
---options "$curl_options" \
-${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
---exit-on-err --destdir="$source_dir" "$spec_source"
-
-         pck_tarball=$source_dir/$pck_tarball
-      ;;
-      git://*)
+      git://*|http://*.git|https://*.git)
          tmpgitdir=$(mktemp -q -d -t tmpgit.XXXXXXXX)
          [ $? -eq 0 ] ||
             notify.error $"can't create temporary files"
@@ -527,6 +516,17 @@ an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
 
          popd &>/dev/null
          rm -fr $tmpgitdir
+      ;;
+      http://*|https://*|ftp://*)
+         pck_tarball="${2##*/}"
+         spec_source="$2"
+
+         curl.download \
+--options "$curl_options" \
+${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
+--exit-on-err --destdir="$source_dir" "$spec_source"
+
+         pck_tarball=$source_dir/$pck_tarball
       ;;
       *://*)
          notify.error $"unsupported protocol"": \`${2//\:*}'"

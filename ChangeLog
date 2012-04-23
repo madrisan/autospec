@@ -12,7 +12,10 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Add a "## GITSOURCE" comment containing the URL of the git repository.
     This information will instruct pck-update on how to update the package.
 
---------------------------------------------------------------------------------
+  * spec-create - Davide Madrisan:
+    Also support git URL starting by http:// and https://.
+
+-------------------------------------------------------------------------------
 
 Changes in version 1.9.4
 Tue Apr 17 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
