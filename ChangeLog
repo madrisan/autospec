@@ -29,6 +29,9 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     platform development.
     (Asked by Silvan Calarco.)
 
+  * autospec.spec - Silvan Calarco:
+    Do not require '/usr/bin/host' in early stage platform development.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

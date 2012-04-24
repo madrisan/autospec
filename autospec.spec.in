@@ -17,8 +17,10 @@ Requires(pre): rpm
 Requires:      cpio, coreutils, curl, findutils, grep, sed
 Requires:      /bin/mktemp
 Requires:      /usr/bin/getopt
+%if "%{stage1}" != "1"
 # host (and 'bind-utils') is not available in early stage platform development
-#Requires:      /usr/bin/host
+Requires:      /usr/bin/host
+%endif
 Requires:      bzip2
 Requires:      gzip
 Requires:      unzip
