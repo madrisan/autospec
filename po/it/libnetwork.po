@@ -37,6 +37,9 @@ msgstr "non è un numero"
 msgid "missing mandatory arg"
 msgstr "parametro mancante"
 
+msgid "utility not found"
+msgstr "programma non trovato"
+
 msgid "can't create temporary files"
 msgstr "impossibile creare file temporanei"
 
@@ -84,3 +87,12 @@ msgstr "pacchetto non trovato"
 
 msgid "downloading"
 msgstr "download di"
+
+msgid "cloning git repository"
+msgstr "clonazione del repository"
+
+msgid "cannot clone git repository"
+msgstr "impossibile clonare il repository git"
+
+msgid "an error occurred while creating"
+msgstr "si è verificato un errore durante la creazione di"

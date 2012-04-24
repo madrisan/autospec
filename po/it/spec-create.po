@@ -145,12 +145,6 @@ msgstr "ignorato"
 msgid "cannot download"
 msgstr "impossibile scaricare"
 
-msgid "cloning git repository"
-msgstr "clonazione del repository git"
-
-msgid "cannot clone git repository"
-msgstr "impossibile clonare il repository git"
-
 msgid "unsupported protocol"
 msgstr "protocollo non supportato"
 

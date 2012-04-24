@@ -32,6 +32,10 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * autospec.spec - Silvan Calarco:
     Do not require '/usr/bin/host' in early stage platform development.
 
+  * spec-create, lib/libnetwork.lib - Davide Madrisan:
+    Move code from spec-create to the new function 'git.create_tarball()' in
+    libnetwork.lib.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

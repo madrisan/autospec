@@ -792,3 +792,105 @@ curl $options --user \"***:***\" --quote \"DELE $deletefile\" $1"
 
    [[ "$retval" != "0" && "$exitonerror" = 1 ]] && exit 1
 }
+
+# function git.create_tarball
+#    clone a git repository and convert is into a tarball file
+#    
+# args:
+#    -d,--destdir     : target directory
+#    $@               : git repository
+#
+# return value:
+#    0
+#
+# set: pck_version, spec_source, spec_source_comment, pck_tarball
+
+function git.create_tarball() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt \
+      -o d:p:u: \
+      --long destdir:,proxy:,proxy-user: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local destdir
+   local proxy proxy_user
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -d|--destdir)
+         destdir="$2"; shift
+         notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      --) shift; break;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   local git_repository="$1"
+   notify.debug "$FUNCNAME: git_repository = \"$git_repository\""
+   [ "$git_repository" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ "$destdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--destdir)"
+
+   which git &>/dev/null ||
+      notify.error $"utility not found"": \`git'"
+
+   local tmpgitdir=$(mktemp -q -d -t tmpgit.XXXXXXXX)
+   [ $? -eq 0 ] ||
+      notify.error $"can't create temporary files"
+   notify.debug "$FUNCNAME: tmpgitdir = $tmpgitdir"
+
+   pushd $tmpgitdir &>/dev/null
+
+   # create a tarball by cloning the git repository
+   notify.note \
+      "${NOTE}"$"cloning git repository"" <$git_repository>${NORM}""..."
+   git clone --quiet "$git_repository"
+   [ $? -eq 0 ] ||
+    { popd &>/dev/null
+      rm -fr $tmpgitdir
+      notify.error $"cannot clone git repository"; }
+
+   pck_tarball="$(find -mindepth 1 -maxdepth 1 -type d -printf "%f")"
+
+   # remove git files
+   rm -fr $pck_tarball/.git
+   rm -f $pck_tarball/.gitignore
+
+   pck_version="$(date "+%Y%m%dgit")"
+   mv $pck_tarball ${pck_tarball}-${pck_version}
+   pck_tarball="${pck_tarball}-${pck_version}"
+
+   # create a compressed tarball
+   tar -cvf ${pck_tarball}.tar $pck_tarball/ >/dev/null &&
+   bzip2 ${pck_tarball}.tar &&
+   mv ${pck_tarball}.tar.bz2 $destdir/
+   [ $? -eq 0 ] ||
+    { popd &>/dev/null
+      rm -fr $tmpgitdir
+      notify.error $"\
+an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
+
+   spec_source="${pck_tarball}.tar.bz2"
+   spec_source_comment="## GITSOURCE $git_repository"
+   pck_tarball="$destdir/${spec_source}"
+
+   popd &>/dev/null
+   rm -fr $tmpgitdir
+
+   return 0
+}
