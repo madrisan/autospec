@@ -36,6 +36,16 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Move code from spec-create to the new function 'git.create_tarball()' in
     libnetwork.lib.
 
++ bugfix
+  * lib/libnetwork.lib - Davide Madrisan:
+    repository.get_srpm_pckname_from_HTML(): make the function work again for
+    curl dumps of ftp sites. (Regression pointed out by Silvan Calarco).
+
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    Function renaming: repository.get_srpm_pckname_from_HTML() -->
+    repository.get_srpm_pckname_from_site().
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

@@ -42,9 +42,43 @@ function repository.is_reachable() {
    return $?
 }
 
-# function repository.get_srpm_pckname_from_HTML()
-#    ... ADDME ...
-function repository.get_srpm_pckname_from_HTML() {
+# function repository.get_srpm_pckname_from_site()
+#    get the list of SRPM packages by looking at the curl dump of the
+#    ftp or html site
+# args:
+#    --ftp | --html
+#    $1 : package name or regexpr to look for
+#    $2 : a (temporary) file containing the curl dump
+# return value:
+#    the list of srpm files
+function repository.get_srpm_pckname_from_site() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt \
+      -o fh --long ftp,html \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local is_html="0" is_ftp="0"
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -f|--ftp)
+         is_ftp="1"
+      ;;
+      -h|--html)
+         is_html="1"
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   [ "$is_ftp" != "$is_html" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"usage error (--ftp/--html)"
+
    local pck_name="$(echo "$1" | tr A-Z a-z)"
    local infile="$2"
 
@@ -64,12 +98,20 @@ function repository.get_srpm_pckname_from_HTML() {
       regexpr="^$pck_name-[^-]\+-[^-]\+$" || regexpr="$pck_name"
    notify.debug "$FUNCNAME: regexpr = \"$regexpr\""
 
-   local pckname_from_HTML=($(tr A-Z a-z < $infile | \
-      sed -n "# remove HTML tags --> get a better input
-         /<a href=\".*\.src\.rpm\"/{
-            s|.*<a href=\"\([^\"]*\)\".*|\1|
-               {/$regexpr/p}}"))
-   echo "${pckname_from_HTML[*]}"
+   if [ "$is_html" = "1" ]; then
+      notify.debug "$FUNCNAME: parsing HTML dump..."
+      local pckname_from_HTML=($(tr A-Z a-z < $infile | \
+         sed -n "# remove HTML tags --> get a better input
+            /<a href=\".*\.src\.rpm\"/{
+               s|.*<a href=\"\([^\"]*\)\".*|\1|
+                  {/$regexpr/p}}"))
+      echo "${pckname_from_HTML[*]}"
+   elif [ "$is_ftp" = "1" ]; then
+      notify.debug "$FUNCNAME: parsing FTP dump..."
+      local pckname_from_FTP=($(tr A-Z a-z < $infile | \
+         sed -n "s,.*\ ,,;{/$regexpr/p}"))
+      echo "${pckname_from_FTP[*]}"
+   fi
 }
 
 # function repository.resolveURL()
@@ -231,8 +273,16 @@ getting list of files from"" \`${NOTE}$currurl/${NORM}'..."
          notify.debug "$FUNCNAME: pck_name = $pck_name"
 
          if [ -s "${flist[$i]}" ]; then
-            got_SPEC_FILENAME=($(\
-repository.get_srpm_pckname_from_HTML "$pck_name" "${flist[$i]}"))
+            case $currurl in
+               ftp://*)
+                  got_SPEC_FILENAME=($(\
+repository.get_srpm_pckname_from_site --ftp "$pck_name" "${flist[$i]}"))
+               ;;
+               http://*)
+                  got_SPEC_FILENAME=($(\
+repository.get_srpm_pckname_from_site --html "$pck_name" "${flist[$i]}"))
+               ;;
+            esac
 
             [ "$got_SPEC_FILENAME" ] &&
              { notify.debug "\
@@ -814,6 +864,7 @@ function git.create_tarball() {
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
    local destdir
+   # FIXME: add support for proxy
    local proxy proxy_user
 
    eval set -- "$ARGS"
