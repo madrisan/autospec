@@ -558,6 +558,11 @@ $( cat $infofile | \
 function specfile.newrelease() {
    [ -s "$infofile" ] || infofile.create
 
+   local pck_newver="$1"
+   local pck_newrel="$2"
+   notify.debug "$FUNCNAME: pck_newver = \"$pck_newver\""
+   notify.debug "$FUNCNAME: pck_newrel = \"$pck_newrel\""
+
    ( . $infofile
 
      # NOTE: we only accept release strings in the format '<version><distroid>'
@@ -567,26 +572,35 @@ $FUNCNAME: SPEC_RELEASE ($SPEC_RELEASE): unsupported format";
         exit 1; }
 
      if [ "$pck_newver" = $SPEC_VERSION ]; then
-        local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
-        local sr_distroid="${SPEC_RELEASE/$sr_relnum}"
-        notify.debug "$FUNCNAME: sr_relnum = \"$sr_relnum\""
-        notify.debug "$FUNCNAME: sr_distroid = \"$sr_distroid\""
+        if [ "$pck_newrel" ]; then
+           [[ "$pck_newrel" =~ ^[0-9]+.*${DISTRO_rpm}$ ]] || exit 1
+           echo "$pck_newrel"
+        else
+           local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
+           local sr_distroid="${SPEC_RELEASE/$sr_relnum}"
+           notify.debug "$FUNCNAME: sr_relnum = \"$sr_relnum\""
+           notify.debug "$FUNCNAME: sr_distroid = \"$sr_distroid\""
 
-        [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}[^\.]*$ ]] &&
-         { echo "${sr_relnum%\.*}.$(( ${sr_relnum/*\./} + 1 ))${DISTRO_rpm}"
-           break; }
+           [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}[^\.]*$ ]] &&
+            { echo "${sr_relnum%\.*}.$(( ${sr_relnum/*\./} + 1 ))${DISTRO_rpm}"
+              break; }
 
-        # '<[0-9]+><distroid>'
-        [[ "$SPEC_RELEASE" =~ ^[0-9]+[^0-9]+$ ]] &&
-         { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"; break; }
+           # '<[0-9]+><distroid>'
+           [[ "$SPEC_RELEASE" =~ ^[0-9]+[^0-9]+$ ]] &&
+            { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"; break; }
 
-        # this line should be never reached
-        notify.error $"\
-(bug)"" -- $FUNCNAME: "$"release number: unsupported format"": \"$SPEC_RELEASE\""
+           # this line should be never reached
+           notify.error $"(bug)"" -- $FUNCNAME: "\
+$"release number: unsupported format"": \"$SPEC_RELEASE\""
+        fi
      else
         echo "1${DISTRO_rpm}"
      fi ) || \
-notify.error $"release number: unsupported format"": \"$SPEC_RELEASE\""
+      { echo "$SPEC_RELEASE"
+        [ "$pck_newrel" ] && notify.error \
+              $"release number: unsupported format"": \"$pck_newrel\"" ||
+           notify.error \
+              $"release number: unsupported format"": \"$SPEC_RELEASE\""; }
 }
 
 # function specfile.checksintax()
@@ -1000,7 +1014,9 @@ function package.update() {
    [[ "$pck_name" =~ \.spec$ ]] && pck_name="${pck_name%\.spec}"
 
    local pck_newver="$3"
+   notify.debug "$FUNCNAME: pck_newver = $pck_newver"
    local pck_newrel="$4"
+   notify.debug "$FUNCNAME: pck_newrel = $pck_newrel"
 
    if [[ $logging -eq 1 ]]; then   # enable logging
       logging_file="\
@@ -1022,7 +1038,7 @@ cannot create logging directory"" (\`logging_file')"
    fi
 
    # note: leave here after the 'logging_file' stuff
-   notify.debug "pck_name = $pck_name"
+   notify.debug "$FUNCNAME: pck_name = $pck_name"
 
    # the arch on which autospec is being running
    BUILD_ARCH="$(rpm --eval %_build_cpu 2>/dev/null)"
@@ -1463,7 +1479,8 @@ s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
             fi
          fi
 
-         local specfile_newrelease="$(specfile.newrelease)"
+         local specfile_newrelease="\
+$(specfile.newrelease "$pck_newver" "$pck_newrel")"
 
          if [ "$spec_format" = 1 ]; then
             notify.debug $"specfile autoformattig enabled"

@@ -46,6 +46,11 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Function renaming: repository.get_srpm_pckname_from_HTML() -->
     repository.get_srpm_pckname_from_site().
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    specfile.newrelease(): do not ignore the release set by user at command
+    line. (Bug discovered by Silvan Calarco).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4
