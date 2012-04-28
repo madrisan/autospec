@@ -51,6 +51,12 @@ Wed Apr 18 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     specfile.newrelease(): do not ignore the release set by user at command
     line. (Bug discovered by Silvan Calarco).
 
++ bugfix
+  * lib/libnetwork.lib - Davide Madrisan:
+    repository.get_srpm_pckname_from_site(): do not lower the curl dump.
+    This obviously modify the name of packages containing uppercase letters...
+    (Another regression (!) discovered and debugged by Silvan Calarco).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

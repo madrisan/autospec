@@ -79,7 +79,7 @@ function repository.get_srpm_pckname_from_site() {
    [ "$is_ftp" != "$is_html" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"usage error (--ftp/--html)"
 
-   local pck_name="$(echo "$1" | tr A-Z a-z)"
+   local pck_name="$1"
    local infile="$2"
 
    [ "$pck_name" ] || notify.error $"\
@@ -100,16 +100,15 @@ function repository.get_srpm_pckname_from_site() {
 
    if [ "$is_html" = "1" ]; then
       notify.debug "$FUNCNAME: parsing HTML dump..."
-      local pckname_from_HTML=($(tr A-Z a-z < $infile | \
-         sed -n "# remove HTML tags --> get a better input
-            /<a href=\".*\.src\.rpm\"/{
-               s|.*<a href=\"\([^\"]*\)\".*|\1|
-                  {/$regexpr/p}}"))
+      local pckname_from_HTML=($(sed -n "\
+# remove HTML tags --> get a better input
+/<a href=\".*\.src\.rpm\"/{
+s|.*<[aA]\+ [hH]\+[rR]\+[eE]\+[fF]\+=\"\([^\"]*\)\".*|\1|
+{/$regexpr/p}}" $infile))
       echo "${pckname_from_HTML[*]}"
    elif [ "$is_ftp" = "1" ]; then
       notify.debug "$FUNCNAME: parsing FTP dump..."
-      local pckname_from_FTP=($(tr A-Z a-z < $infile | \
-         sed -n "s,.*\ ,,;{/$regexpr/p}"))
+      local pckname_from_FTP=($(sed -n "s,.*\ ,,;{/$regexpr/p}" $infile))
       echo "${pckname_from_FTP[*]}"
    fi
 }
@@ -865,6 +864,8 @@ function git.create_tarball() {
 
    local destdir
    # FIXME: add support for proxy
+   # HINT: git config --global http.proxy http://user:pwd@proxy.srv.com:port
+   # see: http://bardofschool.blogspot.fr/2008/11/use-git-behind-proxy.html
    local proxy proxy_user
 
    eval set -- "$ARGS"
