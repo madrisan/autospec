@@ -57,6 +57,10 @@ Tue Maj 01 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     This obviously modify the name of packages containing uppercase letters...
     (Another regression (!) discovered and debugged by Silvan Calarco).
 
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    repository.get_srpm_pckname_from_site(): make the search case insensitive.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.9.4

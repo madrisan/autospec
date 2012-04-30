@@ -102,9 +102,9 @@ function repository.get_srpm_pckname_from_site() {
       notify.debug "$FUNCNAME: parsing HTML dump..."
       local pckname_from_HTML=($(sed -n "\
 # remove HTML tags --> get a better input
-/<a href=\".*\.src\.rpm\"/{
+/<[aA]\+ [hH]\+[rR]\+[eE]\+[fF]\+=\".*\.src\.rpm\"/{
 s|.*<[aA]\+ [hH]\+[rR]\+[eE]\+[fF]\+=\"\([^\"]*\)\".*|\1|
-{/$regexpr/p}}" $infile))
+{/$regexpr/Ip}}" $infile))
       echo "${pckname_from_HTML[*]}"
    elif [ "$is_ftp" = "1" ]; then
       notify.debug "$FUNCNAME: parsing FTP dump..."

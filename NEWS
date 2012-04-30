@@ -29,6 +29,11 @@ List of user visible changes in the release 1.10.0
    specfile.newrelease(): do not ignore the release set by user at command
    line. (Bug discovered by Silvan Calarco).
 
+-- Update
+
+ * pck-update, lib/libnetwork.lib - Davide Madrisan:
+   Action 0: the search with regular expressions is now case insensitive.
+
 -------------------------------------------------------------------------------
 
 List of user visible changes in the release 1.9.4
