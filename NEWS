@@ -6,7 +6,28 @@ List of user visible changes in the release 1.10.0
    Specfile can now be created directly from a git repository.
    Here an example:
      autospec -s git://git.kernel.org/pub/scm/utils/cpu/mce/mcelog.git \
-        -o mcelog.spec
+        -o mcelog.spec        
+
+ * spec-create - Davide Madrisan:
+   Add a "## GITSOURCE" comment containing the URL of the git repository.
+   This information will instruct pck-update on how to update the package.
+
+-- Update
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   Do not require 'host'. Just display a warning message when not available.
+   This tool (and the package 'bind-utils') is not available in early stage
+   platform development.
+   (Asked by Silvan Calarco.)
+
+ * autospec.spec - Silvan Calarco:
+   Do not require '/usr/bin/host' in early stage platform development.
+
+-- Bug Fixes
+
+ * pck-update - Davide Madrisan:
+   specfile.newrelease(): do not ignore the release set by user at command
+   line. (Bug discovered by Silvan Calarco).
 
 -------------------------------------------------------------------------------
 
