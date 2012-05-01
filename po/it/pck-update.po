@@ -226,7 +226,10 @@ msgid "missing mandatory arg"
 msgstr "parametro mancante"
 
 msgid "release number: unsupported format"
-msgstr "release: formato non supportato"
+msgstr "numero di release: formato non supportato"
+
+msgid "new release \\`$pck_newrel' must be greater than current one \\`$SPEC_RELEASE'"
+msgstr "la nuova release \\`$pck_newrel' deve essere maggiore di quella corrente \\`$SPEC_RELEASE'"
 
 msgid "checking"
 msgstr "sto controllando"

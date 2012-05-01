@@ -1,3 +1,14 @@
+Changes in version 1.10.1
+--- Maj -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ bugfix
+  * pck-update - Davide Madrisan:
+    Stop pck-update execution with an error code when 'specfile.newrelease()'
+    reports an error.
+    (Bug reported by Silvan Calarco.)
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.10.0
 Tue Maj 01 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 

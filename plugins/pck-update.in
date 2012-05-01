@@ -565,15 +565,19 @@ function specfile.newrelease() {
 
    ( . $infofile
 
-     # NOTE: we only accept release strings in the format '<version><distroid>'
+     # NOTE: allowed format is: '<version><distroid>'
      [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){0,}[^0-9\.]+.*$ ]] ||
-      { notify.debug "\
-$FUNCNAME: SPEC_RELEASE ($SPEC_RELEASE): unsupported format";
-        exit 1; }
+        notify.error \
+           $"release number: unsupported format"": \"$SPEC_RELEASE\""
 
      if [ "$pck_newver" = $SPEC_VERSION ]; then
         if [ "$pck_newrel" ]; then
-           [[ "$pck_newrel" =~ ^[0-9]+.*${DISTRO_rpm}$ ]] || exit 1
+           [[ "$pck_newrel" =~ ^[0-9]+.*${DISTRO_rpm}$ ]] ||
+              notify.error \
+                  $"release number: unsupported format"": \"$pck_newrel\""
+           [ "$pck_newrel" '>' "$SPEC_RELEASE" ] ||
+              notify.error $"\
+new release number \"$pck_newrel\" <= current release \"$SPEC_RELEASE\""
            echo "$pck_newrel"
         else
            local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
@@ -583,11 +587,12 @@ $FUNCNAME: SPEC_RELEASE ($SPEC_RELEASE): unsupported format";
 
            [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}[^\.]*$ ]] &&
             { echo "${sr_relnum%\.*}.$(( ${sr_relnum/*\./} + 1 ))${DISTRO_rpm}"
-              break; }
+              return 0; }
 
            # '<[0-9]+><distroid>'
            [[ "$SPEC_RELEASE" =~ ^[0-9]+[^0-9]+$ ]] &&
-            { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"; break; }
+            { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"
+              return 0; }
 
            # this line should be never reached
            notify.error $"(bug)"" -- $FUNCNAME: "\
@@ -595,12 +600,7 @@ $"release number: unsupported format"": \"$SPEC_RELEASE\""
         fi
      else
         echo "1${DISTRO_rpm}"
-     fi ) || \
-      { echo "$SPEC_RELEASE"
-        [ "$pck_newrel" ] && notify.error \
-              $"release number: unsupported format"": \"$pck_newrel\"" ||
-           notify.error \
-              $"release number: unsupported format"": \"$SPEC_RELEASE\""; }
+     fi ) || { echo "$SPEC_RELEASE"; return 1; }
 }
 
 # function specfile.checksintax()
@@ -1479,8 +1479,11 @@ s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
             fi
          fi
 
-         local specfile_newrelease="\
+         # NOTE: local specfile_newrelease="$(...)" does not work!
+         local specfile_newrelease
+         specfile_newrelease="\
 $(specfile.newrelease "$pck_newver" "$pck_newrel")"
+         [ $? -eq 0 ] || exit 1
 
          if [ "$spec_format" = 1 ]; then
             notify.debug $"specfile autoformattig enabled"
