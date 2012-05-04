@@ -1172,11 +1172,22 @@ echo -n "\"${define_list_value[$i]}\" "; done)]"
    notify.debug "\
 define_list_rpm = \"$define_list_rpm\""
 
-   if [ "$pck_newver" ]; then
-      notify.note $"updating package ${NOTE}${pck_name##*/}${NORM} \
+   if [[ "$pck_name" =~ ^[a-zA-Z0-9-]+$ ]]; then
+      if [ "$pck_newver" ]; then
+         notify.note $"updating package ${NOTE}${pck_name##*/}${NORM} \
 to version ${NOTE}${pck_newver}${NORM}""..."
+      else
+         notify.note $"updating package"" ${NOTE}${pck_name##*/}${NORM}..."
+      fi
    else
-      notify.note $"updating package"" ${NOTE}${pck_name##*/}${NORM}..."
+      # not a real package but a regexp
+      if [ "$pck_newver" ]; then
+         notify.note $"multiple package update (regexp: \
+${NOTE}$pck_name${NORM}) to version ${NOTE}${pck_newver}${NORM}""..."
+      else
+         notify.note $"multiple package update (regexp: \
+${NOTE}$pck_name${NORM})""..."
+      fi
    fi
 
    for step in ${steps[*]}; do

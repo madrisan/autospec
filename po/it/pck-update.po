@@ -333,6 +333,12 @@ msgstr "aggiornamento del pacchetto ${NOTE}${pck_name##*/}${NORM} alla versione 
 msgid "updating package"
 msgstr "aggiornamento del pacchetto"
 
+msgid "multiple package update (regexp: ${NOTE}$pck_name${NORM}) to version ${NOTE}${pck_newver}${NORM}"
+msgstr "aggiornamento multiplo di pacchetti (${NOTE}$pck_name${NORM}) alla versione ${NOTE}${pck_newver}${NORM}"
+
+msgid "multiple package update (regexp: ${NOTE}$pck_name${NORM})"
+msgstr "aggiornamento multiplo di pacchetti (${NOTE}$pck_name${NORM})"
+
 msgid "too many packages found"
 msgstr "trovati troppi pacchetti candidati"
 
