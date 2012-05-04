@@ -7,6 +7,11 @@ Changes in version 1.10.1
     reports an error.
     (Bug reported by Silvan Calarco.)
 
+  * autospec.conf
+    format_unpackaged_file_list: fix rpm variable expansion for /lib and
+    /lib64.
+    (As usual: bug reported by Silvan Calarco.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
