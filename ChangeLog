@@ -12,6 +12,13 @@ Changes in version 1.10.1
     /lib64.
     (As usual: bug reported by Silvan Calarco.)
 
++ update
+  * pck-update - Davide Madrisan:
+    Action 0: better notification message.
+
+  * po/it/pck-update.po - Davide Madrisan:
+    Updated.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

@@ -342,8 +342,8 @@ msgstr "trovati diversi pacchetti candidati"
 msgid "Repository"
 msgstr "Archivio"
 
-msgid  "Package:  - "
-msgstr "Pacchetto:  "
+msgid  "Package"
+msgstr "Pacchetto"
 
 msgid "cannot find a matching SRPM package in the given repositories"
 msgstr "impossibile trovare il pacchetto SRPM nei repository indicati"

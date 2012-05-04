@@ -577,7 +577,7 @@ function specfile.newrelease() {
                   $"release number: unsupported format"": \"$pck_newrel\""
            [ "$pck_newrel" '>' "$SPEC_RELEASE" ] ||
               notify.error $"\
-new release number \"$pck_newrel\" <= current release \"$SPEC_RELEASE\""
+new release \`$pck_newrel' must be greater than current one \`$SPEC_RELEASE'"
            echo "$pck_newrel"
         else
            local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
@@ -1201,7 +1201,7 @@ $"Repository""\
 : ${NOTE}(#$ftp_server_download_num) ${got_SPEC_FILENAME_URL}${NORM}"
                for j in `seq 1 1 ${#got_SPEC_FILENAME[*]}`; do
                   notify.note \
-$"Package:  - ""${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
+$"Package"":  ${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
                done
             else
                notify.warning $"\
