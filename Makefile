@@ -129,15 +129,15 @@ install: install-frontend \
 uninstall:
 	@echo "Uninstalling all the files..."
 	rm -f $(DESTDIR)$(bindir)/$(PACKAGE)
-	$(MAKE) install -C conf
-	$(MAKE) install -C lib
-	$(MAKE) install -C plugins
-	$(MAKE) install -C templates
-	$(MAKE) install -C tests
-	$(MAKE) install -C tools
+	$(MAKE) uninstall -C conf
+	$(MAKE) uninstall -C lib
+	$(MAKE) uninstall -C plugins
+	$(MAKE) uninstall -C templates
+	$(MAKE) uninstall -C tests
+	$(MAKE) uninstall -C tools
 	@for loc in $(LOCALES); do\
-	   $(MAKE) uninstall -C man/$$loc || exit 1;\
-	   $(MAKE) uninstall -C po/$$loc || exit 1;\
+	   $(MAKE) uninstall -C man/$$loc;\
+	   $(MAKE) uninstall -C po/$$loc;\
 	done
 
 dist: clean
