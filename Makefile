@@ -30,8 +30,8 @@ dist_archive = $(distdir).tar.bz2
 
 DESTDIR =
 
-pck_conf = $(PACKAGE).conf
 pck_root := $(sort $(patsubst %.in,%,$(wildcard *.in)))
+pck_confs := $(sort $(patsubst %.in,%,$(wildcard conf/*)))
 pck_libs := $(sort $(patsubst %.in,%,$(wildcard lib/*)))
 pck_manpages := $(patsubst %.in,%,$(wildcard man/*.in man/*/*.in))
 pck_plugins := $(sort $(patsubst %.in,%,$(wildcard plugins/*)))
@@ -39,7 +39,7 @@ pck_templates := $(sort $(patsubst %.in,%,$(wildcard templates/*)))
 pck_tests := $(sort $(patsubst %.in,%,$(wildcard tests/*)))
 pck_tools := $(sort $(patsubst %.in,%,$(wildcard tools/*)))
 
-pck_infiles := $(wildcard *.in lib/*.in man/*.in man/*/*.in plugins/*.in templates/.in tests/* tools/*.in)
+pck_infiles := $(wildcard *.in conf/*.in lib/*.in man/*.in man/*/*.in plugins/*.in templates/.in tests/* tools/*.in)
 
 .SUFFIXES:
 .SUFFIXES: .in
@@ -50,7 +50,7 @@ pck_infiles := $(wildcard *.in lib/*.in man/*.in man/*/*.in plugins/*.in templat
             s,@release@,$(RELEASE),g;\
             s,@frontend@,$(FRONTEND),g;\
             s,@pck_lib@,$(PACKAGE_LIB),g;\
-            s,@pck_conf@,$(pck_conf),g;\
+            s,@confdir@,$(confdir),g;\
             s,@libdir@,$(libdir),g;\
             s,@sysconfdir@,$(sysconfdir),g;\
             s,@plugindir@,$(plugindir),g;\
@@ -63,6 +63,7 @@ all: dist-update locales check
 
 check: dist-update
 	@echo "Checking libraries and scripts for syntax errors..."
+	@$(MAKE) check -C conf || exit 1
 	@$(MAKE) check -C plugins || exit 1
 	@$(MAKE) check -C tests || exit 1
 	@$(MAKE) check -C tools || exit 1
@@ -74,13 +75,14 @@ locales:
 	   $(MAKE) -C po/$$loc || exit 1;\
 	done
 
-install-frontend: $(PACKAGE) $(pck_conf)
+install-frontend: $(PACKAGE)
 	@echo "Installing frontend..."
 	@$(INSTALL_DIR) $(DESTDIR)$(bindir)
 	$(INSTALL_SCRIPT) $(PACKAGE) $(DESTDIR)$(bindir)/$(PACKAGE)
-	@echo "Installing configuration file..."
-	@$(INSTALL_DIR) $(DESTDIR)$(sysconfdir)
-	$(INSTALL_DATA) $(pck_conf) $(DESTDIR)$(sysconfdir)/$(pck_conf)
+
+install-confs: $(pck_confs)
+	@echo "Installing configuration files..."
+	@$(MAKE) install -C conf || exit 1
 
 install-libs: $(pck_libs)
 	@echo "Installing libraries..."
@@ -115,6 +117,7 @@ install-tools: $(pck_tools)
 	$(MAKE) install -C tools || exit 1
 
 install: install-frontend \
+         install-confs \
          install-libs \
          install-manpages \
          install-plugins \
@@ -126,27 +129,12 @@ install: install-frontend \
 uninstall:
 	@echo "Uninstalling all the files..."
 	rm -f $(DESTDIR)$(bindir)/$(PACKAGE)
-	rm -f $(DESTDIR)$(sysconfdir)/$(pck_conf)
-	@for f in $(pck_libs); do\
-	   echo "rm -f $(DESTDIR)$(libdir)/$${f##*/}";\
-	   rm -f $(DESTDIR)$(libdir)/$${f##*/};\
-	done
-	@for f in $(pck_plugins); do\
-	   echo "rm -f $(DESTDIR)$(plugindir)/$${f##*/}";\
-	   rm -f $(DESTDIR)$(plugindir)/$${f##*/};\
-	done
-	@for f in $(pck_templates); do\
-	   echo "rm -f $(DESTDIR)$(templatedir)/$${f##*/}";\
-	   rm -f $(DESTDIR)$(templatedir)/$${f##*/};\
-	done
-	@for f in $(pck_tests); do\
-	   echo "rm -f $(DESTDIR)$(testdir)/$${f##*/}";\
-	   rm -f $(DESTDIR)$(testdir)/$${f##*/};\
-	done
-	@for f in $(pck_tools); do\
-	   echo "rm -f $(DESTDIR)$(tooldir)/$${f##*/}";\
-	   rm -f $(DESTDIR)$(tooldir)/$${f##*/};\
-	done
+	$(MAKE) install -C conf
+	$(MAKE) install -C lib
+	$(MAKE) install -C plugins
+	$(MAKE) install -C templates
+	$(MAKE) install -C tests
+	$(MAKE) install -C tools
 	@for loc in $(LOCALES); do\
 	   $(MAKE) uninstall -C man/$$loc || exit 1;\
 	   $(MAKE) uninstall -C po/$$loc || exit 1;\
@@ -196,6 +184,7 @@ clean: mostlyclean
 mostlyclean:
 	@echo "Cleaning up unpackaged files..."
 	@rm -f $(pck_root)
+	@$(MAKE) clean -C conf || exit 1
 	@$(MAKE) clean -C lib || exit 1
 	@$(MAKE) clean -C plugins || exit 1
 	@$(MAKE) clean -C templates || exit 1

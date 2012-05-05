@@ -106,10 +106,10 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %files
 %defattr(-,root,root)
 %{_bindir}/%{name}
-%lang(it) %{_mandir}/it/man1/autospec.*
+%lang(it) %{_mandir}/it/man1/%{name}.*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/autospec_fe.mo
 %doc AUTHORS BUGS ChangeLog COPYING NEWS TODO
-%doc autospec-it-HOWTO
+%doc %{name}-it-HOWTO
 
 %files plugins
 %defattr(-,root,root)
@@ -117,10 +117,13 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %{_bindir}/pck-extract
 %{_bindir}/pck-update
 %{_bindir}/spec-create
+%dir %{_sysconfdir}/%{name}.d
 %if %{packager_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
+%config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
 %else
 %config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.conf
+%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.d/*.conf
 %endif
 %{_datadir}/%{name}/templates/*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/config-getvar.mo
@@ -146,6 +149,9 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %changelog
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
+
+* Mon May 01 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.10.0-1mamba
+- update to 1.10.0
 
 * Wed Apr 18 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.9.4-1mamba
 - update to 1.9.4

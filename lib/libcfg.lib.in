@@ -18,7 +18,8 @@ TEXTDOMAIN="libcfg"; export TEXTDOMAIN
 
 # list of the configuration file(s)
 default_cfg=(\
-`ls /etc/@package@.conf ~/.@package@ ~/.@package@.d/*.conf 2>/dev/null`)
+`ls /etc/@package@.conf /etc/@package@.d/*.conf \
+    ~/.@package@ ~/.@package@.d/*.conf 2>/dev/null`)
 
 # check if the user configurations file for autospec is present
 function config.check4user() {

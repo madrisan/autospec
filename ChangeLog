@@ -19,6 +19,12 @@ Changes in version 1.10.1
   * po/it/pck-update.po - Davide Madrisan:
     Updated.
 
+  * lib/libcfg.lib - Davide Madrisan:
+    Add /etc/autospec.d/*.conf to the list of configuration files.
+
+  * Makefile, Makefile.env, conf/* - Davide Madrisan:
+    Split autospec.conf into several configuration files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
