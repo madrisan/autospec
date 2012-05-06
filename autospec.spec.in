@@ -43,7 +43,9 @@ Installa autospec se sei un packager o se vuoi creare/aggiornare pacchetti rpm i
 Summary:       Autospec plugins
 Summary(it):   Plugin di autospec
 Group:         Development/Tools
+Requires:      %{name}-config = %{?epoch:%epoch:}%{version}-%{release}
 Requires:      %{name}-libs = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      %{name}-templates = %{?epoch:%epoch:}%{version}-%{release}
 Requires:      %{name}-tests = %{?epoch:%epoch:}%{version}-%{release}
 Requires(pre): rpm
 
@@ -52,6 +54,18 @@ This package contains the plugins needed for generating specfiles, updating rpm 
 
 %description -l it plugins
 Questo pacchetto contiene i plugin necessari per generare specfile, aggiornare pacchetti rpm, estrarre file da pacchetti source rpm (srpm).
+
+%package config-openmamba
+Summary:       Configuration files for autospec
+Summary(it):   File di configurazione per autospec
+Group:         Development/Tools
+Provides:      %{name}-config = %{?epoch:%epoch:}%{version}-%{release}
+
+%description config-openmamba
+This package contains the configuration files for autospec.
+
+%description -l it config-openmamba
+Questo pacchetto contiene i file di configurazione di autospec.
 
 %package libs
 Summary:       Autospec libraries
@@ -65,6 +79,18 @@ They can be used by external tools that manage rpm packages and specfiles.
 %description -l it libs
 Questo pacchetto contiene le librerie necessarie al funzionamento di autospec e dei suoi plugin.
 Possono anche essere stilizzate da tool esterni che lavorano su rpm e specfile.
+
+%package templates-openmamba
+Summary:       Autospec templates
+Summary(it):   Template per autospec
+Group:         Development/Tools
+Provides:      %{name}-templates = %{?epoch:%epoch:}%{version}-%{release}
+
+%description templates-openmamba
+This package contains the templates used by autospec for generating specfiles from tarballs.
+
+%description -l it templates-openmamba
+Questo pacchetto contiene i template utilizzati da autospec per generare gli specfile a partire dai sorgenti.
 
 %package tests
 Summary:       Autospec tests
@@ -117,24 +143,32 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %{_bindir}/pck-extract
 %{_bindir}/pck-update
 %{_bindir}/spec-create
-%dir %{_sysconfdir}/%{name}.d
-%if %{packager_group} == "root"
-%config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
-%config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
-%else
-%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.conf
-%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.d/*.conf
-%endif
-%{_datadir}/%{name}/templates/*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/config-getvar.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-extract.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-update.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/spec-create.mo
+%if %{packager_group} == "root"
+%config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
+%else
+%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.conf
+%endif
+
+%files config-openmamba
+%defattr(-,root,root)
+%dir %{_sysconfdir}/%{name}.d
+%if %{packager_group} == "root"
+%config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
+%else
+%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.d/*.conf
+%endif
 
 %files libs
 %defattr(-,root,root)
 %{_datadir}/%{name}/lib/*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/lib*.mo
+
+%files templates-openmamba
+%{_datadir}/%{name}/templates
 
 %files tests
 %defattr(-,root,root)
