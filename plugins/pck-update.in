@@ -430,6 +430,28 @@ assuming as specfile"": \`$spec_dir/$SRPM_SPECFILE'"
      [ -f "$SRPM_SPECFILE_WITH_PATH" ] ||
         notify.error $"specfile not found"": \`$SRPM_SPECFILE_WITH_PATH'"
 
+     local specfile_mimetype
+     specfile_mimetype="$(LC_ALL=C file -p --brief "$SRPM_SPECFILE_WITH_PATH")"
+     notify.debug "$FUNCNAME: specfile_mimetype: $specfile_mimetype"
+
+     case "$specfile_mimetype" in
+        # Microsoft line terminators... not good for the parser
+        *"with CRLF"*"line terminators"*)
+           notify.error $"\
+specfile with CRLF line terminators"": $SRPM_SPECFILE_WITH_PATH"
+        ;;
+       # MAC line terminators
+        *"with CR"*"line terminators"*)
+           notify.error $"\
+specfile with CR line terminators"": $SRPM_SPECFILE_WITH_PATH"
+        ;;
+        *"text"*) : ;;
+        *) notify.error "\
+specfile with an unsupported format"" ($specfile_mimetype)""\
+: $SRPM_SPECFILE_WITH_PATH"
+        ;;
+     esac
+
      echo "SRPM_SPECFILE_WITH_PATH=\"$SRPM_SPECFILE_WITH_PATH\"" >> $infofile
      notify.debug "SRPM_SPECFILE_WITH_PATH = \"$SRPM_SPECFILE_WITH_PATH\""
 

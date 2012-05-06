@@ -25,6 +25,11 @@ Changes in version 1.10.1
   * Makefile, Makefile.env, conf/* - Davide Madrisan:
     Split autospec.conf into several configuration files.
 
++ improvement
+  * pck-update - Davide Madrisan:
+    Check specfiles for CR and CRLF line terminators.
+    They can mislead the specfile parser.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
