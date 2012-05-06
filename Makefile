@@ -1,5 +1,5 @@
 # Makefile for autospec
-# Copyright (C) 2004-2008,2011 by Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2008,2011,2012 by Davide Madrisan <davide.madrisan@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
