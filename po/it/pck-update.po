@@ -518,3 +518,13 @@ msgstr "Sembra ok ma non dimenticare di eseguire i test di qualità e sicurezza.
 
 msgid "Add the following files in the right %files blocks"
 msgstr "Smistare i seguenti file nelle sezioni %files corrispondenti"
+
+msgid "specfile with CRLF line terminators"
+msgstr "specfile con fine linea CRLF"
+
+msgid "specfile with CR line terminators"
+msgstr "specfile con fine linea CR"
+
+msgid "specfile with an unsupported format"
+msgstr "specfile in formato non supportato"
+
