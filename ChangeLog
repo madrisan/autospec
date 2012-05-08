@@ -33,6 +33,10 @@ Changes in version 1.12.0
 + bugfix
   * templates/{library,standard,standard-daemon} - Davide Madrisan:
     Missing requirement: "Requires(preun): %{__install_info}"
+    
++ improvement
+  * tests/test01_pkgquality - Davide Madrisan:
+    New test: check for libraries with undefined symbols after relocation.
 
 -------------------------------------------------------------------------------
 

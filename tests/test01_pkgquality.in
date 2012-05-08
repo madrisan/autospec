@@ -17,6 +17,13 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
 fi
 TEXTDOMAIN="test01_pkgquality"; export TEXTDOMAIN
 
+# check if all the needed tools are available
+for tool in cat chmod cpio date file find fold ftp getopt grep \
+   mktemp ldd objdump; do
+   [ "$(type -p $tool)" ] ||
+      notify.error $"utility not found"": \`$tool'"
+done
+
 function alltests() {
    # FIXME: add to 'po' file
    notify.note " * ${NOTE}"$"performing quality checks""${NORM}""..."
@@ -216,6 +223,36 @@ ${NOTE}"$"Hint"":${NORM}
    ...
    %attr(0755,root,root) %{_bindir}/<program>
 -----------------------------"
+
+   # check for libraries with undefined symbols
+   notify.note "   * ${NOTE}"$"\
+checking for libraries with undefined symbols after relocation""${NORM}..."
+
+   let "i = 0"
+   local undefsyms
+   for pck in ${rpmpkg_name[@]}; do
+      # skip debug packages
+      [[ "${pck##*/}" =~ -debug- ]] && { let "i += 1"; continue; }
+
+      pushd $tmpextractdir/$i >/dev/null
+      # find *.so.* files that are not symlinks to dynamic libraries
+      for f in `find -mindepth 1 -type f \
+         \( -name *\.so\.* -not -name *.debug \) -exec file {} \; | \
+         grep 'shared object' | sed -n 's/.\([^:]*\):.*/\1/p'`; do
+         undefsyms="\
+$(LC_ALL=C ldd -d -r "$f" 2>/dev/null |& grep "undefined symbol")"
+         if [ "$undefsyms" ]; then
+            notify.warning "${NOTE}${pck##*/}${NORM}"
+            echo -n "${CRIT}"
+            LC_ALL=C ldd -d -r "$f" 2>/dev/null |& \
+            grep "undefined symbol" | sed "s,.*,     - &,"
+            echo -n "${NORM}"
+            let "total_issues += 1"
+         fi
+      done
+      popd >/dev/null
+      let "i += 1"
+   done
 
    # check for binary files in etc (see FHS-2.2)
    notify.note "   * ${NOTE}"$"\

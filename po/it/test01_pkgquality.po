@@ -22,6 +22,9 @@ msgstr "questo script richiede bash versione 2 o superiore"
 msgid "library not found"
 msgstr "libreria non trovata"
 
+msgid "utility not found"
+msgstr "programma non trovato"
+
 msgid "performing quality checks"
 msgstr "esecuzione dei test di qualità"
 
@@ -72,6 +75,9 @@ msgstr "file sospetto"
 
 msgid "Hint"
 msgstr "Suggerimento"
+
+msgid "checking for libraries with undefined symbols after relocation"
+msgstr "ricerca di librerie con simboli indefiniti dopo rilocazione"
 
 msgid "checking for binary files installed in /etc (see FHS)"
 msgstr "ricerca di file binari installati in /etc (vedi FHS)"
