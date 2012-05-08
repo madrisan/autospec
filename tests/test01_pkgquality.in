@@ -235,7 +235,6 @@ checking for libraries with undefined symbols after relocation""${NORM}..."
       [[ "${pck##*/}" =~ -debug- ]] && { let "i += 1"; continue; }
 
       pushd $tmpextractdir/$i >/dev/null
-      # find *.so.* files that are not symlinks to dynamic libraries
       for f in `find -mindepth 1 -type f \
          \( -name *\.so\.* -not -name *.debug \) -exec file {} \; | \
          grep 'shared object' | sed -n 's/.\([^:]*\):.*/\1/p'`; do
