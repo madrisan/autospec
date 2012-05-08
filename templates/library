@@ -24,6 +24,7 @@ Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
 @fi:pck_library
 @if:infopages
 Requires(post): %{__install_info}
+Requires(preun): %{__install_info}
 @fi:infopages
 BuildRoot:     @rpm_default_buildroot@
 

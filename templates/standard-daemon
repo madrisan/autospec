@@ -17,6 +17,7 @@ BuildRequires: @build_tool@
 @fi:buildrequires_buildtool
 @if:infopages
 Requires(post): %{__install_info}
+Requires(preun): %{__install_info}
 @fi:infopages
 BuildRoot:     @rpm_default_buildroot@
 
