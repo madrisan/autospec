@@ -38,6 +38,12 @@ Changes in version 1.12.0
   * tests/test01_pkgquality - Davide Madrisan:
     New test: check for libraries with undefined symbols after relocation.
 
++ bugfix
+  * spec-create - Davide Madrisan:
+    Select makefile as build_techology when a makefile (downcase letters) or a
+    GNUmalefile is found, not only a Makefile (with a capital letter).
+    (Bug reported by Silvan Calarco.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

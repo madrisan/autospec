@@ -771,7 +771,9 @@ ${standard_docs_devel:+$standard_docs_devel }$currdoc"
          build_techology="cmake"
       elif [ -x $tmpdir/$pck_rootdir/configure ]; then
          build_techology="autotools"
-      elif [ -e $tmpdir/$pck_rootdir/Makefile ]; then
+      elif [ -e $tmpdir/$pck_rootdir/Makefile -o \
+             -e $tmpdir/$pck_rootdir/makefile -o \
+             -e $tmpdir/$pck_rootdir/GNUmakefile ]; then
          build_techology="makefile"
       elif [ -e $tmpdir/$pck_rootdir/SConstruct -o \
              -e $tmpdir/$pck_rootdir/Sconstruct -o \
