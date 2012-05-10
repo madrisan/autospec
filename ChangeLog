@@ -44,6 +44,10 @@ Changes in version 1.12.0
     GNUmalefile is found, not only a Makefile (with a capital letter).
     (Bug reported by Silvan Calarco.)
 
++ update
+  * TODO - Davide Madrisan:
+   Remove out of date stuff out of date stuff.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
