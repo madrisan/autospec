@@ -25,13 +25,75 @@ particolarita' specifiche di ogni distribuzione basata su pacchetti rpm.
 .br
 @package@ fornisce inoltre la libreria @pck_lib@, utilizzabile anche da script di shell
 esterni per ricavare in modo semplice informazioni su un qualsiasi specfile dato in input.
+.br
+@package@ e' stato utilizzato con successo dagli sviluppatori della distribuzione
+QiLinux (http://www.qilinux.org), permettendo la creazione di specfile standard e
+l'aggiornamento (semi)automatico dei pacchetti.
+E' utilizzato attualmente nello sviluppo di openmamba GNU/Linux 
+(http://www.openmamba.org) per creare specfile, per aggiornare i pacchetti dei branch
+di sviluppo e dei contributors e per effettuare il porting (amche in cross-compilazione)
+dei pacchetti in architetture diverse.
 
 .SH FILE DI CONFIGURAZIONE
-@package@ legge all'avvio in primo luogo i file globali \fI@sysconfdir@/@package@.conf\fR
+@package@ legge all'avvio i file globali \fI@sysconfdir@/@package@.conf\fR
 e \fI@sysconfdir@/@package@.d/*.conf\fR e quindi i file privati dell'utente:
 \fI~/.@package@\fR e/o \fI~/.@package@.d/*.conf\fR.
 E' buona norma non modificare direttamente i file globali.
 Utilizzare i file privati per ridefinire variabili oppure modularizzare la configurazione.
+.TP
+Qui di seguito e' presentato un esempio di file di configurazione utente per @package@ che potra' essere utilizzato da un contributore come fac-simile per creare il proprio file di configurazione personale.
+.br
+\fI\fR
+.br
+[~/.@package@]
+.br
+# [configuration file for `@package@']
+.br
+proxy=
+.br
+proxy_user=
+.br
+packager_fullname="<Your Name>"
+.br
+packager_email="<email>@openmamba.org"
+.br
+ftp_rw_user[1]="<user>"
+.br
+ftp_rw_passwd[1]="<passwd>"
+.br
+arch_list=(i586 ppc arm x86_64)
+.br
+curl_opts_netlink="--connect-timeout 15 --retry 3 --limit-rate 250k"
+.TP
+Ecco un esempio di modularizzazione possibile:
+.br
+\fI\fR
+.br
+~/.@package@.d/00-devel.conf
+.br
+~/.@package@.d/01-devel-my.conf
+.br
+~/.@package@.d/02-devel-kde4.conf
+.br
+~/.@package@.d/03-devel-makedist.conf
+.br
+~/.@package@.d/04-devel-autodist.conf
+.br
+~/.@package@.d/05-devel-future.conf
+.TP
+In ogni file vi sono le informazioni di connessione al repository specificato dal nome del file. Ad esempio:
+.br
+\fI\fR
+.br
+$ cat ~/.autospec.d/05-devel-autodist.conf 
+.br
+ftp_alias[5]="autodist"
+.br
+ftpurl_ro_rpms[5]="http://www.openmamba.org/pub/openmamba/devel-autodist/RPMS.@arch@"
+.br
+ftpurl_ro_srpms[5]="http://www.openmamba.org/pub/openmamba/devel-autodist/SRPMS.base"
+.br
+ftp_enable[5]="1"
 
 .SH SINTASSI
 @package@ e' lo script principale ed ha funzione di frontend per una serie di script e
@@ -77,6 +139,19 @@ categoria dello specfile da generare:
 .TP
 \fB\-o\fR, \fB\-\-output\fR
 redirige lo standard output sul file \fIoutfile\fR
+.br
+\fI\fR
+.TP
+Esempio:
+.br
+\fI\fR
+.br
+@package@ \-s \\
+.br
+  http://ovh.dl.sourceforge.net/sourceforge/avifile/avifile-0.7-0.7.45.tar.bz2 \\
+.br
+  -t library -n libavifile -v 0.7.45 \\
+  -o /usr/src/RPM/SPECS/libavifile.spec
 
 .SS "Aggiornamento di pacchetti rpm"
 \fB@package@\fR \

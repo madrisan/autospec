@@ -53,7 +53,8 @@ Changes in version 1.12.0
     Update help message.
 
   * documentation - Davide Madrisan:
-    Updated the italian man page remove the document `autospec-it-HOWTO'.
+    Updated the italian man page.
+    Remove the document `autospec-it-HOWTO'.
 
 -------------------------------------------------------------------------------
 
