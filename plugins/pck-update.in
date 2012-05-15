@@ -138,7 +138,7 @@ function usage() {
                     "$"action"" 10: "$"Do not upload the srpm package""
      --norpm        "$"action"" 5: "$"Only build the srpm package""
                     "$"action"" 10: "$"Do not upload the rpm packages""
-     --list-check   "$"action"" 5: "$"Do a \"list check\"""
+     --list-check   "$"action"" 5: "$"Do a \`list check'""
  -c, --clear        "$"Remove all the temporary files except (s)rpm packages""
  -f, --format       "$"Enable specfile autoformatting""
  -L, --log          "$"Unable logging to file (logging dir: \`\$logging_dir')""

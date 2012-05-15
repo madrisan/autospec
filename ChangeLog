@@ -46,7 +46,11 @@ Changes in version 1.12.0
 
 + update
   * TODO - Davide Madrisan:
-   Remove out of date stuff out of date stuff.
+    Remove out of date stuff out of date stuff.
+
++ update
+  * pck-update - Davide Madrisan:
+    Update help message.
 
 -------------------------------------------------------------------------------
 

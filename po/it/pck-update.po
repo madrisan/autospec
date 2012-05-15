@@ -147,6 +147,9 @@ msgstr "Crea soltanto il pacchetto srpm"
 msgid "Do not upload the rpm packages"
 msgstr "Non effettua l'upload dei pacchetti rpm"
 
+msgid "Do a \\`list check'"
+msgstr "Cerca i file non pacchettizzati"
+
 msgid "Remove all the temporary files except (s)rpm packages"
 msgstr "Rimuove tutti i file temporanei"
 
