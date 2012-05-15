@@ -13,7 +13,7 @@
 \fB@pck_lib@\fR - libreria di funzioni per l'analisi degli specfile.
 
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.8.2 di @package@.
+Questo documento e' aggiornato alla versione 1.12.0 di @package@.
 
 .SH DESCRIZIONE
 @package@ e' una suite di script che permette di velocizzare ed automatizzare una parte
@@ -27,10 +27,11 @@ particolarita' specifiche di ogni distribuzione basata su pacchetti rpm.
 esterni per ricavare in modo semplice informazioni su un qualsiasi specfile dato in input.
 
 .SH FILE DI CONFIGURAZIONE
-@package@ legge all'avvio in primo luogo il file globale \fI@sysconfdir@/@pck_conf@\fR
-e quindi i file privati dell'utente: \fI~/.@package@\fR e/o \fI~/.@package@.d/*.conf\fR.
-E' buona norma non modificare direttamente il file globale.
-Utilizzare i file privati per tale scopo.
+@package@ legge all'avvio in primo luogo i file globali \fI@sysconfdir@/@package@.conf\fR
+e \fI@sysconfdir@/@package@.d/*.conf\fR e quindi i file privati dell'utente:
+\fI~/.@package@\fR e/o \fI~/.@package@.d/*.conf\fR.
+E' buona norma non modificare direttamente i file globali.
+Utilizzare i file privati per ridefinire variabili oppure modularizzare la configurazione.
 
 .SH SINTASSI
 @package@ e' lo script principale ed ha funzione di frontend per una serie di script e
@@ -178,6 +179,9 @@ crea soltanto il pacchetto srpm (azione 5)
 .br
 non effettua l'upload dei pacchetti rpm (azione 10)
 .TP
+\fB\-\-list-check\fR
+esegue un controllo dei file non pacchettizzati (azione 5)
+.TP
 \fB\-c\fR, \fB\-\-clear\fR
 rimuove tutti i file temporanei
 .TP
@@ -294,9 +298,6 @@ Silvan Calarco <silvan.calarco@mambasoft.it>
 Diverse patch, attivita' diffusa di beta testing.
 Codice per la generazione automatica della lista dei build requirements.
 Mofiche per permettere l'utilizzo di autospec in multi-architettura.
-
-.SH VEDERE ANCHE
-file:///usr/share/doc/@package@-@version@/@package@-it-HOWTO
 
 .SH "BACHI"
 Inviare patch, segnalazioni di bachi, richieste di funzionalita' a <davide.madrisan@gmail.com>.
