@@ -3,6 +3,7 @@
 *********************************
 
 * pck-update plugin
+ [bug]      the option --ignore-test does not work
  [security] evaluation of `%define' directives could lead to security issues
             (the problem exists in the rpm itself)
  [bug]      '/usr/share/linuxdoc-tools/dist/linuxdoc-tools/info/mapping'
