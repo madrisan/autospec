@@ -185,7 +185,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
 - new subpackages %{name}-config-openmamba and %{name}-templates-openmamba
-- requires bash
+- require bash
 
 * Mon May 01 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.10.0-1mamba
 - update to 1.10.0
