@@ -168,6 +168,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/lib*.mo
 
 %files templates-openmamba
+%defattr(-,root,root)
 %{_datadir}/%{name}/templates
 
 %files tests
