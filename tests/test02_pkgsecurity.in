@@ -19,7 +19,7 @@ TEXTDOMAIN="test02_pkgsecurity"; export TEXTDOMAIN
 
 function alltests() {
    # FIXME: add to 'po' file
-   notify.note " * ${NOTE}"$"performing security checks""${NORM}""..."
+   notify.note " ${NOTE}"$"performing security checks""${NORM}""..."
 
    TEMP=`LC_ALL=C getopt \
       -o i:t: --long infofile:,tmpdir: \
@@ -70,8 +70,8 @@ function alltests() {
 
    local total_issues=0
 
-   notify.note \
-"   * ${NOTE}"$"checking for RPATH vulnerabilities""${NORM}..."
+   notify.note "$(test_number_str). ${NOTE}"\
+$"checking for RPATH vulnerabilities""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
@@ -92,9 +92,10 @@ function alltests() {
       popd >/dev/null
       let "i += 1"
    done
+   test_number=$(($test_number + 1))
 
-   notify.note \
-"   * ${NOTE}"$"checking for setuid binaries""${NORM}..."
+   notify.note "$(test_number_str). ${NOTE}"\
+$"checking for setuid binaries""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
@@ -108,9 +109,10 @@ function alltests() {
       popd >/dev/null
       let "i += 1"
    done
+   test_number=$(($test_number + 1))
 
-   notify.note \
-"   * ${NOTE}"$"checking for setgid directories""${NORM}..."
+   notify.note "$(test_number_str). ${NOTE}"\
+$"checking for setgid directories""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
@@ -122,10 +124,11 @@ function alltests() {
       popd >/dev/null
       let "i += 1"
    done
+   test_number=$(($test_number + 1))
 
    # checking for unsecure use of $$ as random source in shell scripts
-   notify.note "   * ${NOTE}"$"\
-checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
+   notify.note "$(test_number_str). ${NOTE}"\
+$"checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
 
    vulnerable=0
    let "i = 0"
@@ -163,8 +166,10 @@ ${NOTE}"$"Hint for perl scripts"":${NORM}
    use File::Temp qw/ tempfile /;
    (\$fh,\$file) = tempfile ('<script_name>.XXXXXX');
 -----------------------------"
+   test_number=$(($test_number + 1))
 
-   notify.note "\
+   notify.note "
  --> ${NOTE}"$"Security checks: ${#rpmpkg_name[@]} \
-package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}"
+package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}""
+"
 }

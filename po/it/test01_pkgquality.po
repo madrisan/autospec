@@ -55,6 +55,12 @@ msgstr "controllo"
 msgid "checking for \\`$SPEC_BUILDROOT' (%buildroot) strings"
 msgstr "ricerca della stringa \\`$SPEC_BUILDROOT' (%buildroot)"
 
+msgid "checking for %buildroot strings"
+msgstr "ricerca delle stringhe %buildroot"
+
+msgid "N/A"
+msgstr "N/A"
+
 msgid "skipped"
 msgstr "ignorato"
 

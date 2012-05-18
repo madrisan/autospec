@@ -57,6 +57,10 @@ Changes in version 1.12.0
     Remove the partially obsolete document `autospec-it-HOWTO'.
     Update/improve the italian manpage by merging part of the italian HOWTO.
 
++ update
+  * tests/test01_pkgquality, ests/test02_pkgsecurity - Davide Madrisan:
+    Rework output by adding the numbering of tests.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

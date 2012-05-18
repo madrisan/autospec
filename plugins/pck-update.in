@@ -2663,7 +2663,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/noarch/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
-               notify.note " $pcknew_name"
+               notify.note " * $pcknew_name"
             else
                pcknew_name="\
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
@@ -2754,6 +2754,12 @@ can't create temporary directory"": $tmpextractdir/$i"
          [ -d "$testdir" ] ||
             notify.error $"no such file or directory"": \`$testdir'"
 
+         function test_number_str() {
+            [ $test_number -le 9 ] &&
+               echo "   $test_number" || echo "  $test_number"
+         }
+
+         local test_number=1
          for fname in $testdir/*; do
             notify.debug "$FUNCNAME: running test: \`$fname'"
             ( . $fname
