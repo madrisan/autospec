@@ -52,9 +52,10 @@ Changes in version 1.12.0
   * pck-update - Davide Madrisan:
     Update help message.
 
++ improvement
   * documentation - Davide Madrisan:
-    Updated the italian man page.
-    Remove the document `autospec-it-HOWTO'.
+    Remove the partially obsolete document `autospec-it-HOWTO'.
+    Update/improve the italian manpage by merging part of the italian HOWTO.
 
 -------------------------------------------------------------------------------
 

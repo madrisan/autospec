@@ -135,7 +135,6 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %lang(it) %{_mandir}/it/man1/%{name}.*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/autospec_fe.mo
 %doc AUTHORS BUGS ChangeLog COPYING NEWS TODO
-%doc %{name}-it-HOWTO
 
 %files plugins
 %defattr(-,root,root)
@@ -183,6 +182,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %changelog
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
+- new subpackages %{name}-config-openmamba and %{name}-templates-openmamba
 
 * Mon May 01 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.10.0-1mamba
 - update to 1.10.0
