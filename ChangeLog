@@ -84,6 +84,11 @@ Changes in version 1.12.0
   * BUGS - Davide Madrisan:
     The option '--ignore-test' works again. Remove the corresponding line.
 
++ update
+  * New test file 'test00_specsyntax'.
+    Move code to check specfiles from 'pck-update' (action 4) to the test file
+    'test00_specsyntax'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

@@ -119,18 +119,24 @@ function test.num2str() {
 function test.runall() {
    local ARGS
    ARGS=`LC_ALL=C getopt \
-      -o d: --long testdir: \
+      -o s:p --long specfile:,packages \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
-   local testdir
+   local specfile
+   local test_specfile=0
+   local test_packages=0
 
    eval set -- "$ARGS"
    while :; do
       case "$1" in
-      -d|--testdir)
-         testdir="$2"
+      -s|--specfile)
+         test_specfile=1
+         specfile="$2"
          shift
+      ;;
+      -p|--packages)
+         test_packages=1
       ;;
       --) shift; break ;;
       *) notify.error $"\
@@ -147,7 +153,15 @@ function test.runall() {
    local test_number=1
    local fname
 
-   for fname in $testdir/*; do
+   [ $test_specfile -gt 0 ] &&
+   for fname in $testdir/test*_spec*; do
+      notify.debug "$FUNCNAME: running test: \`$fname'"
+      . $fname
+      specfile.checksyntax "$specfile"
+   done
+
+   [ $test_packages -gt 0 ] &&
+   for fname in $testdir/test*_pkg*; do
       notify.debug "$FUNCNAME: running test: \`$fname'"
       . $fname
       alltests --infofile "$tmpextractdir/rpmpkg.info" \
