@@ -64,6 +64,9 @@ Changes in version 1.12.0
   * tests/test01_pkgquality, ests/test02_pkgsecurity - Davide Madrisan:
     Rework output by adding the numbering of tests.
 
+  * pck-update - Davide Madrisan:
+    Do not reinitialize the tests counter before executing a new test battery.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

@@ -2759,13 +2759,13 @@ can't create temporary directory"": $tmpextractdir/$i"
                echo "   $test_number" || echo "  $test_number"
          }
 
-         local test_number=1
-         for fname in $testdir/*; do
-            notify.debug "$FUNCNAME: running test: \`$fname'"
-            ( . $fname
+         ( local test_number=1
+           for fname in $testdir/*; do
+              notify.debug "$FUNCNAME: running test: \`$fname'"
+              . $fname
               alltests --infofile "$tmpextractdir/rpmpkg.info" \
-                 --tmpdir "$tmpextractdir" )
-         done
+                 --tmpdir "$tmpextractdir"
+           done )
 
          # temporary files cleanup
          rm -fr $tmpextractdir
