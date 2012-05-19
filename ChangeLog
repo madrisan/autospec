@@ -80,6 +80,10 @@ Changes in version 1.12.0
   * i18n - Davide Madrisan:
     Updated. Add a .po file for libtest.lib.
 
++ update
+  * BUGS - Davide Madrisan:
+    The option '--ignore-test' works again. Remove the corresponding line.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
