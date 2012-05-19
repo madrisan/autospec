@@ -69,7 +69,9 @@ function alltests() {
    #  - symlinks to files in the buildroot directory for rpm
    #    (usable for a symlink attacks)
    #  - symlinks not pointing to existing files
-   notify.note "$(test_number_str). ${NOTE}"\
+   
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for wrong symbolic links""${NORM}..."
 
    # local rpmbuildroot=`sed -n "/%description/q;{
@@ -107,21 +109,24 @@ wrong symlink"": \`${NOTE}${f/./}${NORM}' --> \`${NOTE}$(readlink $f)${NORM}'"
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check for `%buildroot' strings
+   test.skip $test_number || {
    if [ "$rpm_ignores_buildroot" = 1 ]; then
-      [ "$SPEC_BUILDROOT" ] &&
+      if [ "$SPEC_BUILDROOT" ]; then
          notify.note \
-"$(test_number_str). ${NOTE}"\
+"$(test.num2str). ${NOTE}"\
 $"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"\
-"${NORM}... "$"skipped" ||
+"${NORM}... "$"skipped"
+      else
          notify.note \
-"$(test_number_str). ${NOTE}"\
+"$(test.num2str). ${NOTE}"\
 $"checking for %buildroot strings""${NORM}... "$"N/A"
+      fi
    else
-      notify.note "$(test_number_str). "\
+      notify.note "$(test.num2str). "\
 $"checking for \`$SPEC_BUILDROOT' (%buildroot) strings"
 
       [ "$SPEC_BUILDROOT" ] || notify.error \
@@ -143,12 +148,13 @@ sed "s,$SPEC_BUILDROOT\(.*\),    - [%buildroot]\1,")"
          popd >/dev/null
          let "i += 1"
       done
-   fi
+   fi; }
    test_number=$(($test_number + 1))
 
    # check for `%_builddir' strings
    BUILDDIR="$(rpm --eval=%_builddir 2>/dev/null)"
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for \`$BUILDDIR' (%_builddir) strings""${NORM}... "
 
    [ "$BUILDDIR" ] ||
@@ -169,13 +175,14 @@ sed "s,$BUILDDIR,[%_builddir],g;s,.*,    - &,")"
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check for suspected plugins (.la, .so) in devel packages
    # note: pure plugins must be in the main package, not in devel
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking for suspicious plugins in devel packages""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking for suspicious plugins in devel packages""${NORM}..."
 
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
@@ -193,12 +200,13 @@ grep ' shared object,' | sed -n 's/.\(.*\):.*/\1/p'`; do
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check for wrong file attributes in lib and bin dirs
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking for wrong file attributes in bin and lib directories""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking for wrong file attributes in bin and lib directories""${NORM}..."
 
    warning=0
    let "i = 0"
@@ -231,12 +239,13 @@ ${NOTE}"$"Hint"":${NORM}
    %defattr(-,root,root)
    ...
    %attr(0755,root,root) %{_bindir}/<program>
------------------------------"
+-----------------------------"; }
    test_number=$(($test_number + 1))
 
    # check for libraries with undefined symbols
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking for libraries with undefined symbols after relocation""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking for libraries with undefined symbols after relocation""${NORM}..."
 
    let "i = 0"
    local undefsyms
@@ -261,12 +270,13 @@ $(LC_ALL=C ldd -d -r "$f" 2>/dev/null |& grep "undefined symbol")"
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check for binary files in etc (see FHS-2.2)
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking for binary files installed in /etc (see FHS)""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking for binary files installed in /etc (see FHS)""${NORM}..."
 
    warning=0
    let "i = 0"
@@ -292,12 +302,13 @@ ${NOTE}"$"Hint"":${NORM}
    %defattr(-,root,root)
    ...
    %attr(0644,root,root) %{_sysconfdir}/<...file>
------------------------------" #|| exit 1
+-----------------------------"; } #|| exit 1
    test_number=$(($test_number + 1))
 
    # check for installation code needed by info pages
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking if the info catalog is updated when necessary""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking if the info catalog is updated when necessary""${NORM}..."
 
    error=0
    let "i = 0"
@@ -338,12 +349,13 @@ $([[ "$rpm_macro_uninstallinfo" ]] &&
 exit 0
 ---------------------------------------"
          let "total_issues += $error"; }
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check packages for wrong user and/or group ownerships
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking packages for wrong user and/or group ownerships""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking packages for wrong user and/or group ownerships""${NORM}..."
 
    error=0
    idun="$(id -un)" idgn="$(id -gn)"
@@ -363,12 +375,13 @@ package not found"": \`${pck##*/}'"
               let "total_issues += 1"
            fi
         done )
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # check for desktop files installed in non standard applnk dir
-   notify.note "$(test_number_str). ${NOTE}"$"\
-checking packages for desktop files installed in the applnk dir""${NORM}..."
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"checking packages for desktop files installed in the applnk dir""${NORM}..."
 
    warning=0
    rpmdatadir=$(rpm --eval %_datadir 2>/dev/null)
@@ -393,11 +406,12 @@ checking packages for desktop files installed in the applnk dir""${NORM}..."
 ${NOTE}"$"Hint"":${NORM}
    "$"create desktop files for:"" ${rpmdatadir}/applications
    "$"see:"" <http://www.freedesktop.org/>
------------------------------"
+-----------------------------"; }
    test_number=$(($test_number + 1))
 
    # check if a package that do not contains binaries is tagged noarch
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for packages with bad BuildArch tag""${NORM}..."
 
    warning=0
@@ -421,7 +435,7 @@ ${NOTE}"$"Hint"":${NORM}
 BuildArch:     noarch
 -----------------------------"
          let "total_issues += 1"; }
-   fi
+   fi; }
    test_number=$(($test_number + 1))
 
    notify.note "

@@ -1,5 +1,5 @@
 # Makefile for autospec
-# Copyright (C) 2008,2010 by Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2010,2012 by Davide Madrisan <davide.madrisan@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
@@ -18,7 +18,8 @@ srcdir = ..
 
 include $(srcdir)/Makefile.env
 
-pck_libs := libapse.lib libcfg.lib libmsgmng.lib libnetwork.lib libspec.lib README.API
+pck_libs := libapse.lib libcfg.lib libmsgmng.lib libnetwork.lib libspec.lib \
+            libtest.lib README.API
 pck_libs_infiles := $(wildcard *.in)
 
 all:

@@ -1,0 +1,156 @@
+#!/bin/bash
+# libtest.lib -- @package@ library used by the test framework
+# Copyright (C) 2012 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
+ { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
+
+me=(${0##*/} "@version@" "@date@")
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="libtest"; export TEXTDOMAIN
+
+[ -n "$testdir" ] ||
+   notify.error "\`testdir': "$"unset in the configuration files"
+[ -d "$testdir" ] ||
+   notify.error $"no such file or directory"": \`$testdir'"
+
+# do parse the list of skipped test to set 'ignore_test_list_value[]'
+ignore_test_list_value=()
+OIFS="$IFS"; IFS=','
+for token in $ignore_test_list; do
+   IFS='='; set -- $token
+   ignore_test_list_value[${#ignore_test_list_value[*]}]="$1";
+   IFS=','
+done
+IFS="$OIFS"
+notify.debug "ignore_test_list_value = (${ignore_test_list_value[*]})"
+
+# function test.rpms_extract()
+#     extract the files contained in all the rpm archives build by
+#     by a single specfile
+# args:
+#     -i|--infofile  the file containing infos about packages to extract
+#     -t|--tmpdir    the directory where the files will be extracted to
+function test.rpms_extract() {
+   local rpminfofile tmpextractdir
+   TEMP=`LC_ALL=C getopt \
+      -o i:t: --long infofile:,tmpdir: -n "$FUNCNAME" -- "$@"`
+   [[ $? = 0 ]] || return 1
+   eval set -- "$TEMP"
+
+   while :; do
+      case "$1" in
+      -i|--infofile)
+         rpminfofile="$2"
+         shift
+      ;;
+      -t|--tmpdir)
+         tmpextractdir="$2"
+         shift
+      ;;
+      --) shift; break ;;
+       *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
+      esac
+      shift
+   done
+
+   [ "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--infofile)"
+   [ -r "$rpminfofile" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"cannot read"" \`$rpminfofile'"
+
+   [ "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--tmpdir)"
+   [ -d "$tmpextractdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"no such file or directory"" \`$tmpextractdir'"
+
+   . $rpminfofile
+
+   local i=0
+   for pck in ${rpmpkg_name[@]}; do
+      [[ -e "$pck" ]] || notify.error $"package not found"": \`$pck'"
+
+      mkdir -p $tmpextractdir/$i 2>/dev/null
+      [ $? -eq 0 ] || notify.error $"\
+can't create temporary directory"": $tmpextractdir/$i"
+
+      pushd $tmpextractdir/$i >/dev/null
+      rpm2cpio $pck > rpm_extract_tmp.cpio
+      [ $? -eq 0 ] ||
+         notify --error $"cannot extract files from rpm archive"
+
+      cpio --quiet --extract --make-directories < rpm_extract_tmp.cpio
+      [ $? -eq 0 ] ||
+         notify --error $"cannot extract files from cpio archive"
+
+      rm -f rpm_extract_tmp.cpio
+      popd >/dev/null
+      let "i += 1"
+   done
+}
+
+function test.skip() {
+   local test n found
+
+   test="$1"
+   let "found = 0"
+
+   for n in ${ignore_test_list_value[*]}; do
+      [ "$n" = "$test" ] && let "found = 1"
+   done
+
+   return $((!$found))
+}
+
+function test.num2str() {
+   [ $test_number -le 9 ] && echo "   $test_number" || echo "  $test_number"
+}
+
+function test.runall() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt \
+      -o d: --long testdir: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local testdir
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -d|--testdir)
+         testdir="$2"
+         shift
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   [ -n "$testdir" ] ||
+      notify.error "\`testdir': "$"unset in the configuration files"
+   [ -d "$testdir" ] ||
+      notify.error $"no such file or directory"": \`$testdir'"
+
+   local test_number=1
+   local fname
+
+   for fname in $testdir/*; do
+      notify.debug "$FUNCNAME: running test: \`$fname'"
+      . $fname
+      alltests --infofile "$tmpextractdir/rpmpkg.info" \
+               --tmpdir "$tmpextractdir"
+   done
+}

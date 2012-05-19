@@ -67,6 +67,19 @@ Changes in version 1.12.0
   * pck-update - Davide Madrisan:
     Do not reinitialize the tests counter before executing a new test battery.
 
++ improvement
+  * lib/libtest.lib - Davide Madrisan:
+    New library containing the test framwork code and functions.
+
+  * lib/Makefile - Davide Madrisan:
+    Updated by adding the library libtest.lib.
+
+  * pck-update - Davide Madrisan:
+    Move code for test to the new library libtest.lib.
+
+  * i18n - Davide Madrisan:
+    Updated. Add a .po file for libtest.lib.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0

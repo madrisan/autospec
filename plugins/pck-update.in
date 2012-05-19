@@ -2629,8 +2629,6 @@ pck_newver = \"$pck_newver\", pck_newrel = \"$pck_newrel\""
          [[ "$pck_newver" != $SPEC_VERSION ]] &&
             notify.error $"release for new package required"
 
-         local i
-
          local pck_rpmversion
          # use the value provided by user via command line when available
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
@@ -2652,6 +2650,7 @@ pck_newver = \"$pck_newver\", pck_newrel = \"$pck_newrel\""
          #  - rpmpkg_name[] : name of the rpm packages
          #  - data saved in '$infofile'
 
+         local i
          local pcknew_name
          > $tmpextractdir/rpmpkg.info
          i=0
@@ -2677,95 +2676,17 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
             let "i += 1"
          done
 
-         # function rpms.extract()
-         #     extract the files contained in all the rpm archives build by
-         #     by a single specfile
-         # args:
-         #     -i|--infofile  the file containing infos about packages to extract
-         #     -t|--tmpdir    the directory where the files will be extracted to
-         function rpms.extract() {
-            local rpminfofile tmpextractdir
-            TEMP=`LC_ALL=C getopt \
-               -o i:t: --long infofile:,tmpdir: -n "$FUNCNAME" -- "$@"`
-            [[ $? = 0 ]] || return 1
-            eval set -- "$TEMP"
+         [ -r @libdir@/libtest.lib ] ||
+          { echo "$me: "$"library not found"": @libdir@/libtest.lib" 1>&2
+            exit 1; }
+         . @libdir@/libtest.lib
 
-            while :; do
-               case "$1" in
-               -i|--infofile)
-                  rpminfofile="$2"
-                  shift
-               ;;
-               -t|--tmpdir)
-                  tmpextractdir="$2"
-                  shift
-               ;;
-               --) shift; break ;;
-               *) notify.error $"\
-(bug)"" -- $FUNCNAME: "$"\`getopt' error" ;;
-               esac
-               shift
-            done
-
-            [ "$rpminfofile" ] || notify.error $"\
-(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--infofile)"
-            [ -r "$rpminfofile" ] || notify.error $"\
-(bug)"" -- $FUNCNAME: "$"cannot read"" \`$rpminfofile'"
-
-            [ "$tmpextractdir" ] || notify.error $"\
-(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--tmpdir)"
-            [ -d "$tmpextractdir" ] || notify.error $"\
-(bug)"" -- $FUNCNAME: "$"no such file or directory"" \`$tmpextractdir'"
-
-            . $rpminfofile
-
-            i=0
-            for pck in ${rpmpkg_name[@]}; do
-               [[ -e "$pck" ]] || notify.error $"\
-package not found"": \`$pck'"
-
-               mkdir -p $tmpextractdir/$i 2>/dev/null
-               [ $? -eq 0 ] || notify.error $"\
-can't create temporary directory"": $tmpextractdir/$i"
-
-               pushd $tmpextractdir/$i >/dev/null
-               rpm2cpio $pck > rpm_extract_tmp.cpio
-               [ $? -eq 0 ] ||
-                  notify --error $"cannot extract files from rpm archive"
-
-               cpio --quiet --extract --make-directories < rpm_extract_tmp.cpio
-               [ $? -eq 0 ] ||
-                   notify --error $"cannot extract files from cpio archive"
-
-               rm -f rpm_extract_tmp.cpio
-               popd >/dev/null
-               let "i += 1"
-            done
-         }
-
-         rpms.extract \
+         test.rpms_extract \
             --infofile "$tmpextractdir/rpmpkg.info" \
             --tmpdir "$tmpextractdir" || exit 1
 
          # execute all the available tests...
-
-         [ -n "$testdir" ] ||
-            notify.error "\`testdir': "$"unset in the configuration files"
-         [ -d "$testdir" ] ||
-            notify.error $"no such file or directory"": \`$testdir'"
-
-         function test_number_str() {
-            [ $test_number -le 9 ] &&
-               echo "   $test_number" || echo "  $test_number"
-         }
-
-         ( local test_number=1
-           for fname in $testdir/*; do
-              notify.debug "$FUNCNAME: running test: \`$fname'"
-              . $fname
-              alltests --infofile "$tmpextractdir/rpmpkg.info" \
-                 --tmpdir "$tmpextractdir"
-           done )
+         test.runall --testdir "$testdir"
 
          # temporary files cleanup
          rm -fr $tmpextractdir

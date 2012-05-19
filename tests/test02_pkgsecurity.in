@@ -70,7 +70,8 @@ function alltests() {
 
    local total_issues=0
 
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for RPATH vulnerabilities""${NORM}..."
 
    let "i = 0"
@@ -91,10 +92,11 @@ $"checking for RPATH vulnerabilities""${NORM}..."
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for setuid binaries""${NORM}..."
 
    let "i = 0"
@@ -108,10 +110,11 @@ $"checking for setuid binaries""${NORM}..."
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for setgid directories""${NORM}..."
 
    let "i = 0"
@@ -123,11 +126,12 @@ $"checking for setgid directories""${NORM}..."
       done
       popd >/dev/null
       let "i += 1"
-   done
+   done; }
    test_number=$(($test_number + 1))
 
    # checking for unsecure use of $$ as random source in shell scripts
-   notify.note "$(test_number_str). ${NOTE}"\
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
 $"checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
 
    vulnerable=0
@@ -165,7 +169,7 @@ ${NOTE}"$"Hint for bash scripts (\`mktemp' required)"":${NORM}
 ${NOTE}"$"Hint for perl scripts"":${NORM}
    use File::Temp qw/ tempfile /;
    (\$fh,\$file) = tempfile ('<script_name>.XXXXXX');
------------------------------"
+-----------------------------"; }
    test_number=$(($test_number + 1))
 
    notify.note "
