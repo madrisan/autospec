@@ -25,7 +25,6 @@ for tool in cat chmod cpio date file find fold ftp getopt grep \
 done
 
 function alltests() {
-   # FIXME: add to 'po' file
    notify.note " ${NOTE}"$"performing quality checks""${NORM}""..."
 
    TEMP=`LC_ALL=C getopt \

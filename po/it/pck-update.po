@@ -531,3 +531,8 @@ msgstr "specfile con fine linea CR"
 msgid "specfile with an unsupported format"
 msgstr "specfile in formato non supportato"
 
+msgid "checking the specfile for common mistakes"
+msgstr "controllo dello specfile alla ricerca di comuni errori"
+
+msgid "checking packages for common mistakes"
+msgstr "controllo dei pacchetti alla ricerca di comuni errori"

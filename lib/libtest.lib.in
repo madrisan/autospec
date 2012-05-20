@@ -78,7 +78,9 @@ function test.rpms_extract() {
 
    local i=0
    for pck in ${rpmpkg_name[@]}; do
-      [[ -e "$pck" ]] || notify.error $"package not found"": \`$pck'"
+      [[ -e "$pck" ]] &&
+         notify.note " * $pck" ||
+         notify.error $"package not found"": \`$pck'"
 
       mkdir -p $tmpextractdir/$i 2>/dev/null
       [ $? -eq 0 ] || notify.error $"\

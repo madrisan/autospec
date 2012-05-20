@@ -2343,7 +2343,6 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/noarch/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
-               notify.note " * $pcknew_name"
             else
                pcknew_name="\
 $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
@@ -2351,7 +2350,6 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/$target_cpu/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
-               notify.note " $pcknew_name"
             fi
             notify.debug "$FUNCNAME: pcknew_name[$i] = $pcknew_name"
             let "i += 1"
@@ -2362,11 +2360,17 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
             exit 1; }
          . @libdir@/libtest.lib
 
+         # execute all the available tests...
+
+         notify.note " ${NOTE}"\
+$"checking the specfile for common mistakes""${NORM}""..."
+         test.runall --specfile="$SRPM_SPECFILE_WITH_PATH"
+
+         notify.note " ${NOTE}"\
+$"checking packages for common mistakes""${NORM}""..."
          test.rpms_extract \
             --infofile "$tmpextractdir/rpmpkg.info" \
             --tmpdir "$tmpextractdir" || exit 1
-
-         # execute all the available tests...
          test.runall --packages
 
          # temporary files cleanup

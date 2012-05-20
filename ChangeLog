@@ -85,9 +85,14 @@ Changes in version 1.12.0
     The option '--ignore-test' works again. Remove the corresponding line.
 
 + update
-  * New test file 'test00_specsyntax'.
+  * test/test00_specsyntax - Davide Madrisan:
+    New test file 'test00_specsyntax'.
     Move code to check specfiles from 'pck-update' (action 4) to the test file
     'test00_specsyntax'.
+
++ improvement
+  * test/test00_specsyntax, pck-update, lib/libtest.lib - Davide Madrisan:
+    Unify the output of all the modules' test.
 
 -------------------------------------------------------------------------------
 
