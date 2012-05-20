@@ -1,0 +1,310 @@
+#!/bin/bash
+# test00_specsyntax -- @package@ test (syntax checks of a specfile)
+# Copyright (C) 2012 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+   echo $"this script requires bash version 2 or better" >&2 && exit 1
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+
+. @libdir@/libmsgmng.lib
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="test00_specsyntax"; export TEXTDOMAIN
+
+# function specfile.checksyntax()
+#    do some syntax checks in the specfile of the building package
+# args:
+#    $1 : specfile name
+#    $2, ... : execute these check numbers (optional, default = all checks)
+function specfile.checksyntax() {
+   local i rpmvar specfile="$1"
+
+   [[ "$specfile" ]] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+   notify.debug "$FUNCNAME: specfile = \"$specfile\""
+
+   notify.note " * $specfile"
+
+   local total_issues=0
+
+   # 1. checking if 'Source[0]' is a valid internet address
+   # (skip this test if no '%setup' section has been found)
+   test.skip $test_number || {
+   grep -q "^%setup[ \t]*$\|^%setup[ \t]\+" $specfile
+   if [ $? -eq 0 ]; then
+      notify.note "$(test.num2str). ${NOTE}"\
+"source0""${NORM}..."
+      if [[ "$source0_name_structure" ]]; then
+         specfile.getvars -s $specfile --verbatim SPEC_SOURCE0
+         if [[ "$SPEC_SOURCE0_VERBATIM" ]]; then
+            [[ "$(echo "$SPEC_SOURCE0_VERBATIM" | \
+               grep -e "$source0_name_structure")" ]] ||
+                { notify.warning "\
+\`Source[0]': "$"does not point to a valid internet address"
+                  let "total_issues += 1"; }
+         fi
+      fi
+   fi; }
+   test_number=$(($test_number + 1))
+
+   # 2. check if the patches have standard names
+   # (see the 'patch_name_structure' var in the configure file)
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"patch""${NORM}..."
+
+   specfile.getvars -s $specfile --verbatim SPEC_PATCH
+   echo "${SPEC_PATCH_VERBATIM[@]}" | \
+   for i in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
+      [[ "${SPEC_PATCH_VERBATIM[$i-1]}" =~ \
+          $patch_name_structure ]] ||
+       { notify.warning "\
+patch $i (\`${NOTE}${SPEC_PATCH_VERBATIM[$i-1]}${NORM}') "
+         notify.warning $"\
+not a standard structure (see config file)";
+         let "total_issues += 1"; }
+   done; }
+   test_number=$(($test_number + 1))
+
+   # 3. check if `%setup' have `-D' and/or `-T' options
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"%setup""${NORM}..."
+
+   [[ "$(cat $specfile | \
+      sed -n "/%setup/{/-D /p;/-T /p;/-D$/p;/-T$/p}")" ]] &&
+       { notify.warning $"\
+found \`-D' and/or \`-T' option(s) in the \`%setup' directive"
+         let "total_issues += 1"; }
+   }
+   test_number=$(($test_number + 1))
+
+   # 4. check if all the `%files' blocks have a `%defattr' line
+   #    note: skip commented out blocks
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"%defattr""${NORM}..."
+   [[ "$(sed -e '
+            # print paragraph if it contains "%files" and "%defattr"
+            /./{H;$!d;}' -e 'x;/%files/!d;/%defattr/!d' $specfile | \
+         grep "^[[:space:]]*%files")" != \
+      "$(grep "^[[:space:]]*%files" $specfile)" ]] &&
+    { notify.error $"\
+missing at least one \`%defattr' directive"
+      let "total_issues += 1"; }
+   }
+   test_number=$(($test_number + 1))
+
+   # 5. check if the rpm macros %configure, %make are used
+   # - look in the block : `%build' to `%install'
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"%build, %install""${NORM}..."
+
+   local token tokens
+   sed -n '/%build/,/%install/p' $specfile | \
+   while read -a tokens; do
+      # ignore comments
+      [[ "${tokens[0]}" =~ ^\# ]] && continue
+      for token in ${tokens[*]}; do
+         case "$token" in
+         configure|./configure)
+            [[ "$rpm_macro_configure" ]] &&
+             { notify.warning $"\
+use rpm macros if possible:"" \`$token' --> \`$rpm_macro_configure'"
+               let "total_issues += 1"; }
+         ;;
+         make)
+            [[ "$rpm_macro_make" ]] &&
+             { notify.warning \
+$"use rpm macros if possible:""${NORM}
+   $token --> $rpm_macro_make"
+               let "total_issues += 1"; }
+         ;;
+         esac
+      done
+   done
+
+   # do check between`%install' and `%changelog'
+   sed -n '/%install/,/%changelog/p' $specfile | \
+   while read -a tokens; do
+      # ignore comments
+      [[ "${tokens[0]}" =~ ^\# ]] && continue
+      for token in ${tokens[*]}; do
+         case "$token" in
+         "make")
+            [[ "$rpm_macro_make" ]] &&
+             { notify.warning \
+$"use rpm macros if possible:""${NORM}
+$([[ "$rpm_macro_makeinstall" ]] &&
+     echo "   make install -> $rpm_macro_makeinstall"
+  [[ "$rpm_macro_makeoldinstall" ]] &&
+     echo "   make install -> $rpm_macro_makeoldinstall" )"
+             } ;;
+         esac
+      done
+   done; }
+   test_number=$(($test_number + 1))
+
+   # 6. check if '%find_lang' is used when localization files are detected
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"%find_lang""${NORM}..."
+
+   # FIXME : the test should perhaps be improved...
+   grep -q "^[ ]*[^# ]*/share/locale/" $specfile &&
+    { notify.error $"\
+"$"localization files must be packaged via \`%find_lang'""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}
+%install
+...
+%find_lang %{name}
+
+%files -f %{name}.lang
+---------------------------------------
+"
+      let "total_issues += 1"; }
+   }
+   test_number=$(($test_number + 1))
+
+   # 7. check if the install/uninstall code is present
+   test.skip $test_number || {
+   notify.note "$(test.num2str). ${NOTE}"\
+$"info pages""${NORM}..."
+
+   local infopages errors
+   # FIXME: non LSB compliant systems are unsupported
+   infopages="$(\
+grep "/share/info/\|^[ ]*%_infodir\|^[ ]*%{_infodir}" $specfile | \
+grep -v "^[ ]*#\|^[a-zA-Z]")"
+
+   if [[ "$infopages" ]]; then
+      let "errors = 0"
+      if [ "$rpm_macro_installinfo" ]; then
+         grep -q "$rpm_macro_installinfo" $specfile ||
+          { let "errors += 1"
+            notify.debug "rpm_macro_installinfo check failed"; }
+      fi
+      if [ "$rpm_macro_uninstallinfo" ]; then
+         grep -q "$rpm_macro_uninstallinfoo" $specfile ||
+          { let "errors += 1"
+            notify.debug "rpm_macro_uninstallinfo check failed"; }
+      fi
+      if [ "$rpm_macro_installinfo_binary" ]; then
+         grep -q "\
+Requires(post)[ \t]*:[ \t]*${rpm_macro_installinfo_binary}" $specfile ||
+          { let "errors += 1"
+            notify.debug "rpm_macro_installinfo_binary check failed"; }
+      fi
+
+      [ "$errors" = "0" ] || 
+       { notify.error "\
+"$"info pages are not installed/uninstalled in the correct way""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}
+$([[ "$rpm_macro_installinfo_binary" ]] &&
+   echo "Requires(post): $rpm_macro_installinfo_binary" ||
+   echo "Requires(post): ${path_installinfo:-/sbin/install-info}")
+
+%post [<subpackage>]
+$([[ "$rpm_macro_installinfo" ]] &&
+   echo "$rpm_macro_installinfo %{name}.info" ||
+   echo "${path_installinfo:-/sbin/install-info} %{name}.info")
+
+%preun [<subpackage>]
+$([[ "$rpm_macro_uninstallinfo" ]] &&
+   echo "$rpm_macro_uninstallinfo %{name}.info" ||
+   echo "${path_installinfo:-/sbin/install-info} --delete %{name}.info")
+exit 0
+---------------------------------------
+"
+         let "total_issues += $errors"; }
+   fi; }
+   test_number=$(($test_number + 1))
+
+   # 8. check for illegal 'Group's (see configuration file)
+   test.skip $test_number || {
+   if [ "${#rpm_allowed_groups[*]}" = 0 ]; then
+      # 'rpm_allowed_groups' unset in the configuration files
+      notify.note "$(test.num2str). ${NOTE}"\
+$"package Groups""${NORM}..."" "$"skipped"
+   else
+      notify.note "$(test.num2str). ${NOTE}"\
+$"package Groups""${NORM}..."
+
+      local i j match
+      for j in `seq 1 1 ${#SPEC_GROUP[*]}`; do
+         notify.debug "\
+$FUNCNAME: checking if \"${SPEC_GROUP[$j-1]}\" is a known group ..."
+         let "match = 0"
+         for i in `seq 1 1 ${#rpm_allowed_groups[*]}`; do
+            notify.debug "\
+$FUNCNAME: current group: \"${rpm_allowed_groups[$i-1]}\""
+            [ "${rpm_allowed_groups[$i-1]}" = \
+              "${SPEC_GROUP[$j-1]}" ] &&
+             { let "match = 1"; break; }
+         done
+         [ "$match" = 1 ] ||
+          { notify.error "\
+"$"invalid \`Group'"" \"${SPEC_GROUP[$j-1]}\"""${NORM}
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}""
+"$"see configuration files"" (\`${NOTE}rpm_allowed_groups${NORM}')
+"$"or enter the command"":
+${NOTE}@package@ --eval=rpm_allowed_groups${NORM}
+---------------------------------------
+"
+            let "total_issues += 1"; }
+      done
+   fi; }
+   test_number=$(($test_number + 1))
+
+   # 9. check for no approved 'License's (see configuration file)
+   test.skip $test_number || {
+   if [ "${#rpm_approved_licenses[*]}" = 0 ]; then
+      # 'rpm_approved_licenses' unset in the configuration files
+      notify.note "$(test.num2str). ${NOTE}"\
+$"approved License""${NORM}..."" "$"skipped"
+   else
+      notify.note "$(test.num2str). ${NOTE}"\
+$"approved License""${NORM}..."
+      local i j match
+      for j in `seq 1 1 ${#SPEC_LICENSE[*]}`; do
+         notify.debug "\
+$FUNCNAME: checking if \"${SPEC_LICENSE[$j-1]}\" is an approved license ..."
+         let "match = 0"
+         for i in `seq 1 1 ${#rpm_approved_licenses[*]}`; do
+            notify.debug "\
+$FUNCNAME: current license: \"${rpm_approved_licenses[$i-1]}\""
+            [ "${rpm_approved_licenses[$i-1]}" = \
+              "${SPEC_LICENSE[$j-1]}" ] &&
+             { let "match = 1"; break; }
+         done
+         [ "$match" = 1 ] ||
+          { notify.warning "\
+"$"not approved \`License'"" \"${NOTE}${SPEC_LICENSE[$j-1]}${NORM}\"""
+---------------------------------------
+${NOTE}"$"Hint"":${NORM}""
+"$"see configuration files"" (\`${NOTE}rpm_approved_licenses${NORM}')
+"$"or enter the command"":
+${NOTE}@package@ --eval=rpm_approved_licenses${NORM}
+---------------------------------------
+"
+            let "total_issues += 1"; }
+      done
+   fi; }
+   test_number=$(($test_number + 1))
+
+   notify.note "
+ --> ${NOTE}"$"Specfile checks: ${WARN}$total_issues${NOTE} warning(s).""\
+${NORM}""
+"
+   return $total_issues
+}

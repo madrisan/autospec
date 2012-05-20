@@ -1,0 +1,76 @@
+# translation of it.po to Italiana
+# Copyright (C) 2012 Davide Madrisan
+# Davide Madrisan <davide.madrisan@gmail.com>
+
+msgid ""
+msgstr ""
+"Project-Id-Version: it\n"
+"POT-Creation-Date: 2012-05-19 22:14+0200\n"
+"PO-Revision-Date: 2012-05-19 22:14+0200\n"
+"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+"Language-Team: Italiana <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# lib/libtest
+
+msgid "check the specfile for common mistakes"
+msgstr "controllo dello specfile alla ricerca di comuni errori"
+
+msgid "missing mandatory arg"
+msgstr "parametro mancante"
+
+msgid "checking"
+msgstr "sto controllando"
+
+msgid "running test"
+msgstr "esecuzione test"
+
+msgid "does not point to a valid internet address"
+msgstr "non fa riferimento ad un indirizzo internet"
+
+msgid "not a standard structure (see config file)"
+msgstr "nome con struttura non standard (vedi configurazione)"
+
+msgid "found \\`-D' and/or \\`-T' option(s) in the \\`%setup' directive"
+msgstr "sospetta opzione \\`-D' e/o \\`-T' nella direttiva \\`%setup'"
+
+msgid "missing at least one \\`%defattr' directive"
+msgstr "manca almeno una direttiva \\`%defattr'"
+
+msgid "use rpm macros if possible:"
+msgstr "utilizzare le macro rpm quando possibile:"
+
+msgid "localization files must be packaged via \\`%find_lang'"
+msgstr "trovati file di localizzazione non gestiti da \\`%find_lang'"
+
+msgid "Hint"
+msgstr "Suggerimento"
+
+msgid "info pages"
+msgstr "pagine info"
+
+msgid "info pages are not installed/uninstalled in the correct way"
+msgstr "le pagine info non vengono installate/disinstallate correttamente"
+
+msgid "package Groups"
+msgstr "campi Group dei pacchetti"
+
+msgid "invalid \\`Group'"
+msgstr "\\`Group' non valido"
+
+msgid "see configuration files"
+msgstr "guarda nei file di configurazione"
+
+msgid "or enter the command"
+msgstr "oppure esegui il comando"
+
+msgid "approved License"
+msgstr "Licenza valida"
+
+msgid "not approved \\`License'"
+msgstr "\\`License' non approvata"
+
+msgid "Specfile checks: ${WARN}$total_issues${NOTE} warning(s)."
+msgstr "Controllo dello specfile: problemi riscontrati: ${WARN}$total_issues${NOTE}"
