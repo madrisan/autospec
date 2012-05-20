@@ -9,6 +9,9 @@ Changes in version 1.12.1
   * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
     Update 'source0_name_structure' to allow *.tar.xz archives.
 
+  * test/*, pck-update - Davide Madrisan:
+    Update/add the code to check for the required external tools.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.0

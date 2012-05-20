@@ -18,8 +18,7 @@ fi
 TEXTDOMAIN="test01_pkgquality"; export TEXTDOMAIN
 
 # check if all the needed tools are available
-for tool in cat chmod cpio date file find fold ftp getopt grep \
-   mktemp ldd objdump; do
+for tool in file find getopt grep ls ldd; do
    [ "$(type -p $tool)" ] ||
       notify.error $"utility not found"": \`$tool'"
 done

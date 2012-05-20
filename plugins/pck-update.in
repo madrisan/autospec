@@ -310,7 +310,7 @@ fi
 
 # check if all the needed tools are available
 for tool in cat chmod cpio date file find fold ftp getopt grep \
-   mktemp objdump readlink rpm rpmbuild rpm2cpio sed seq sort strings; do
+   mktemp readlink rpm rpmbuild rpm2cpio sed seq sort strings; do
    [ "$(type -p $tool)" ] ||
       notify.error $"utility not found"": \`$tool'"
 done

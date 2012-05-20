@@ -17,6 +17,12 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
 fi
 TEXTDOMAIN="test02_pkgsecurity"; export TEXTDOMAIN
 
+# check if all the needed tools are available
+for tool in file find getopt grep objdump sed; do
+   [ "$(type -p $tool)" ] ||
+      notify.error $"utility not found"": \`$tool'"
+done
+
 function alltests() {
    # FIXME: add to 'po' file
    notify.note " ${NOTE}"$"performing security checks""${NORM}""..."

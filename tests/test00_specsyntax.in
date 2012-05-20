@@ -17,6 +17,12 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
 fi
 TEXTDOMAIN="test00_specsyntax"; export TEXTDOMAIN
 
+# check if all the needed tools are available
+for tool in cat file getopt grep sed; do
+   [ "$(type -p $tool)" ] ||
+      notify.error $"utility not found"": \`$tool'"
+done
+
 # function specfile.checksyntax()
 #    do some syntax checks in the specfile of the building package
 # args:
