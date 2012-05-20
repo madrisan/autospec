@@ -5,6 +5,10 @@ Changes in version 1.12.1
   * pck-update - Davide Madrisan:
     Fix message to let work the italian translation.
 
++ update
+  * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
+    Update 'source0_name_structure' to allow *.tar.xz archives.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.0
