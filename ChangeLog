@@ -1,5 +1,5 @@
 Changes in version 1.12.0
---- Maj -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+Sun May 20 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * pck-update - Davide Madrisan:
@@ -7,7 +7,7 @@ Changes in version 1.12.0
     reports an error.
     (Bug reported by Silvan Calarco.)
 
-  * autospec.conf
+  * autospec.conf - Davide Madrisan:
     format_unpackaged_file_list: fix rpm variable expansion for /lib and
     /lib64.
     (As usual: bug reported by Silvan Calarco.)
@@ -33,7 +33,7 @@ Changes in version 1.12.0
 + bugfix
   * templates/{library,standard,standard-daemon} - Davide Madrisan:
     Missing requirement: "Requires(preun): %{__install_info}"
-    
+
 + improvement
   * tests/test01_pkgquality - Davide Madrisan:
     New test: check for libraries with undefined symbols after relocation.
@@ -97,7 +97,7 @@ Changes in version 1.12.0
 -------------------------------------------------------------------------------
 
 Changes in version 1.10.0
-Tue Maj 01 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+Tue May 01 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
   * spec-create - Davide Madrisan:

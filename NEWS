@@ -1,3 +1,74 @@
+List of user visible changes in the release 1.12.0
+
+-- Bug Fixes
+
+ * pck-update - Davide Madrisan:
+   Stop pck-update execution with an error code when 'specfile.newrelease()'
+   reports an error.
+   (Bug reported by Silvan Calarco.)
+
+ * autospec.conf - Davide Madrisan:
+   format_unpackaged_file_list: fix rpm variable expansion for /lib and
+   /lib64.
+   (As usual: bug reported by Silvan Calarco.)
+
+ * templates/{library,standard,standard-daemon} - Davide Madrisan:
+   Add the missing requirement: "Requires(preun): %{__install_info}"
+
+ * spec-create - Davide Madrisan:
+   Select makefile as build_techology when a makefile (downcase letters) or a
+   GNUmalefile is found, not only a Makefile (with a capital letter).
+   (Bug reported by Silvan Calarco.)
+
+ * pck-update - Davide Madrisan:
+   The option '--ignore-test' works now as expected.
+
+-- Update
+
+ * configuration files - Davide Madrisan:
+   autospec.conf has been splitted into several configuration files located
+   in the directory /etc/autospec.d/
+
+ * po/it/*.po - Davide Madrisan:
+   The italian translation files have been updated.
+
+ * tests/test01_pkgquality, tests/test02_pkgsecurity - Davide Madrisan:
+   Rework output by adding the numbering of tests.
+
+ * test/test00_specsyntax - Davide Madrisan:
+   New test file 'test00_specsyntax'.
+   Move code to check specfiles from 'pck-update' (action 4) to this new test
+   file.
+
+-- Improvement
+
+ * pck-update - Davide Madrisan:
+   Check specfiles for CR and CRLF line terminators.
+   They can mislead the specfile parser.
+   (Issue reported by Silvan Calarco.)
+
+ * tests/test01_pkgquality - Davide Madrisan:
+   New test: check for libraries with undefined symbols after relocation.
+
+ * lib/libtest.lib - Davide Madrisan:
+   New library containing the test framwork code and functions.
+
+ * test/test{00_specsyntax,01_pkgquality,02_pkgsecurity} - Davide Madrisan:
+   Unify the output of all the modules' test.
+
+-- Documentation
+
+ * TODO - Davide Madrisan:
+   Remove out of date stuff out of date stuff.
+
+ * autospec-it-HOWTO - Davide Madrisan:
+   Remove this document (mostly obsolete).
+
+ * italian manpage:
+   Update/improve the italian manpage by merging part of the italian HOWTO.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.10.0
 
 -- Improvement
@@ -330,15 +401,15 @@ List of user visible changes in the release 1.6.3
 
 -- Bug fixes
 
-  * libcfg.cfg - Davide Madrisan
-    Display a correct error message when the user configuration file is not
-    available.
+ * libcfg.cfg - Davide Madrisan
+   Display a correct error message when the user configuration file is not
+   available.
 
--- documentation
+-- Documentation
 
-  * italian manpage:
-    Document the new option '--force-download'.
-    Minor updates.
+ * italian manpage:
+   Document the new option '--force-download'.
+   Minor updates.
 
 -------------------------------------------------------------------------------
 
