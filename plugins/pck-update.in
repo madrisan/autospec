@@ -938,7 +938,7 @@ cannot find a matching SRPM package in the given repositories"
 $"Repository"" : ${NOTE}(#$(($i-1))) ${got_SPEC_FILENAME_URL}${NORM}"
                   for j in `seq 1 1 ${#got_SPEC_FILENAME[*]}`; do
                      notify.note \
-$"Package:  - ""${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
+$"Package"":  - ""${NOTE}${got_SPEC_FILENAME[$(($j-1))]}${NORM}"
                   done
                   let "srpm_pck_found += 1"
                fi
