@@ -12,6 +12,9 @@ Changes in version 1.12.1
   * test/*, pck-update - Davide Madrisan:
     Update/add the code to check for the required external tools.
 
+  * conf/06-security-system-library-paths.conf - Davide Madrisan:
+    allowed_libdirs: replace /opt/kde4/lib with /opt/kde/lib.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.0
