@@ -1,3 +1,16 @@
+List of user visible changes in the release 1.12.1
+
+-- Update
+
+ * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
+   Update 'source0_name_structure' to allow *.tar.xz archives.
+
+ * conf/06-security-system-library-paths.conf - Davide Madrisan:
+   allowed_libdirs: replace /opt/kde4/lib with /opt/kde/lib to avoid false
+   positives when scanning kde4 packages.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.0
 
 -- Bug Fixes
