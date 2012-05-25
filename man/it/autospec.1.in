@@ -328,29 +328,57 @@ abilita il log su file (nella directory: `$logging_dir')
 \fB\-R\fR, \fB\-\-rebuild\fR
 attiva modalita' ed impostazioni di rebuild (azione 4)
 .TP
-\fB\-R\fR, \fB\-\-root\fR
+\fB\-\-root\fR
 definisce una root directory alternativa per rpm
 .TP
 \fIEsempi\fR
 .TP
 .PD 0
+# scarica il pacchetto srpm dal repository 'devel'
+.TP
+\fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR1 \fB\-\-server\fR=devel
+.TP
+# aggiorna lo specfile alla versione @version@ definendo un messaggio di changelog...
+.TP
 \fB@package@\fR \fB\-u\fR @package@ @version@ \fB\-a\fR4 \fB\-\-changelog\fR "update to @version@"
+.TP
+# ...oppure aggiorna lo specfile incrementando soltanto il numero di release
 .TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR4 \fB\-\-rebuild\fR
 .TP
+# esegue le azioni 5,6,7,8,9 definendo la variabile rpm 'addons_ver'
+.TP
+# ed abilitando il logging su file
+.TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-\-log\fR \fB\-a\fR5,6:9 \fB\-\-define\fR addons_ver=0.9
+.TP
+# forza il rebuild dei pacchetti rpm e srpm (necessario se i pacchetti esistono gia')
 .TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-r\fR \fB\-a\fR5 \fB\-\-force-build\fR
 .TP
+# scarica l'srpm, ricompila i pacchetti incrementando la release e indicando una architettura
+.TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR1,4,5,8 \fB\-\-arch\fR=noarch \fB\-\-rebuild\fR
 .TP
+# crea la lista dei build requirement
+.TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR6
+.TP
+# esegue i test su specfile e pacchetti rpm alla ricerca di problemi tipici
+.TP
+\fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR8
+.TP
+# effettua l'upload dei pacchetti srpm e rpm su uno specifico server (vedi 'ftp_alias')
 .TP
 \fB@package@\fR \fB\-u\fR \fB\-c\fR \fB\-l\fR usr:pswd @package@ @version@ \fB\-a\fR10 \fB--server-upload\fR=0
 .TP
 \fB@package@\fR \fB\-u\fR @package@ @version@ \fB\-a\fR10 \fB--server-upload\fR=myrepos
 .TP
+# effettua l'upload del solo file srpm utilizzando i dati di /var/tmp/specs/@package@.spec
+.TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR10 \fB\-\-norpm\fR \fB\-S\fR /var/tmp/specs/@package@.spec
+.TP
+# forza l'installazione dei pacchetti
 .TP
 \fB@package@\fR \fB\-u\fR @package@ \fB\-a\fR11 \fB\-\-force\fR
 .TP
