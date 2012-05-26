@@ -1854,102 +1854,104 @@ specfile is newer than srpm (according to modification date)"
          fi
 
          # download and install all the needed build requirements...
-
-         # note: it's not possible to directly use the features provided by
-         # rpmlib because they'are bugged (at least in the version 4.0.4)
-         # so we install the necessary 'BuildRequirement's looking at the
-         # specfile preamble
-         [ "$(sed -n '/^BuildRequires/p' $SRPM_SPECFILE_WITH_PATH)" ] &&
-            notify.debug "\
+         if [ "$list_check" = 0 ]; then
+            # note: it's not possible to directly use the features provided by
+            # rpmlib because they'are bugged (at least in the version 4.0.4)
+            # so we install the necessary 'BuildRequirement's looking at the
+            # specfile preamble
+            [ "$(sed -n '/^BuildRequires/p' $SRPM_SPECFILE_WITH_PATH)" ] &&
+               notify.debug "\
 [BuildRequires]
 $(sed -n '/^BuildRequires/{s,.*,   &,p}' $SRPM_SPECFILE_WITH_PATH)"
 
-         local f rpm_provided_by buildrequirements_to_install
-         for f in ${SPEC_BUILDREQUIRES[@]}; do
-            rpm_provided_by="$(rpm -q $rpm_root_opts --whatprovides $f)"
-            [ $? -eq 0 ] || unset rpm_provided_by
+            local f rpm_provided_by buildrequirements_to_install
+            for f in ${SPEC_BUILDREQUIRES[@]}; do
+               rpm_provided_by="$(rpm -q $rpm_root_opts --whatprovides $f)"
+               [ $? -eq 0 ] || unset rpm_provided_by
 
-            notify.note " * "$"\
+               notify.note " * "$"\
 build requirement found"": \`${NOTE}$f${NORM}' ""\
 (${NOTE}$rpm_provided_by${NORM})"
 
-            # the build requirement is already installed
-            [[ "$rpm_provided_by" ]] && continue
+               # the build requirement is already installed
+               [[ "$rpm_provided_by" ]] && continue
 
-            buildreqs_to_install[${#buildreqs_to_install[*]}]="$f"
-         done
+               buildreqs_to_install[${#buildreqs_to_install[*]}]="$f"
+            done
 
-         # remove duplicates
-         buildreqs_to_install=(
+            # remove duplicates
+            buildreqs_to_install=(
 $(for f in ${buildreqs_to_install[@]}; do echo $f; done | sort -u))
 
-         # install missing build requirements
-         if [[ "${buildreqs_to_install[@]}" ]]; then
-            if [ -n "$rpm_download_and_install" ]; then
-               for f in ${buildreqs_to_install[@]}; do
-                  notify.note " * "$"\
+            # install missing build requirements
+            if [[ "${buildreqs_to_install[@]}" ]]; then
+               if [ -n "$rpm_download_and_install" ]; then
+                  for f in ${buildreqs_to_install[@]}; do
+                     notify.note " * "$"\
 installing missing build requirement"": \`${NOTE}$f${NORM}'"
-               done
+                  done
 
-               if [ -n "$proxy" ]; then
-                  [[ "$debug_print_private_user_infos" = "1" ||
-                     -z "$proxy_user" ]] && notify.debug "\
+                  if [ -n "$proxy" ]; then
+                     [[ "$debug_print_private_user_infos" = "1" ||
+                        -z "$proxy_user" ]] && notify.debug "\
 {http,ftp}_proxy=\"{http,ftp}://${proxy_user:+${proxy_user}@}${proxy}\""
 
-                  http_proxy="http://${proxy_user:+${proxy_user}@}${proxy}" \
-                  ftp_proxy="ftp://${proxy_user:+${proxy_user}@}${proxy}" \
-                  $rpm_download_and_install ${buildreqs_to_install[*]}
-               else
-                  $rpm_download_and_install ${buildreqs_to_install[*]}
-               fi
-               [ $? -eq 0 ] || notify.error $"\
+                     http_proxy="http://${proxy_user:+${proxy_user}@}${proxy}"\
+                     ftp_proxy="ftp://${proxy_user:+${proxy_user}@}${proxy}"\
+                     $rpm_download_and_install ${buildreqs_to_install[*]}
+                  else
+                     $rpm_download_and_install ${buildreqs_to_install[*]}
+                  fi
+                  [ $? -eq 0 ] || notify.error $"\
 cannot install the needed build requirements"
-            else
-               notify.error $"\
+               else
+                  notify.error $"\
 found ${NOTE}missing BuildRequirement${NORM} \`${NOTE}$f${NORM}'"
+               fi
             fi
          fi
 
          # automatically download the missing source and patch files...
+         if [ "$list_check" = 0 ]; then
+            # get the list of URLs for the source files to download
+            specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE
 
-         # get the list of URLs for the source files to download
-         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE
+            local filenum totfilenum fullURL sdflag
 
-         local filenum totfilenum fullURL sdflag
+            [ "$force_download" = 1 ] && sdflag="--force"
 
-         [ "$force_download" = 1 ] && sdflag="--force"
+            let "totfilenum = 0"
+            for filenum in `seq 1 1 ${#SPEC_SOURCE_VERBATIM[@]}`; do
+               let "totfilenum += 1"
+               fullURL=${SPEC_SOURCE_VERBATIM[$filenum-1]}
+               notify.debug "fullURL = $fullURL"
 
-         let "totfilenum = 0"
-         for filenum in `seq 1 1 ${#SPEC_SOURCE_VERBATIM[@]}`; do
-            let "totfilenum += 1"
-            fullURL=${SPEC_SOURCE_VERBATIM[$filenum-1]}
-            notify.debug "fullURL = $fullURL"
-
-            fullURL=$(\
+               fullURL=$(\
 rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
-            notify.debug "fullURL = $fullURL"
+               notify.debug "fullURL = $fullURL"
 
-            curl.download --options "$curl_options" $sdflag \
+               curl.download --options "$curl_options" $sdflag \
 ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 --exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL"
-         done
+            done
 
-         # get the list of URLs for the patch files to download
-         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_PATCH
+            # get the list of URLs for the patch files to download
+            specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_PATCH
 
-         for filenum in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
-            let "totfilenum += 1"
-            fullURL=${SPEC_PATCH_VERBATIM[$filenum-1]}
-            notify.debug "fullURL = $fullURL"
+            for filenum in `seq 1 1 ${#SPEC_PATCH_VERBATIM[@]}`; do
+               let "totfilenum += 1"
+               fullURL=${SPEC_PATCH_VERBATIM[$filenum-1]}
+               notify.debug "fullURL = $fullURL"
 
-            fullURL=$(\
+               fullURL=$(\
 rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
-            notify.debug "fullURL = $fullURL"
+               notify.debug "fullURL = $fullURL"
 
-            curl.download --options "$curl_options" $sdflag \
+               curl.download --options "$curl_options" $sdflag \
 ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 --exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL"
-         done
+            done
+         fi
 
          local rpmbuild_opts="\
 --define=\"%_srcrpmdir $srpms_dir\" \

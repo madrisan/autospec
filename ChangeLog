@@ -6,6 +6,11 @@ Changes in version 1.12.2
     Add a few more examples for 'autospec -u' and add a short comment before
     each example.
 
++ update
+  * pck-update - Davide Madrisan:
+    Do not check for missing build requirements and source files when
+    pck-update is invoked with the option '--list-check'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.1
