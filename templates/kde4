@@ -26,6 +26,7 @@ BuildRoot:     @rpm_default_buildroot@
 Group:         Development/Libraries
 Summary:       Development files for %{name}
 Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      kdelibs-devel
 
 %description devel
 This package contains libraries and header files for developing applications that use %{name}.

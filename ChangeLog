@@ -11,6 +11,10 @@ Changes in version 1.12.2
     Do not check for missing build requirements and source files when
     pck-update is invoked with the option '--list-check'.
 
++ update
+  * templates/kde4
+    Add a requirement for kdelibs-devel in the -devel package preamble.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.1
