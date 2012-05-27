@@ -14,6 +14,7 @@ Changes in version 1.12.2
 + update
   * templates/kde4
     Add a requirement for kdelibs-devel in the -devel package preamble.
+    Add a build requirement for automoc4.
 
 + improvement
   * pck-update - Davide Madrisan:

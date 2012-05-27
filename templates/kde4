@@ -9,13 +9,15 @@ Packager:      @packager_fullname@ <@packager_email@>
 URL:           http://www.kde.org
 Source:        ...
 License:       ...
+BuildRequires: automoc4
 BuildRequires: cmake
 BuildRequires: libqt4-devel
 BuildRequires: kdelibs-devel
 ## AUTOBUILDREQ-BEGIN
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
 ## AUTOBUILDREQ-END
-Requires:      kde-workspace
+Requires:      kdelibs%{?_kde4_version: >= %{_kde4_version}}
+Requires:      qca-ossl
 BuildRoot:     @rpm_default_buildroot@
 
 %description
