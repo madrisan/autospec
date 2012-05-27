@@ -150,6 +150,9 @@ msgstr "Non effettua l'upload dei pacchetti rpm"
 msgid "Do a \\`list check'"
 msgstr "Cerca i file non pacchettizzati"
 
+msgid "Replace the block AUTOBUILDREQ"
+msgstr "Aggiorna il blocco AUTOBUILDREQ"
+
 msgid "Remove all the temporary files except (s)rpm packages"
 msgstr "Rimuove tutti i file temporanei"
 
@@ -536,3 +539,6 @@ msgstr "controllo dello specfile alla ricerca di comuni errori"
 
 msgid "checking packages for common mistakes"
 msgstr "controllo dei pacchetti alla ricerca di comuni errori"
+
+msgid "replacing the AUTOBUILDREQ block by:"
+msgstr "sostituzione del blocco AUTOBUILDREQ con:"

@@ -55,6 +55,8 @@ let "norpms = 0"
 let "list_check = 0"
 # do not use rpm variables for unix tools
 let "format_unix_tools = 0"
+# do not replace the automatically discovered build requirements
+let "replace_autobuildreq = 0"
 
 unset ignore_test_list
 
@@ -139,6 +141,8 @@ function usage() {
      --norpm        "$"action"" 5: "$"Only build the srpm package""
                     "$"action"" 10: "$"Do not upload the rpm packages""
      --list-check   "$"action"" 5: "$"Do a \`list check'""
+ -b, --update-autobuildreq""
+                    "$"action"" 6: "$"Replace the block AUTOBUILDREQ""
  -c, --clear        "$"Remove all the temporary files except (s)rpm packages""
  -f, --format       "$"Enable specfile autoformatting""
  -L, --log          "$"Unable logging to file (logging dir: \`\$logging_dir')""
@@ -185,11 +189,11 @@ for arg in $@; do
 done
 
 exec_options=`LC_ALL=C getopt \
-   -o ua:d:l:S:A:cfLRDqrhV \
+   -o ua:d:l:S:A:bcfLRDqrhV \
    --long \
 update,action:,define:,login:,specfile:,arch:,\
 server-download:,server-upload:,server:,\
-changelog:,nosrpm,norpm,list-check,\
+changelog:,nosrpm,norpm,list-check,update-autobuildreq\
 force-update,force-build,force-install,force-download,force,\
 ignore-test:,clear,format,log,rebuild,root:,\
 debug,quiet,colorize,help,version,\
@@ -239,6 +243,8 @@ while :; do
          let "norpms = 1" ;;
       --list-check)
          let "list_check = 1" ;;
+      -b|--update-autobuildreq)
+         let "replace_autobuildreq = 1" ;;
       --force-update)
          let "force_update = 1" ;;
       --force-build)
@@ -2231,13 +2237,24 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                           [ "$p" = "$buildreq" ] && echo "$p"
                        done)" ] && echo "BuildRequires: $buildreq"
             fi
-         done ) >> $frequires
+         done ) | sort -u >> $frequires
+
+         [ "$replace_autobuildreq" = 1 ] &&
+            notify.note "
+${NOTE}"$"replacing the AUTOBUILDREQ block by:""${NORM}"
 
          notify.note "
 ## AUTOBUILDREQ-BEGIN"
-         sort -u $frequires
+         cat $frequires
          notify.note "## AUTOBUILDREQ-END
 "
+         if [ "$replace_autobuildreq" = 1 ]; then
+            sed -i "/^## AUTOBUILDREQ/d" $frequires
+            sed -i -ne "/## AUTOBUILDREQ-BEGIN/{p;r $frequires" \
+                    -e ':a;n;/## AUTOBUILDREQ-END/{p;b};ba};p' \
+               $SRPM_SPECFILE_WITH_PATH
+         fi
+
          rm -f $frequires
       ;;
       7) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\

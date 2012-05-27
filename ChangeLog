@@ -15,6 +15,11 @@ Changes in version 1.12.2
   * templates/kde4
     Add a requirement for kdelibs-devel in the -devel package preamble.
 
++ improvement
+  * pck-update - Davide Madrisan:
+    Action 6: new option '--update-autobuildreq' which replace a block
+    'AUTOBUILDREQ-BEGIN' ... 'AUTOBUILDREQ-END' by an updated one.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.1
