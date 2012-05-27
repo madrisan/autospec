@@ -17,7 +17,6 @@ BuildRequires: kdelibs-devel
 ## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
 ## AUTOBUILDREQ-END
 Requires:      kdelibs%{?_kde4_version: >= %{_kde4_version}}
-Requires:      qca-ossl
 BuildRoot:     @rpm_default_buildroot@
 
 %description
