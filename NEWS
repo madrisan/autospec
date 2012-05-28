@@ -1,3 +1,25 @@
+List of user visible changes in the release 1.12.2
+
+-- Improvement
+
+ * pck-update - Davide Madrisan:
+   Skip unnecessary checks when pck-update is invoked with the option
+   '--list-check'.
+
+ * pck-update - Davide Madrisan:
+   Action 6: new option '--update-autobuildreq' which replace a block
+   'AUTOBUILDREQ-BEGIN' ... 'AUTOBUILDREQ-END' by an updated one.
+
+-- Update
+
+ * templates/kde4
+   Update the list of requirements and build requirements.
+
+ * italian manpage - Davide Madrisan:
+   Improve the examples for 'autospec -u'.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.1
 
 -- Update
