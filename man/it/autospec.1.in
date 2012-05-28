@@ -316,6 +316,9 @@ non effettua l'upload dei pacchetti rpm (azione 10)
 \fB\-\-list-check\fR
 esegue un controllo dei file non pacchettizzati (azione 5)
 .TP
+\fB\-b\fR, \fB\-\-update\-autobuildreq\fR
+aggiorna il blocco AUTOBUILDREQ-BEGIN .. AUTOBUILDREQ-END
+.TP
 \fB\-c\fR, \fB\-\-clear\fR
 rimuove tutti i file temporanei
 .TP
