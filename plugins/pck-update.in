@@ -193,7 +193,7 @@ exec_options=`LC_ALL=C getopt \
    --long \
 update,action:,define:,login:,specfile:,arch:,\
 server-download:,server-upload:,server:,\
-changelog:,nosrpm,norpm,list-check,update-autobuildreq\
+changelog:,nosrpm,norpm,list-check,update-autobuildreq,\
 force-update,force-build,force-install,force-download,force,\
 ignore-test:,clear,format,log,rebuild,root:,\
 debug,quiet,colorize,help,version,\
