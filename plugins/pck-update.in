@@ -593,32 +593,37 @@ function specfile.newrelease() {
 
    ( . $infofile
 
-     # NOTE: allowed format is: '<version><distroid>'
-     [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){0,}[^0-9\.]+.*$ ]] ||
+     # NOTE: allowed format is: '<number[.<number>]*<distroid><dnumber>'
+     #       <dnumber> will permit a distroid "upgrade": mamba --> mamba2
+     [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){0,}[^0-9\.]+[0-9]*$ ]] ||
         notify.error \
            $"release number: unsupported format"": \"$SPEC_RELEASE\""
 
      if [ "$pck_newver" = $SPEC_VERSION ]; then
+        # the release has been specified at command line
         if [ "$pck_newrel" ]; then
-           [[ "$pck_newrel" =~ ^[0-9]+.*${DISTRO_rpm}$ ]] ||
+           [[ "$pck_newrel" =~ ^[0-9]+(\.[0-9]+){0,}[^0-9\.]+[0-9]*$ ]] ||
               notify.error \
-                  $"release number: unsupported format"": \"$pck_newrel\""
+                 $"release number: unsupported format"": \"$pck_newrel\""
            [ "$pck_newrel" '>' "$SPEC_RELEASE" ] ||
               notify.error $"\
 new release \`$pck_newrel' must be greater than current one \`$SPEC_RELEASE'"
            echo "$pck_newrel"
         else
+           # example: 123.45.67mamba2 --> sr_relnum = 123.45.67
            local sr_relnum="${SPEC_RELEASE%%[^0-9\.]*}"
-           local sr_distroid="${SPEC_RELEASE/$sr_relnum}"
            notify.debug "$FUNCNAME: sr_relnum = \"$sr_relnum\""
-           notify.debug "$FUNCNAME: sr_distroid = \"$sr_distroid\""
+           # example: 123.45.67mamba2 --> sr_distroid = mamba2
+           local sr_distroid="${SPEC_RELEASE/$sr_relnum}"
 
-           [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}[^\.]*$ ]] &&
+           # example: 13.155.24<distroid> --> 13.155.25${DISTRO_rpm}
+           [[ "$SPEC_RELEASE" =~ ^[0-9]+(\.[0-9]+){1,}${sr_distroid}$ ]] \
+             && \
             { echo "${sr_relnum%\.*}.$(( ${sr_relnum/*\./} + 1 ))${DISTRO_rpm}"
               return 0; }
 
-           # '<[0-9]+><distroid>'
-           [[ "$SPEC_RELEASE" =~ ^[0-9]+[^0-9]+$ ]] &&
+           # example: 12<distroid> --> 13${DISTRO_rpm}
+           [[ "$SPEC_RELEASE" =~ ^[0-9]+${sr_distroid}$ ]] &&
             { echo "$(( $sr_relnum + 1 ))${DISTRO_rpm}"
               return 0; }
 

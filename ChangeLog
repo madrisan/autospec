@@ -1,3 +1,15 @@
+Changes in version 1.12.3
+
++ improvement
+  * pck-update - Davide Madrisan:
+    Action 4: allow a distribution-ID "upgrade" when updating the release
+    number.
+    Example: 1mamba --> 2mamba2
+    (when DISTRO_rpm="mamba2" is set in the configuration files).
+    Feature asked by Silvan Calarco.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.12.2
 Mon May 28 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
