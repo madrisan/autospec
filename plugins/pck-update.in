@@ -886,7 +886,7 @@ echo -n "\"${define_list_value[$i]}\" "; done)]"
    notify.debug "\
 define_list_rpm = \"$define_list_rpm\""
 
-   if [[ "$pck_name" =~ ^[a-zA-Z0-9-]+$ ]]; then
+   if [[ "$pck_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
       if [ "$pck_newver" ]; then
          notify.note $"updating package ${NOTE}${pck_name##*/}${NORM} \
 to version ${NOTE}${pck_newver}${NORM}""..."

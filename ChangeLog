@@ -8,6 +8,12 @@ Changes in version 1.12.3
     (when DISTRO_rpm="mamba2" is set in the configuration files).
     Feature asked by Silvan Calarco.
 
++ bugfix
+  * pck-update, libnetwork.lib - Davide Madrisan:
+    A package name can contain one or more undescores so add it to the list of
+    allowed characters in 'repository.get_srpm_pckname_from_site()'.
+    (Problem pointed out by Silvan Calarco.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.2

@@ -94,7 +94,7 @@ function repository.get_srpm_pckname_from_site() {
    notify.debug "$FUNCNAME: infile = \"$infile\""
 
    local regexpr
-   [[ "$pck_name" =~ ^[a-zA-Z0-9-]+$ ]] && \
+   [[ "$pck_name" =~ ^[a-zA-Z0-9_-]+$ ]] && \
       regexpr="^$pck_name-[^-]\+-[^-]\+$" || regexpr="$pck_name"
    notify.debug "$FUNCNAME: regexpr = \"$regexpr\""
 
