@@ -1,6 +1,6 @@
 #!/bin/bash
 # libapse.lib -- Autospec Package Search Engine library
-# Copyright (C) 2007 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>
+# Copyright (C) 2007,2012 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>
 # Copyright (C) 2008-2011 Silvan Calarco <silvan.calarco@mambasoft.it>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
@@ -47,7 +47,7 @@ function apse.cmpversion() {
          version1 version2 minfield maxfield field1 field2 \
          retval code1 code2 subarra1 position
 
-   let "position = 7"
+   let "position = 8"
 
    vcs=(\
       "cvs" "svn" "git" "rcs" "bzr" "mtn" "ae")
@@ -61,8 +61,6 @@ function apse.cmpversion() {
       "stable" "gold" "gar" "rtm" "rtw" "rel")
    precedence=(\
       "prealpha[*]" "alpha" "beta[*]" "rc[*]" "delta" "omega" "stable[*]")
-
-   # TODO: if there isn't in this list compare alphabetically
 
    # TODO: if in both there is vcs compare, if only in one of them watch changelog or/and data
 
@@ -160,6 +158,14 @@ $FUNCNAME: \`$code1' has position ${version1[$i]} in precedence"
       elif [[ ${version2[$i]} -lt ${version1[$i]} ]]; then
         retval=1
         break
+      elif [ "${version2[$i]}" = "8" ]; then
+        if [ "$code2" \> "$code1" ]; then
+          retval=2
+        elif [ "$code2" \< "$code1" ]; then
+          retval=1
+        else
+          retval=0
+        fi
       else
          if [ $i -eq $(($minfield-1)) ]; then
             for j in $(seq $i 1 $[$maxfield-1]); do
@@ -206,7 +212,8 @@ function apse.scrapeversion() {
    function usage() {
       echo "\
 $me, "$"version"" @version@""
-Copyright (C) 2007 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>""
+Copyright (C) 2007,2012 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>""
+Copyright (C) 2008-2011 Silvan Calarco <silvan.calarco@mambasoft.it>""
 
 "$"Find for updates scanning the web.""
 
@@ -292,25 +299,26 @@ Copyright (C) 2007 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>""
 
    [ "$src0pckname" = "$specname" ] ||
     { src_name="$src0pckname"
-      notify.debug "src_name = \"$src_name\""; }
+      notify.debug "$FUNCNAME: src_name = \"$src_name\""; }
 
    local curr_curl_url pck_file new_version last_version
    local curr_curl_proxy_opts="\
 ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
 
    # SOURCE0 url based search (only if 'pckurl' is a valid url)
+   [ "${apse_enabled[0]}" = "0" ] && notify.debug "$FUNCNAME: skipping ${apse_site_name[0]}" || \
    if [[ "$pckurl" =~ .*://.* ]]; then
       local pckurldir="`dirname $pckurl`/"
-      notify.debug "pckurldir = $pckurldir"
+      notify.debug "$FUNCNAME: pckurldir = $pckurldir"
 
       local pcknameverbatim=`basename $pckurlverbatim`
-      notify.debug "pcknameverbatim = $pcknameverbatim"
+      notify.debug "$FUNCNAME: pcknameverbatim = $pcknameverbatim"
 
       curr_curl_url="$pckurldir"
 
-      notify.note $"looking at"" <${NOTE}$curr_curl_url${NORM}> (\`${NOTE}source0${NORM}')..."
+      notify.note $"looking at"" ${NOTE}(#0)${NORM} <${NOTE}$curr_curl_url${NORM}> (\`${NOTE}source0${NORM}')..."
 
-      notify.debug "curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
+      notify.debug "running: curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
       curl $curl_opts_netlink $curr_curl_proxy_opts -s -L "$curr_curl_url" > $fcurlout
       let "retval = $?"
 
@@ -349,7 +357,7 @@ ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
             s,\.tbz2$,\\\.,")
       
       local retval=$?
-      notify.debug "pcknameregexp = $pcknameregexp"
+      notify.debug "$FUNCNAME: pcknameregexp = $pcknameregexp"
 
       if [ $retval -eq 0 ]; then
          if [ "${pcknameregexp/(/}" = "${pcknameregexp}" ]; then
@@ -392,43 +400,46 @@ sort -t. -n -r -k1 -k2 -k3 -k4 -k5 -k6 -k7 -k8 -k9 -k10 ))
       if [ "$new_version" ]; then
          notify.note "* "$"found version:"" \`${NOTE}$new_version${NORM}'"
          last_version="$new_version"
+      else
+         notify.debug "$FUNCNAME: no new version found in current site"
       fi
    fi
 
    # sourceforge.net, sf.net
+   if [ "${apse_enabled[1]}" = "1" ]; then
 
-   local prj_name
+      local prj_name
 
-   notify.note $"looking at"" <${NOTE}http://sourceforge.net${NORM}>..."
+      notify.note $"looking at"" ${NOTE}(#1)${NORM} <${NOTE}${apse_site_name[1]}${NORM}>..."
 
-   prj_name=$specname
-   [ "$prj_name" ] || notify.error $"\
+      prj_name=$specname
+      [ "$prj_name" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"assertion failed:"" \"\$prj_name\" != \"\""
 
-   curr_curl_url="http://sourceforge.net/projects/$prj_name/files/latest"
-   notify.debug "curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
-   curl $curr_curl_proxy_opts -I -A Linux -s -L "$curr_curl_url" > $fcurlout
+      curr_curl_url="http://sourceforge.net/projects/$prj_name/files/latest"
+      notify.debug "running: curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
+      curl $curr_curl_proxy_opts -I -A Linux -s -L "$curr_curl_url" > $fcurlout
 
-   let "retval = $?"
-   case "$retval" in
-   0) ;;
-   6) notify.warning $"couldn't resolve host" ;;
-   7) notify.warning $"failed to connect to host" ;;
-   *) notify.warning $"curl error (exit code: $retval)" ;;
-   esac
+      let "retval = $?"
+      case "$retval" in
+      0) ;;
+      6) notify.warning $"couldn't resolve host" ;;
+      7) notify.warning $"failed to connect to host" ;;
+      *) notify.warning $"curl error (exit code: $retval)" ;;
+      esac
 
-   [ "$retval" = "0" ] &&
-   if [ "$(sed -n "s,.*Invalid Project.*,error,pi" $fcurlout)" != \
-        "error" ]; then
-      [ "$src_name" ] || src_name="$specname"
-      pck_file=`grep -i -m1 "Location:" $fcurlout | \
+      [ "$retval" = "0" ] &&
+      if [ "$(sed -n "s,.*Invalid Project.*,error,pi" $fcurlout)" != \
+           "error" ]; then
+         [ "$src_name" ] || src_name="$specname"
+         pck_file=`grep -i -m1 "Location:" $fcurlout | \
 grep -i "$src_name" | \
 sed -n "s,Location: \(.*\)/download,\1,pi"`
-      notify.debug "pck_file = \"$pck_file\""
-      [ "$src_name" ] && unset src_name
-      new_version=`echo $pck_file | sed "s|.*/\([0-9.]*\)/.*|\1|"`
-      [ "$new_version" ] || \
-      new_version=`echo $pck_file | sed -n "\
+         notify.debug "$FUNCNAME: pck_file = \"$pck_file\""
+         [ "$src_name" ] && unset src_name
+         new_version=`echo $pck_file | sed "s|.*/\([0-9.]*\)/.*|\1|"`
+         [ "$new_version" ] || \
+         new_version=`echo $pck_file | sed -n "\
 /[0-9]/!q       # return nothing if no number is found in the package name
 s,.*/,,         # remove directory name, if any
 s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
@@ -438,11 +449,16 @@ s|.*/\([0-9.]*\)/.*|\1|
 /[^-\.][0-9]\./{s/.*[^-\.]\([0-9]\..*\)/\1/p;q}  # <pck_name><pck_ver>
 # <pck_name> (no version, but <pck_name> can end with numbers)
 /^[^0-9]*[0-9]*$/q"`
-   fi
+      fi
 
-   if [ "$new_version" ]; then
-      notify.note "* "$"found version:"" \`${NOTE}$new_version${NORM}'"
-      last_version="$new_version"
+      if [ "$new_version" ]; then
+         notify.note "* "$"found version:"" \`${NOTE}$new_version${NORM}'"
+         last_version="$new_version"
+      else
+         notify.debug "$FUNCNAME: no new version found in current site"
+      fi
+   else
+      notify.debug "$FUNCNAME: skipping ${apse_site_name[1]}"
    fi
 
    # look at the other supported web sites...
@@ -450,8 +466,11 @@ s|.*/\([0-9.]*\)/.*|\1|
    # skip perl packages to prevent name confusion; these are checked above via Source0
    if [ ! "$(echo $pckurl | grep "cpan.org")" ]; then
       for i in ${!apse_site_name[@]}; do
+         [ $i -le 1 ] && continue
+         [ "${apse_enabled[$i]}" = "0" ] && { notify.debug \
+"$FUNCNAME: skipping ${apse_site_name[$i]}"; continue; }
          notify.note \
-$"looking at"" <${NOTE}${apse_site_name[$i]}${NORM}>..."
+$"looking at"" ${NOTE}(#$i)${NORM} <${NOTE}${apse_site_name[$i]}${NORM}>..."
 
          for search_name in $src_name $specname; do
             [ "${apse_put_fields[$i]}" ] &&
@@ -460,12 +479,12 @@ $"looking at"" <${NOTE}${apse_site_name[$i]}${NORM}>..."
 
             if [ "${apse_put_fields[$i]}" ]; then
                notify.debug "\
-curl \$curr_curl_proxy_opts -s -L -F ${apse_put_fields[$i]}${search_name} \"$curr_curl_url\""
-               curl $curr_curl_proxy_opts -s -L -F \
-                  ${apse_put_fields[$i]}${search_name} "$curr_curl_url" > $fcurlout
+running: curl \$curr_curl_proxy_opts -s -L -d \"${apse_put_fields[$i]}${search_name}\" \"$curr_curl_url\""
+               curl $curr_curl_proxy_opts -s -L -d \
+                  "${apse_put_fields[$i]}${search_name}" "$curr_curl_url" > $fcurlout
             else
                notify.debug "\
-curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
+running: curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
                curl $curr_curl_proxy_opts -s -L "$curr_curl_url" > $fcurlout
             fi
 
@@ -481,11 +500,17 @@ curl \$curr_curl_proxy_opts -s -L \"$curr_curl_url\""
 
             if [ "$(cat $fcurlout | sed -n "\
 s,.*${apse_error_msg[$i]}.*,error,pi")" != "error" ]; then
-               current_grep="$(echo "${apse_grep[$i]}" | sed -e "s,\${search_name},${search_name},g")"
                current_sed="$(echo "${apse_sed[$i]}" | sed -e "s,\${search_name},${search_name},g")"
-               notify.debug "\
-grep -i -m1 \"$current_grep\" \$fcurlout | sed -n \"$current_sed\""
-               new_version=$(grep -i -m1 "$current_grep" $fcurlout | sed -n "$current_sed")
+               if [ "${apse_grep[$i]}" ]; then 
+                  current_grep="$(echo "${apse_grep[$i]}" | sed -e "s,\${search_name},${search_name},g")"
+                  notify.debug "\
+running: grep -i -m1 \"$current_grep\" \$fcurlout | sed -n \"$current_sed\""
+                  new_version=$(grep -i -m1 "$current_grep" $fcurlout | sed -n "$current_sed")
+               else
+                  notify.debug "\
+running: sed -n \"$current_sed\" \$fcurlout"
+                  new_version=$(sed -n "$current_sed" $fcurlout)
+               fi
                if [ "$new_version" ]; then
                   notify.note "\
  * "$"found version:"" \`${NOTE}$new_version${NORM}'"
@@ -496,7 +521,11 @@ grep -i -m1 \"$current_grep\" \$fcurlout | sed -n \"$current_sed\""
                   else
                      last_version="$new_version"
                   fi
+               else
+                  notify.debug "$FUNCNAME: no new version found in current site"
                fi
+            else
+               notify.debug "$FUNCNAME: no new version found in current site"
             fi
          done
       done
