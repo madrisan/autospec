@@ -1078,13 +1078,15 @@ check if a new version is available""${NORM}"
          if [ "$APSE_LAST_VERSION" ]; then
             pck_newver="$APSE_LAST_VERSION"
             notify.debug "pck_newver = $pck_newver"
-
-            echo "SPEC_VERSION_FORCED=\"$pck_newver\"" > $infofile
-            rpmvars.init --clear
          fi
       ;;
       3) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
 download new source files""${NORM}"
+
+         if [ -n "$pck_newver" ]; then
+            echo "SPEC_VERSION_FORCED=\"$pck_newver\"" > $infofile
+            rpmvars.init --clear
+         fi   
 
          infofile.create
          . $infofile

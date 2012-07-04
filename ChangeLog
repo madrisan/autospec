@@ -14,6 +14,41 @@ Changes in version 1.12.3
     allowed characters in 'repository.get_srpm_pckname_from_site()'.
     (Problem pointed out by Silvan Calarco.)
 
++ update
+  * conf/03-apse.conf - Stefano Cotta Ramusino:
+    Add 'apse_enabled' array to enable/disable a specific APSE site.
+    Add new sites for APSE:
+     . http://directory.fsf.org
+     . http://launchpad.net
+
+  * lib/libapse.lib - Stefano Cotta Ramusino:
+    Update Copyright messages.
+
++ bugfix
+  * conf/03-apse.conf - Stefano Cotta Ramusino:
+    Fix scraping values in APSE arrays for following sites:
+     . http://fileforum.betanews.com
+     . http://linux.softpedia.com
+     . http://www.gnomefiles.org -> http://gnomefiles.org
+     . http://freshmeat.net -> http://freecode.com
+
+  * lib/libapse.lib - Stefano Cotta Ramusino:
+    apse.cmpversion(): some versioning methods use next letter of the alphabet
+    for new version so compare versions alphabetically if there're still
+    letters after comparison based on 'precedence' array.
+
+  * lib/libspec.lib - Stefano Cotta Ramusino:
+    rpmvars.solve(): passing rpmvars to "rpm --eval" to expand compound rpm
+    variables such as %{majorminor}.
+
++ improvement
+  * lib/libapse.lib - Stefano Cotta Ramusino:
+    Modify debug output to get it more readable.
+
+  * pck-update - Stefano Cotta Ramusino:
+    Action 3: generate correct download URL getting new version from action 2
+    or from command line parameter.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.2
