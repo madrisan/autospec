@@ -49,6 +49,10 @@ Changes in version 1.12.3
     Action 3: generate correct download URL getting new version from action 2
     or from command line parameter.
 
++ update
+  * lib/libapse.lib, lib/libspec.lib - Davide Madrisan:
+    Style fixes.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.2
