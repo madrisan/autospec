@@ -311,10 +311,10 @@ ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
       notify.debug "$FUNCNAME: skipping ${apse_site_name[0]}"
    else
       if [[ "$pckurl" =~ .*://.* ]]; then
-         local pckurldir="`dirname $pckurl`/"
+         local pckurldir="${pckurl%/*}/"
          notify.debug "$FUNCNAME: pckurldir = $pckurldir"
 
-         local pcknameverbatim=`basename $pckurlverbatim`
+         local pcknameverbatim="${pckurlverbatim##*/}"
          notify.debug "$FUNCNAME: pcknameverbatim = $pcknameverbatim"
 
          curr_curl_url="$pckurldir"

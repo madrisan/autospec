@@ -53,6 +53,10 @@ Changes in version 1.12.3
   * lib/libapse.lib, lib/libspec.lib - Davide Madrisan:
     Style fixes.
 
++ improvement
+  * lib/libapse.lib - Davide Madrisan:
+    Do not use 'dirname' and 'basename': bash provides primitives to do that.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.2
