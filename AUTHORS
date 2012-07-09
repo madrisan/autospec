@@ -3,7 +3,7 @@ Davide Madrisan <davide.madrisan(a)gmail.com>
    frontend, plugins, libraries, documentation
    porting to the libspec.lib architecture
 
-Stefano Cotta Ramusino aka "whitone" <whitone(a)openmamba.org>
+Stefano Cotta Ramusino aka "whitone" <stefano.cotta(a)openmamba.org>
    patch to check for OSI approved licenses
    list of OSI approved licenses
    autospec package search engine (APSE)

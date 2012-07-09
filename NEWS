@@ -18,6 +18,9 @@ List of user visible changes in the release 1.12.2
  * italian manpage - Davide Madrisan:
    Improve the examples for 'autospec -u'.
 
+ * libapse.lib, conf/03-apse.conf - Stefano Cotta Ramusino
+   Fix scraping values and add new sites
+
 -------------------------------------------------------------------------------
 
 List of user visible changes in the release 1.12.1
