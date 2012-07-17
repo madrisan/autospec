@@ -1,3 +1,25 @@
+List of user visible changes in the release 1.12.3
+
+-- Improvement
+
+ * pck-update - Davide Madrisan:
+   Action 4: allow developers to update the distribution-ID when updating the
+   release number.
+   Example: 1mamba --> 2mamba2
+   (when DISTRO_rpm="mamba2" is set in the configuration files).
+
+ * libapse.lib, conf/03-apse.conf - Stefano Cotta Ramusino
+   Fix scraping values and add new sites
+
+-- Update
+
+ * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
+   New default value for 'library_name_structure' ("").
+   The name of library packages has no predefined structure.
+   The previous value ("^lib") was unnecessarily too strict.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.2
 
 -- Improvement
@@ -17,9 +39,6 @@ List of user visible changes in the release 1.12.2
 
  * italian manpage - Davide Madrisan:
    Improve the examples for 'autospec -u'.
-
- * libapse.lib, conf/03-apse.conf - Stefano Cotta Ramusino
-   Fix scraping values and add new sites
 
 -------------------------------------------------------------------------------
 
