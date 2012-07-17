@@ -57,6 +57,11 @@ Changes in version 1.12.3
   * lib/libapse.lib - Davide Madrisan:
     Do not use 'dirname' and 'basename': bash provides primitives to do that.
 
++ update
+  * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
+    'library_name_structure': new default value is now "".
+    The old value ("^lib") does no longer apply.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.2
