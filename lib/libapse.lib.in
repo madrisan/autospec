@@ -54,7 +54,8 @@ function apse.cmpversion() {
    prealpha=(\
       "prealpha" "nightlybuild" "development" "dev" ${vcs[*]})
    beta=(\
-      "beta" "preview" "pre" "prototype" "proto" "tp" "ctp" "ea" "test" "milestone")
+      "beta" "preview" "pre" "prototype" "proto" "tp" "ctp" "ea" "test" \
+      "milestone")
    rc=(\
       "rc" "gm" "gamma")
    stable=(\
@@ -62,14 +63,17 @@ function apse.cmpversion() {
    precedence=(\
       "prealpha[*]" "alpha" "beta[*]" "rc[*]" "delta" "omega" "stable[*]")
 
-   # TODO: if in both there is vcs compare, if only in one of them watch changelog or/and data
+   # TODO: if in both there is vcs compare, if only in one of them watch
+   # changelog or/and data
 
-   version1=($(echo $1 | tr '[:punct:]' ' ' | \
-               sed -e "s,\([a-zA-Z^ ]*\)\([0-9^ ]*\)\([a-zA-Z^ ]*\),\1 \2 \3,g"))
+   version1=(\
+      $(echo $1 | tr '[:punct:]' ' ' | \
+           sed -e "s,\([a-zA-Z^ ]*\)\([0-9^ ]*\)\([a-zA-Z^ ]*\),\1 \2 \3,g"))
    notify.debug "$FUNCNAME: version1 = ${version1[*]}"
 
-   version2=($(echo $2 | tr '[:punct:]' ' ' | \
-               sed -e "s,\([a-zA-Z^ ]*\)\([0-9^ ]*\)\([a-zA-Z^ ]*\),\1 \2 \3,g"))
+   version2=(\
+      $(echo $2 | tr '[:punct:]' ' ' | \
+           sed -e "s,\([a-zA-Z^ ]*\)\([0-9^ ]*\)\([a-zA-Z^ ]*\),\1 \2 \3,g"))
    notify.debug "$FUNCNAME: version2 = ${version2[*]}"
 
    minfield=${#version1[*]}
@@ -153,19 +157,19 @@ $FUNCNAME: \`$code1' has position ${version1[$i]} in precedence"
       fi
 
       if [[ ${version2[$i]} -gt ${version1[$i]} ]]; then
-        retval=2
-        break
+         retval=2
+         break
       elif [[ ${version2[$i]} -lt ${version1[$i]} ]]; then
-        retval=1
-        break
+         retval=1
+         break
       elif [ "${version2[$i]}" = "8" ]; then
-        if [ "$code2" \> "$code1" ]; then
-          retval=2
-        elif [ "$code2" \< "$code1" ]; then
-          retval=1
-        else
-          retval=0
-        fi
+         if [ "$code2" \> "$code1" ]; then
+            retval=2
+         elif [ "$code2" \< "$code1" ]; then
+            retval=1
+         else
+            retval=0
+         fi
       else
          if [ $i -eq $(($minfield-1)) ]; then
             for j in $(seq $i 1 $[$maxfield-1]); do
@@ -356,7 +360,8 @@ sed "s,%{?[A-Za-z0-9_]*:.*\(%[A-Za-z0-9_]*\)},\1,"`
          done
 
          # remove archiver extension from rexexp to match changes
-         local pcknameregexp=$(echo [^A-Za-z0-9._-]$spck | sed "\
+         local pcknameregexp=$(echo [^A-Za-z0-9._-]$spck | \
+            sed "\
                s,\.gz$,\\\.,
                s,\.tgz$,\\\.,
                s,\.bz2$,\\\.,
@@ -394,15 +399,15 @@ sort -t. -n -r -k1 -k2 -k3 -k4 -k5 -k6 -k7 -k8 -k9 -k10 ))
                local curr_version_dots new_version_dots candidate_version
                curr_version_dots=`echo $SPEC_VERSION | tr -d [0-9][A-Z][a-z]_`
                for candidate_version in ${candidate_versions[*]}; do
-                   # skip version with no dots if current version has at least
-                   # one (e.g. date release like 20000110)
-                   new_version_dots=`echo $candidate_version | \
-                      tr -d [0-9][A-Z][a-z]_`
-                   [ "${#new_version_dots}" = 0 -a \
-                      ${#curr_version_dots} -gt 0 ] &&
-                      continue
-                   new_version="$candidate_version"
-                   break
+                  # skip version with no dots if current version has at least
+                  # one (e.g. date release like 20000110)
+                  new_version_dots=`echo $candidate_version | \
+                     tr -d [0-9][A-Z][a-z]_`
+                  [ "${#new_version_dots}" = 0 -a \
+                     ${#curr_version_dots} -gt 0 ] &&
+                     continue
+                  new_version="$candidate_version"
+                  break
                done
             fi
          fi

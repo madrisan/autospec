@@ -1,3 +1,11 @@
+Changes in version 1.12.4
+
++ update
+  * lib/libapse.lib - Davide Madrisan:
+    Coding style fixes.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.12.3
 Tue Jul 17 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
