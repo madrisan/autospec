@@ -4,6 +4,10 @@ Changes in version 1.12.4
   * lib/libapse.lib - Davide Madrisan:
     Coding style fixes.
 
++ improvement
+  * test/test01_pkgquality - Davide Madrisan:
+    When a file is detected as problematic do add its mime type. 
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.3

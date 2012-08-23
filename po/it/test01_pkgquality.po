@@ -67,6 +67,9 @@ msgstr "ignorato"
 msgid "checking for \\`$BUILDDIR' (%_builddir) strings"
 msgstr "ricerca della stringa \\`$BUILDDIR' (%_builddir)"
 
+msgid "mime type:"
+msgstr "tipo mime:"
+
 msgid "checking for suspicious plugins in devel packages"
 msgstr "controllo di plugin sospetti nei pacchetti devel"
 
