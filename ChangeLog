@@ -8,6 +8,11 @@ Changes in version 1.12.4
   * test/test01_pkgquality - Davide Madrisan:
     When a file is detected as problematic do add its mime type. 
 
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    Remove the extra newline added to workaroung a bug in curl.
+    It's fixed now.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.3

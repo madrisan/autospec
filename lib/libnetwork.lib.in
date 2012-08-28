@@ -691,8 +691,8 @@ repository-alias:,exit-on-err,debug-unsecure \
 
    [ -e "$upfile" ] || notify.error $"package not found"": \`$upfile'"
 
-   # add an extra newline to workaroung a bug in curl
-   notify.note "
+   # FIXED: add an extra newline to workaroung a bug in curl
+   notify.note "\
  * ${NOTE}$upfile${NORM}
    --> $destfile"
 
