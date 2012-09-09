@@ -13,6 +13,10 @@ Changes in version 1.12.4
     Remove the extra newline added to workaroung a bug in curl.
     It's fixed now.
 
++ improvement
+  * spec-create - Davide Madrisan:
+    Document the creation of a specfile starting from a git repository.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.3

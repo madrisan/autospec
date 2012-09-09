@@ -120,6 +120,7 @@ function usage() {
 "$"Samples"":
  @frontend@ -s ~/software/@package@-@version@.tar.bz2 -t standard -o @package@.spec
  @frontend@ -s http://ftp.qilinux.it/devel/tools/@package@/@package@-@version@.tar.bz2
+ @frontend@ -s git://anongit.freedesktop.org/gstreamer/gst-omx -o gst-omx.spec -n gst-omx
 
 "$"Report bugs to <davide.madrisan@gmail.com>."
 
