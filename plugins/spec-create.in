@@ -60,6 +60,8 @@ spec_cmd_makeinstall_default=""
 
 [ "$perl_Makefile_generator" ] || perl_Makefile_generator="Makefile.PL"
 
+preserve_dot_git=0
+
 # load the configuration file(s)
 [ -r @libdir@/libcfg.lib ] ||
  { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
@@ -109,6 +111,8 @@ function usage() {
                       python          : "$"specfile for python modules""
                       standard-daemon : "$"standard specfile for system/network services""
  -o, --output       "$"Redirect the output to the file <outfile>""
+ --git-branch       "$"Specify a git branch""
+ --preserve-dot-git "$"Do not remove git files""
 
 "$"Operation modes"":
  -h, --help         "$"Print this help, then exit""
@@ -120,7 +124,8 @@ function usage() {
 "$"Samples"":
  @frontend@ -s ~/software/@package@-@version@.tar.bz2 -t standard -o @package@.spec
  @frontend@ -s http://ftp.qilinux.it/devel/tools/@package@/@package@-@version@.tar.bz2
- @frontend@ -s git://anongit.freedesktop.org/gstreamer/gst-omx -o gst-omx.spec -n gst-omx
+ @frontend@ -s git://anongit.freedesktop.org/gstreamer/gst-omx \\
+    --git-branch=\"raspberry\" --preserve-dot-git -o gst-omx.spec
 
 "$"Report bugs to <davide.madrisan@gmail.com>."
 
@@ -152,7 +157,7 @@ config.check4user
 exec_options=`LC_ALL=C getopt \
    -o s:n:v:t:o:DqrhV \
    --long \
-source:,pck-name:,pck-version:,type:,output:,\
+source:,pck-name:,pck-version:,type:,output:,git-branch:,preserve-dot-git,\
 debug,quiet,colorize,help,version,\
 frontend_opts: \
    -n "$me" -- "$@"`
@@ -176,6 +181,10 @@ while :; do
          spec_type=$2; shift ;;
       -o|--output)
          outfile=$2; shift ;;
+      --git-branch)
+         git_branch=$2; shift ;;
+      --preserve-dot-git)
+         preserve_dot_git=1 ;;
       -D|--debug)
          let "verbose = 2" ;;
       -q|--quiet)
@@ -476,7 +485,10 @@ function specfile.create() {
 
    case "$2" in
       git://*|http://*.git|https://*.git)        
-         git.create_tarball --destdir="$source_dir" "$2"
+         git.create_tarball \
+            --git-branch="$git_branch" \
+            --preserve-dot-git="$preserve_dot_git" \
+            --destdir="$source_dir" "$2"
       ;;
       http://*|https://*|ftp://*)
          pck_tarball="${2##*/}"

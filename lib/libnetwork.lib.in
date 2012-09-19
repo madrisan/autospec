@@ -846,8 +846,10 @@ curl $options --user \"***:***\" --quote \"DELE $deletefile\" $1"
 #    clone a git repository and convert is into a tarball file
 #    
 # args:
-#    -d,--destdir     : target directory
-#    $@               : git repository
+#    -d,--destdir       : target directory
+#    --git-branch       : git branch
+#    --preserve-dot-git : do not remove .git files
+#    $@                 : git repository
 #
 # return value:
 #    0
@@ -858,7 +860,7 @@ function git.create_tarball() {
    local ARGS
    ARGS=`LC_ALL=C getopt \
       -o d:p:u: \
-      --long destdir:,proxy:,proxy-user: \
+      --long destdir:,git-branch:,preserve-dot-git:,proxy:,proxy-user: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
@@ -867,6 +869,8 @@ function git.create_tarball() {
    # HINT: git config --global http.proxy http://user:pwd@proxy.srv.com:port
    # see: http://bardofschool.blogspot.fr/2008/11/use-git-behind-proxy.html
    local proxy proxy_user
+   local git_branch
+   local preserve_dot_git=0
 
    eval set -- "$ARGS"
    while :; do
@@ -874,6 +878,14 @@ function git.create_tarball() {
       -d|--destdir)
          destdir="$2"; shift
          notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      --git-branch)
+         git_branch="$2"; shift
+         notify.debug "$FUNCNAME: git_branch = \"$git_branch\""
+      ;;
+      --preserve-dot-git)
+         preserve_dot_git="$2"; shift
+         notify.debug "$FUNCNAME: preserve_dot_git = \"$preserve_dot_git\""
       ;;
       -p|--proxy)
          proxy="$2"; shift
@@ -910,8 +922,9 @@ function git.create_tarball() {
 
    # create a tarball by cloning the git repository
    notify.note \
-      "${NOTE}"$"cloning git repository"" <$git_repository>${NORM}""..."
-   git clone --quiet "$git_repository"
+      "${NOTE}"$"cloning git repository""\
+ <$git_repository> ${git_branch:+($git_branch)}${NORM}""..."
+   git clone ${git_branch:+-b $git_branch} --quiet "$git_repository"
    [ $? -eq 0 ] ||
     { popd &>/dev/null
       rm -fr $tmpgitdir
@@ -919,9 +932,12 @@ function git.create_tarball() {
 
    pck_tarball="$(find -mindepth 1 -maxdepth 1 -type d -printf "%f")"
 
-   # remove git files
-   rm -fr $pck_tarball/.git
-   rm -f $pck_tarball/.gitignore
+   if [ "$preserve_dot_git" = "0" ]; then
+      # remove git files
+      rm -fr $pck_tarball/.git
+      rm -f $pck_tarball/.gitignore
+      rm -f $pck_tarball/.gitmodules
+   fi
 
    pck_version="$(date "+%Y%m%dgit")"
    mv $pck_tarball ${pck_tarball}-${pck_version}
@@ -938,7 +954,8 @@ function git.create_tarball() {
 an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
 
    spec_source="${pck_tarball}.tar.bz2"
-   spec_source_comment="## GITSOURCE $git_repository"
+   spec_source_comment="\
+## GITSOURCE $git_repository${git_branch:+ it_branch}"
    pck_tarball="$destdir/${spec_source}"
 
    popd &>/dev/null

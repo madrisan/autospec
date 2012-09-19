@@ -17,6 +17,10 @@ Changes in version 1.12.4
   * spec-create - Davide Madrisan:
     Document the creation of a specfile starting from a git repository.
 
+  * spec-create, lib/libnetwork.lib - Madrisan:
+    Add aupport for git branches in spec-create by adding the new options
+    '--git-branch' and '--preserve-dot-git'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.3
