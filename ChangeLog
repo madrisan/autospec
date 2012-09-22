@@ -1,4 +1,5 @@
 Changes in version 1.12.4
+Sat Sep 22 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + update
   * lib/libapse.lib - Davide Madrisan:
@@ -20,6 +21,10 @@ Changes in version 1.12.4
   * spec-create, lib/libnetwork.lib - Madrisan:
     Add aupport for git branches in spec-create by adding the new options
     '--git-branch' and '--preserve-dot-git'.
+
++ update
+  * lib/libnetwork.lib - Madrisan:
+    Do not run the git command in quiet mode.
 
 -------------------------------------------------------------------------------
 

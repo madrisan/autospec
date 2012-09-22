@@ -924,7 +924,7 @@ function git.create_tarball() {
    notify.note \
       "${NOTE}"$"cloning git repository""\
  <$git_repository> ${git_branch:+($git_branch)}${NORM}""..."
-   git clone ${git_branch:+-b $git_branch} --quiet "$git_repository"
+   git clone ${git_branch:+-b $git_branch} "$git_repository"
    [ $? -eq 0 ] ||
     { popd &>/dev/null
       rm -fr $tmpgitdir
