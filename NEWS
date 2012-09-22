@@ -1,3 +1,19 @@
+List of user visible changes in the release 1.12.4
+
+-- Improvement
+
+ * test/test01_pkgquality - Davide Madrisan:
+   Add the mime type of the files shown in the warning and error messages.
+
+ * spec-create - Davide Madrisan:
+   Display in the help the creation of a specfile for git-based projects.
+
+ * spec-create, lib/libnetwork.lib - Madrisan:
+   Add aupport for git branches in spec-create by adding the new options
+   '--git-branch' and '--preserve-dot-git'.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.3
 
 -- Improvement
@@ -8,7 +24,7 @@ List of user visible changes in the release 1.12.3
    Example: 1mamba --> 2mamba2
    (when DISTRO_rpm="mamba2" is set in the configuration files).
 
- * libapse.lib, conf/03-apse.conf - Stefano Cotta Ramusino
+ * libapse.lib, conf/03-apse.conf - Stefano Cotta Ramusino:
    Fix scraping values and add new sites
 
 -- Update

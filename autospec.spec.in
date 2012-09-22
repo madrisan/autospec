@@ -185,6 +185,9 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
 
+* Tue Jul 17 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.12.3-1mamba
+- update to 1.12.3
+
 * Mon May 28 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.12.2-1mamba
 - update to 1.12.2
 
