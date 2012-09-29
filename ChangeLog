@@ -1,3 +1,11 @@
+Changes in version 1.12.5
+
++ bugfix
+  * autospec.spec - Davide Madrisan:
+    Add a build requirement for gettext.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.12.4
 Sat Sep 22 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 

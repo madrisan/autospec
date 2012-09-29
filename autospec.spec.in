@@ -28,6 +28,7 @@ Requires:      unzip
 #Requires:     sudo
 Requires:      ftp
 Requires:      %{name}-plugins = %{?epoch:%epoch:}%{version}-%{release}
+BuildRequires: gettext
 License:       GPL
 BuildArch:     noarch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-root
