@@ -954,9 +954,12 @@ function git.create_tarball() {
 an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
 
    spec_source="${pck_tarball}.tar.bz2"
+   notify.debug "$FUNCNAME: spec_source = $spec_source"
    spec_source_comment="\
 ## GITSOURCE $git_repository${git_branch:+ $git_branch}"
+   notify.debug "$FUNCNAME: spec_source_comment = \"$spec_source_comment\""
    pck_tarball="$destdir/${spec_source}"
+   notify.debug "$FUNCNAME: pck_tarball = $pck_tarball"
 
    popd &>/dev/null
    rm -fr $tmpgitdir

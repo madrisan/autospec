@@ -14,6 +14,10 @@ Changes in version 1.12.5
   * lib/libnetwork.lib - Davide Madrisan:
     git.create_tarball(): fix typo.
 
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    git.create_tarball(): add some debug messages.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.4
