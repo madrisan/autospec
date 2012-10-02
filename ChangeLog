@@ -4,6 +4,12 @@ Changes in version 1.12.5
   * autospec.spec - Davide Madrisan:
     Add a build requirement for gettext.
 
++ improvement
+  * lib/libnetwork.lib - Davide Madrisan:
+    git.create_tarball(): run 'git clone --depth=1' to only clone the last
+    commit. We do not need to clone the whole git repository.
+    (Thanks to Silvan Calarco:silvan.calarco(a)mambasoft.it for spotting this.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.4
