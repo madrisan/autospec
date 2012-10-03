@@ -1,4 +1,5 @@
 Changes in version 1.12.5
+Wed Oct 03 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * autospec.spec - Davide Madrisan:
@@ -17,6 +18,10 @@ Changes in version 1.12.5
 + update
   * lib/libnetwork.lib - Davide Madrisan:
     git.create_tarball(): add some debug messages.
+
++ improvement
+  * spec-create - Davide Madrisan:
+    specfile.create(): modify the 'Source' tag by including a parsable git url.
 
 -------------------------------------------------------------------------------
 

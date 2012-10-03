@@ -489,6 +489,8 @@ function specfile.create() {
             --git-branch="$git_branch" \
             --preserve-dot-git="$preserve_dot_git" \
             --destdir="$source_dir" "$2"
+
+         spec_source="$2/${git_branch:-master}/$spec_source"
       ;;
       http://*|https://*|ftp://*)
          pck_tarball="${2##*/}"
