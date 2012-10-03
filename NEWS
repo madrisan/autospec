@@ -1,3 +1,24 @@
+List of user visible changes in the release 1.12.5
+
+-- Improvement
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   git.create_tarball: execute 'git clone --depth=1' insted of 'git clone' to
+   only clone the last commit instead of the whole repository.
+   (Thanks to Silvan Calarco for spotting this.)
+
+ * spec-create - Davide Madrisan:
+   specfile.create: modify the 'Source' tag by including a parsable git URL.
+   (Feature asked by Silvan Calarco.)
+
+-- Bug Fixes
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   git.create_tarball: fix a typo (it_branch --> $git_branch) in the code that
+   creates the comment "## GITSOURCE".
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.4
 
 -- Improvement
