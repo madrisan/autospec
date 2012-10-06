@@ -7,6 +7,10 @@ Changes in version 1.12.6
   * autospec.spec - Davide Madrisan:
     Make the specfile more distro-agnostic.
 
+  * Makefile - Davide Madrisan:
+    Modify the 'dist' directive to allow 'make dist', 'make dist-rpm', and
+    'make dist-rpm-install' with a cloned git archive.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

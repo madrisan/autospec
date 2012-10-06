@@ -150,11 +150,22 @@ dist: clean
 	   esac; \
 	done
 	@rm -f history/$(dist_archive)
-	@echo "Creating the compressed tarball..."
 	@$(INSTALL_DIR) history
-	tar cf - --exclude=history --exclude=.git \
-	   -C .. $(distdir) |\
-	   bzip2 -9 -c > history/$(dist_archive)
+	@echo "Creating a temporary copy of the entire repository..."
+	@tmpdir=`mktemp -q -d -t $(PACKAGE)-dist.XXXXXXXX`;\
+	[ $$? -eq 0 ] || \
+	 { echo "cannot create a temporary directory"; exit 1; };\
+	$(INSTALL_DIR) $$tmpdir/$(PACKAGE)-$(VERSION);\
+	find . -mindepth 1 \( -name .git -o -name history \) \
+	   -prune -o \( \! -name *~ -print0 \) | \
+	   cpio --quiet -pmd0 $$tmpdir/$(PACKAGE)-$(VERSION)/;\
+	currdir="`pwd`";\
+	echo "Creating the compressed tarball...";\
+	pushd $$tmpdir/$(PACKAGE)-$(VERSION)/ >/dev/null;\
+	tar cf - -C .. $(PACKAGE)-$(VERSION) |\
+	   bzip2 -9 -c > "$$currdir"/history/$(dist_archive);\
+	popd >/dev/null;\
+	rm -fr $$tmpdir
 
 dist-rpm: dist $(PACKAGE).spec
 	@rpm_name=$(PACKAGE)-$(VERSION)-$(RELEASE);\
