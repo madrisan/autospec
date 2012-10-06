@@ -11,7 +11,8 @@ Group:         Development/Tools
 Vendor:        openmamba
 Distribution:  openmamba
 Packager:      Davide Madrisan <davide.madrisan@gmail.com>
-URL:           http://www.openmamba.org/packages.html
+URL:           https://sites.google.com/site/davidemadrisan/opensource#TOC-autospec-suite
+# http://git.openmamba.org/?p=autospec.git;a=summary
 Source:        autospec-%{version}.tar.bz2
 Requires(pre): bash
 Requires(pre): rpm
