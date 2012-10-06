@@ -1,6 +1,7 @@
-# please customize this directive (or use root if your distro does not have
-# such a group)
-%define packager_group packager
+# modify these definitions according to your distribution
+%define distribution openmamba
+%define vendor openmamba
+%define rpmbuild_group packager
 
 Name:          autospec
 Version:       @version@
@@ -8,8 +9,8 @@ Release:       @release@
 Summary:       Create specfiles and automatically update/check/fix rpm packages
 Summary(it):   Crea specfile ed aggiorna/controlla/corregge in modo automatico pacchetti rpm
 Group:         Development/Tools
-Vendor:        openmamba
-Distribution:  openmamba
+Vendor:        %{vendor}
+Distribution:  %{distribution}
 Packager:      Davide Madrisan <davide.madrisan@gmail.com>
 URL:           https://sites.google.com/site/davidemadrisan/opensource#TOC-autospec-suite
 # http://git.openmamba.org/?p=autospec.git;a=summary
@@ -58,16 +59,16 @@ This package contains the plugins needed for generating specfiles, updating rpm 
 %description -l it plugins
 Questo pacchetto contiene i plugin necessari per generare specfile, aggiornare pacchetti rpm, estrarre file da pacchetti source rpm (srpm).
 
-%package config-openmamba
+%package config-%{distribution}
 Summary:       Configuration files for autospec
 Summary(it):   File di configurazione per autospec
 Group:         Development/Tools
 Provides:      %{name}-config = %{?epoch:%epoch:}%{version}-%{release}
 
-%description config-openmamba
+%description config-%{distribution}
 This package contains the configuration files for autospec.
 
-%description -l it config-openmamba
+%description -l it config-%{distribution}
 Questo pacchetto contiene i file di configurazione di autospec.
 
 %package libs
@@ -83,16 +84,16 @@ They can be used by external tools that manage rpm packages and specfiles.
 Questo pacchetto contiene le librerie necessarie al funzionamento di autospec e dei suoi plugin.
 Possono anche essere stilizzate da tool esterni che lavorano su rpm e specfile.
 
-%package templates-openmamba
+%package templates-%{distribution}
 Summary:       Autospec templates
 Summary(it):   Template per autospec
 Group:         Development/Tools
 Provides:      %{name}-templates = %{?epoch:%epoch:}%{version}-%{release}
 
-%description templates-openmamba
+%description templates-%{distribution}
 This package contains the templates used by autospec for generating specfiles from tarballs.
 
-%description -l it templates-openmamba
+%description -l it templates-%{distribution}
 Questo pacchetto contiene i template utilizzati da autospec per generare gli specfile a partire dai sorgenti.
 
 %package tests
@@ -149,19 +150,19 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-extract.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-update.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/spec-create.mo
-%if %{packager_group} == "root"
+%if %{rpmbuild_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
 %else
-%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.conf
+%config %attr(640,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.conf
 %endif
 
-%files config-openmamba
+%files config-%{distribution}
 %defattr(-,root,root)
 %dir %{_sysconfdir}/%{name}.d
-%if %{packager_group} == "root"
+%if %{rpmbuild_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
 %else
-%config %attr(640,root,%{packager_group}) %{_sysconfdir}/%{name}.d/*.conf
+%config %attr(640,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.d/*.conf
 %endif
 
 %files libs
@@ -169,7 +170,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %{_datadir}/%{name}/lib/*
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/lib*.mo
 
-%files templates-openmamba
+%files templates-%{distribution}
 %defattr(-,root,root)
 %{_datadir}/%{name}/templates
 

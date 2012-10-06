@@ -1,3 +1,14 @@
+Changes in version 1.12.6
+
++ update
+  * autospec.spec - Davide Madrisan:
+    Update the URL tag. 
+
+  * autospec.spec - Davide Madrisan:
+    Make the specfile more distro-agnostic.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.12.5
 Wed Oct 03 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
