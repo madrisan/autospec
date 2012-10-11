@@ -264,7 +264,7 @@ $(LC_ALL=C ldd -d -r "$f" 2>/dev/null |& grep "undefined symbol")"
          if [ "$undefsyms" ]; then
             notify.warning "${NOTE}${pck##*/}${NORM}"
             echo -n "${CRIT}"
-            LC_ALL=C ldd -d -r "$f" 2>/dev/null |& \
+            LC_ALL=C ldd -d -r "$f" 2>&1 | \
             grep "undefined symbol" | sed "s,.*,     - &,"
             echo -n "${NORM}"
             let "total_issues += 1"

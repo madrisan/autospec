@@ -15,6 +15,11 @@ Changes in version 1.12.6
   * autospec.spec - Davide Madrisan:
     Add a missing build requirement: make.
 
++ update
+  * tests/test01_pkgquality - Davide Madrisan:
+    Do not use the operator '|&'. Use instead '2>&1 |' which is compatible at
+    least with bash 3.2.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
