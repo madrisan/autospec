@@ -11,6 +11,10 @@ Changes in version 1.12.6
     Modify the 'dist' directive to allow 'make dist', 'make dist-rpm', and
     'make dist-rpm-install' with a cloned git archive.
 
++ bugfix
+  * autospec.spec - Davide Madrisan:
+    Add a missing build requirement: make.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

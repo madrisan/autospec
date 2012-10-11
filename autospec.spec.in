@@ -16,6 +16,7 @@ URL:           https://sites.google.com/site/davidemadrisan/opensource#TOC-autos
 # http://git.openmamba.org/?p=autospec.git;a=summary
 Source:        autospec-%{version}.tar.bz2
 Requires(pre): bash
+Requires(pre): make
 Requires(pre): rpm
 Requires:      cpio, coreutils, curl, findutils, grep, sed
 Requires:      /bin/mktemp
