@@ -80,7 +80,7 @@ msgid "Specify a git branch"
 msgstr "Specifica un branch git"
 
 msgid "Do not remove git files"
-msgstr "Non rimuovere i file git"
+msgstr "Non rimuove i file git"
 
 msgid "Operation modes"
 msgstr "Modalità operative"
