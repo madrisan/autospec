@@ -25,6 +25,10 @@ Changes in version 1.12.6
     Clone the entire git repository when the option '--preserve-dot-git' is
     selected by user.
 
+  * lib/libnetwork.lib - Davide Madrisan:
+    Print an informational message before creating the source compressed
+    tarball. This may take a while.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

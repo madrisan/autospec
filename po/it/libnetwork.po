@@ -96,3 +96,6 @@ msgstr "impossibile clonare il repository git"
 
 msgid "an error occurred while creating"
 msgstr "si è verificato un errore durante la creazione di"
+
+msgid "creating the compressed source tarball"
+msgstr "creazione del file sorgente compresso"
