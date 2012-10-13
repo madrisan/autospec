@@ -29,6 +29,10 @@ Changes in version 1.12.6
     Print an informational message before creating the source compressed
     tarball. This may take a while.
 
++ bugfix
+  * po/it/spec-create.po - Davide Madrisan:
+    Add missing translations.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

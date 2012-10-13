@@ -76,6 +76,12 @@ msgstr "specfile per servizi di sistema/rete"
 msgid "Redirect the output to the file <outfile>"
 msgstr "Redirige lo standard output sul file <outfile>"
 
+msgid "Specify a git branch"
+msgstr "Specifica un branch git"
+
+msgid "Do not remove git files"
+msgstr "Non rimuovere i file git"
+
 msgid "Operation modes"
 msgstr "Modalità operative"
 
