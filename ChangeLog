@@ -20,6 +20,11 @@ Changes in version 1.12.6
     Do not use the operator '|&'. Use instead '2>&1 |' which is compatible at
     least with bash 3.2.
 
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    Clone the entire git repository when the option '--preserve-dot-git' is
+    selected by user.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
