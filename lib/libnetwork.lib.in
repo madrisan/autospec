@@ -949,7 +949,7 @@ function git.create_tarball() {
 
    # create a compressed tarball
    # FIXME: why bzip2? The compression tool used here should be configurable
-   notify.note "${NOTE}"$"creating the compressed source tarball"${NORM}""..."
+   notify.note "${NOTE}"$"creating the compressed source tarball""${NORM}..."
    tar -cvf ${pck_tarball}.tar $pck_tarball/ >/dev/null &&
    bzip2 ${pck_tarball}.tar &&
    mv ${pck_tarball}.tar.bz2 $destdir/
