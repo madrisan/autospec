@@ -164,6 +164,8 @@ dist: clean
 	pushd $$tmpdir/$(PACKAGE)-$(VERSION)/ >/dev/null;\
 	tar cf - -C .. $(PACKAGE)-$(VERSION) |\
 	   bzip2 -9 -c > "$$currdir"/history/$(dist_archive);\
+	[ -f "$$currdir/history/$(dist_archive)" ] && \
+	   echo "Wrote: $$currdir/history/$(dist_archive)";\
 	popd >/dev/null;\
 	rm -fr $$tmpdir
 

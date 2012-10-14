@@ -33,6 +33,10 @@ Changes in version 1.12.6
   * po/it/spec-create.po - Davide Madrisan:
     Add missing translations.
 
++ update
+  * Makefile - Davide Madrisan:
+    Make 'make dist' a bit more verbose.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
