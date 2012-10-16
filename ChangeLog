@@ -37,6 +37,12 @@ Changes in version 1.12.6
   * Makefile - Davide Madrisan:
     Make 'make dist' a bit more verbose.
 
++ bugfix
+  * plugins/pck-update.in - Davide Madrisan:
+    infofile.create(): quote all the elements of SPEC_SOURCE to avoid problems
+    when the URL contains the letter '&'.
+    (Problem pointed out by Silvan Calarco.)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

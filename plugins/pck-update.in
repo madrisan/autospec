@@ -536,7 +536,10 @@ done))
 SPEC_FILENAME=\"$SPEC_FILENAME\"
 SPEC_URL=\"$SPEC_URL\"
 SPEC_PATCH=(${SPEC_PATCH[*]})
-SPEC_SOURCE=(${SPEC_SOURCE[*]})
+SPEC_SOURCE=(\
+$(for i in `seq 1 1 ${#SPEC_SOURCE[*]}`; do
+   echo -n "\"${SPEC_SOURCE[i-1]}\" "
+done))
 SPEC_LICENSE=(\
 $(for i in `seq 1 1 ${#SPEC_LICENSE[*]}`; do
    echo -n "\"${SPEC_LICENSE[i-1]}\" "
