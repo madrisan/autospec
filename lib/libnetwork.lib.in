@@ -602,10 +602,10 @@ function curl.download() {
    pushd $destdir >/dev/null
 
    local retval
-   notify.debug "curl $curl_options\
+   notify.debug "curl $curl_opts\
 ${proxy:+ --proxy $proxy}${proxyuser:+ --proxy-user $proxy_user} $file_url"
 
-   curl $curl_options \
+   curl $curl_opts \
       ${proxy:+ --proxy $proxy} ${proxyuser:+ --proxy-user $proxy_user} \
       "$file_url"
    retval=$?

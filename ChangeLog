@@ -43,6 +43,10 @@ Changes in version 1.12.6
     when the URL contains the letter '&'.
     (Problem pointed out by Silvan Calarco.)
 
+  * lib/libnetwork.lib - Davide Madrisan:
+    curl.download(): do use the curl options set by the function argument
+    '--options' (or '-o') instead of the global variable '$curl_options'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
