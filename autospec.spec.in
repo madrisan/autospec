@@ -48,9 +48,9 @@ Installa autospec se sei un packager o se vuoi creare/aggiornare pacchetti rpm i
 Summary:       Autospec plugins
 Summary(it):   Plugin di autospec
 Group:         Development/Tools
-Requires:      %{name}-config = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      %{name}-config-%{distribution} = %{?epoch:%epoch:}%{version}-%{release}
 Requires:      %{name}-libs = %{?epoch:%epoch:}%{version}-%{release}
-Requires:      %{name}-templates = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      %{name}-templates-%{distribution} = %{?epoch:%epoch:}%{version}-%{release}
 Requires:      %{name}-tests = %{?epoch:%epoch:}%{version}-%{release}
 Requires(pre): rpm
 

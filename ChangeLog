@@ -47,6 +47,11 @@ Changes in version 1.12.6
     curl.download(): do use the curl options set by the function argument
     '--options' (or '-o') instead of the global variable '$curl_options'.
 
++ update
+  * autospec.spec - Davide Madrisan:
+    Update some requirements of the autospec subpackages in order to always use
+    the real package names instead of their aliases ('Provides' tag).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
