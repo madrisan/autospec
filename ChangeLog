@@ -52,6 +52,10 @@ Changes in version 1.12.6
     Update some requirements of the autospec subpackages in order to always use
     the real package names instead of their aliases ('Provides' tag).
 
++ update
+  * lib/libnetwork.lib - Davide Madrisan:
+    New helper function: 'git.download()'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

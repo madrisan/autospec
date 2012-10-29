@@ -842,6 +842,73 @@ curl $options --user \"***:***\" --quote \"DELE $deletefile\" $1"
    [[ "$retval" != "0" && "$exitonerror" = 1 ]] && exit 1
 }
 
+# function git.download
+#    helper for creating a tarball from a git repository
+# args:
+#    -d, --destdir    : target directory
+#    -p, --proxy      : proxy server
+#    -u, --proxy-user : proxy user
+#    $@               : git repository
+#
+# return value:
+#    0
+
+function git.download() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt \
+      -o d:p:u: \
+      --long destdir:,proxy:,proxy-user: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local destdir
+   local proxy proxy_user
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -d|--destdir)
+         destdir="$2"; shift
+         notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      -p|--proxy)
+         proxy="$2"; shift
+         notify.debug "$FUNCNAME: proxy = \"$proxy\""
+      ;;
+      -u|--proxy-user)
+         proxy_user="$2"; shift
+         notify.debug "$FUNCNAME: proxy_user = \"$proxy_user\""
+      ;;
+      --) shift; break;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   local giturl_and_branch="$1"
+
+   notify.debug "$FUNCNAME: giturl_and_branch = \"$giturl_and_branch\""
+   [ "$giturl_and_branch" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (#1)"
+
+   [ "$destdir" ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--destdir)"
+
+   local token_dirname="${giturl_and_branch%/*}"
+   local token_basename="${giturl_and_branch##*/}"
+   notify.debug "$FUNCNAME: token_dirname = \"$token_dirname\""   
+   notify.debug "$FUNCNAME: token_basename = \"$token_basename\""
+
+   local git_branch="${token_dirname##*/}"
+   notify.debug "$FUNCNAME: git_branch = \"$git_branch\""
+
+   git.create_tarball \
+      --destdir "$destdir" \
+      --preserve-dot-git "0" --git-branch "$git_branch" \
+      "${token_dirname%/*}"
+}
+
 # function git.create_tarball
 #    clone a git repository and convert is into a tarball file
 #    
