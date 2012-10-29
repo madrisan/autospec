@@ -1122,9 +1122,16 @@ echo $fullURL | sed "s,%[{]*version[}]*,$pck_newver,g")
 rpmvars.solve "$fullURL_new" "$SRPM_SPECFILE_WITH_PATH")
             notify.debug "fullURL_new = $fullURL_new"
 
-            curl.download --options "$curl_options" $sdflag \
+            case "$fullURL_new" in
+               git://*|http://*.git|https://*.git)
+                  git.download \
+                     --destdir="$source_dir" "$fullURL_new"
+               ;;
+               *) curl.download --options "$curl_options" $sdflag \
 ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 --exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL_new"
+               ;;
+            esac
          done
 
          # get the list of URL of all the patches (usually local files)...
@@ -1946,9 +1953,16 @@ found ${NOTE}missing BuildRequirement${NORM} \`${NOTE}$f${NORM}'"
 rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
                notify.debug "fullURL = $fullURL"
 
-               curl.download --options "$curl_options" $sdflag \
+               case "$fullURL_new" in
+                  git://*|http://*.git|https://*.git)
+                     git.download \
+                        --destdir="$source_dir" "$fullURL"
+                  ;;
+                  *) curl.download --options "$curl_options" $sdflag \
 ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 --exit-on-err --filenum="$totfilenum" --destdir="$source_dir" "$fullURL"
+                  ;;
+               esac
             done
 
             # get the list of URLs for the patch files to download

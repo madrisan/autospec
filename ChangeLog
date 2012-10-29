@@ -55,6 +55,10 @@ Changes in version 1.12.6
 + update
   * lib/libnetwork.lib - Davide Madrisan:
     New helper function: 'git.download()'.
+    
++ improvement
+  * pck-update - Davide Madrisan:
+    Action 3,5: support source files update from a git repository.
 
 -------------------------------------------------------------------------------
 
