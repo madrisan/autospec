@@ -856,13 +856,14 @@ curl $options --user \"***:***\" --quote \"DELE $deletefile\" $1"
 function git.download() {
    local ARGS
    ARGS=`LC_ALL=C getopt \
-      -o d:p:u: \
-      --long destdir:,proxy:,proxy-user: \
+      -o d:v:p:u: \
+      --long destdir:,pck-version:,proxy:,proxy-user: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
    local destdir
    local proxy proxy_user
+   local pck_version
 
    eval set -- "$ARGS"
    while :; do
@@ -870,6 +871,10 @@ function git.download() {
       -d|--destdir)
          destdir="$2"; shift
          notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      -v|--pck-version)
+         pck_version="$2"; shift
+         notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
       ;;
       -p|--proxy)
          proxy="$2"; shift
@@ -904,6 +909,7 @@ function git.download() {
    notify.debug "$FUNCNAME: git_branch = \"$git_branch\""
 
    git.create_tarball \
+      --pck-version "$pck_version" \
       --destdir "$destdir" \
       --preserve-dot-git "0" --git-branch "$git_branch" \
       "${token_dirname%/*}"
@@ -921,13 +927,12 @@ function git.download() {
 # return value:
 #    0
 #
-# set: pck_version, spec_source, spec_source_comment, pck_tarball
+# set: spec_source, spec_source_comment, pck_tarball
 
 function git.create_tarball() {
    local ARGS
-   ARGS=`LC_ALL=C getopt \
-      -o d:p:u: \
-      --long destdir:,git-branch:,preserve-dot-git:,proxy:,proxy-user: \
+   ARGS=`LC_ALL=C getopt -o d:v:p:u: \
+--long destdir:,pck-version:,git-branch:,preserve-dot-git:,proxy:,proxy-user:\
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
@@ -938,6 +943,7 @@ function git.create_tarball() {
    local proxy proxy_user
    local git_branch
    local preserve_dot_git=0
+   local pck_version
 
    eval set -- "$ARGS"
    while :; do
@@ -945,6 +951,10 @@ function git.create_tarball() {
       -d|--destdir)
          destdir="$2"; shift
          notify.debug "$FUNCNAME: destdir = \"$destdir\""
+      ;;
+      -v|--pck-version)
+         pck_version="$2"; shift
+         notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
       ;;
       --git-branch)
          git_branch="$2"; shift
@@ -976,6 +986,10 @@ function git.create_tarball() {
 
    [ "$destdir" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--destdir)"
+
+   [ "$pck_version" ] ||
+    { pck_version="$(date "+%Y%m%dgit")"
+      notify.debug "$FUNCNAME: pck_version = \"$pck_version\""; }
 
    which git &>/dev/null ||
       notify.error $"utility not found"": \`git'"
@@ -1010,7 +1024,6 @@ function git.create_tarball() {
       rm -f $pck_tarball/.gitmodules
    fi
 
-   pck_version="$(date "+%Y%m%dgit")"
    mv $pck_tarball ${pck_tarball}-${pck_version}
    pck_tarball="${pck_tarball}-${pck_version}"
 
@@ -1020,11 +1033,15 @@ function git.create_tarball() {
    tar -cvf ${pck_tarball}.tar $pck_tarball/ >/dev/null &&
    bzip2 ${pck_tarball}.tar &&
    mv ${pck_tarball}.tar.bz2 $destdir/
-   [ $? -eq 0 ] ||
-    { popd &>/dev/null
+   if [ $? -eq 0 ]; then
+      notify.note "\
+...${NOTE}"$"done""${NORM}: \`${NOTE}${pck_tarball}.tar.bz2${NORM}'"
+   else
+      popd &>/dev/null
       rm -fr $tmpgitdir
       notify.error $"\
-an error occurred while creating"": ${pck_tarball}.tar.bz2"; }
+an error occurred while creating"": ${pck_tarball}.tar.bz2"
+   fi
 
    spec_source="${pck_tarball}.tar.bz2"
    notify.debug "$FUNCNAME: spec_source = $spec_source"

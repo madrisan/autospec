@@ -99,3 +99,6 @@ msgstr "si è verificato un errore durante la creazione di"
 
 msgid "creating the compressed source tarball"
 msgstr "creazione del file sorgente compresso"
+
+msgid "done"
+msgstr "fatto"

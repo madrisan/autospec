@@ -20,7 +20,6 @@ Changes in version 1.12.6
     Do not use the operator '|&'. Use instead '2>&1 |' which is compatible at
     least with bash 3.2.
 
-+ update
   * lib/libnetwork.lib - Davide Madrisan:
     Clone the entire git repository when the option '--preserve-dot-git' is
     selected by user.
@@ -52,13 +51,18 @@ Changes in version 1.12.6
     Update some requirements of the autospec subpackages in order to always use
     the real package names instead of their aliases ('Provides' tag).
 
-+ update
   * lib/libnetwork.lib - Davide Madrisan:
     New helper function: 'git.download()'.
     
 + improvement
   * pck-update - Davide Madrisan:
     Action 3,5: support source files update from a git repository.
+
+  * lib/libnetwork.lib - Davide Madrisan:
+    git.download(), git.create_tarball(): new option '--pck-version'.
+
+  * pck-update - Davide Madrisan:
+    Action 3,5: set the package version when calling 'git.download()'.
 
 -------------------------------------------------------------------------------
 
