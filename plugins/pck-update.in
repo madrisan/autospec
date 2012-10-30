@@ -1953,7 +1953,7 @@ found ${NOTE}missing BuildRequirement${NORM} \`${NOTE}$f${NORM}'"
 rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
                notify.debug "fullURL = $fullURL"
 
-               case "$fullURL_new" in
+               case "$fullURL" in
                   git://*|http://*.git|https://*.git)
                      git.download \
                         --destdir="$source_dir" "$fullURL"
