@@ -990,7 +990,7 @@ function git.create_tarball() {
    local today="$(date "+%Y%m%d")"
    if [ "$pck_version" ]; then
       [ "$pck_version" = "${today}git" ] || notify.warning "\
-${NOTE}${today}git${NORM}: "$"\
+${NOTE}${pck_version}${NORM}: "$"\
 not the expected package version"" (${NOTE}${today}git${NORM})..."
    else
       pck_version="${today}git"
