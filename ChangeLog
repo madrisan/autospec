@@ -64,6 +64,11 @@ Changes in version 1.12.6
   * pck-update - Davide Madrisan:
     Action 3,5: set the package version when calling 'git.download()'.
 
+  * lib/libnetwork.lib - Davide Madrisan:
+    git.create_tarball(): add a warning message when the version passed to the
+    function is not the expected one (that is a string made by the current 
+    date in the format YYYYMMDD followed by "git").
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5

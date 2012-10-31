@@ -88,6 +88,9 @@ msgstr "pacchetto non trovato"
 msgid "downloading"
 msgstr "download di"
 
+msgid "not the expected package version"
+msgstr "non è la versione di pacchetto prevista"
+
 msgid "cloning git repository"
 msgstr "clonazione del repository"
 

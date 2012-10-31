@@ -987,9 +987,15 @@ function git.create_tarball() {
    [ "$destdir" ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"missing mandatory arg"" (--destdir)"
 
-   [ "$pck_version" ] ||
-    { pck_version="$(date "+%Y%m%dgit")"
-      notify.debug "$FUNCNAME: pck_version = \"$pck_version\""; }
+   local today="$(date "+%Y%m%d")"
+   if [ "$pck_version" ]; then
+      [ "$pck_version" = "${today}git" ] || notify.warning "\
+${NOTE}${today}git${NORM}: "$"\
+not the expected package version"" (${NOTE}${today}git${NORM})..."
+   else
+      pck_version="${today}git"
+      notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
+   fi
 
    which git &>/dev/null ||
       notify.error $"utility not found"": \`git'"
