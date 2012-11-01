@@ -1,3 +1,60 @@
+List of user visible changes in the release 1.14.0
+
+-- Improvement
+
+ * Makefile - Davide Madrisan:
+   Modify the 'dist' directive to allow 'make dist', 'make dist-rpm', and
+   'make dist-rpm-install' from a cloned git archive.
+
+ * pck-update - Davide Madrisan:
+   Action 3,5: support package update from git repositories.
+
+-- Bug Fixes
+
+ * autospec.spec - Davide Madrisan:
+   Add 'make' in the list of build requirement.
+
+ * plugins/pck-update.in - Davide Madrisan:
+   Support URL ('Source' tag in the specfile) containing the letter '&'.
+   (Problem pointed out by Silvan Calarco.)
+
+ * pck-update - Silvan Calarco:
+   Try to avoid reporting package requirements set with 'Requires:' as build
+   requirements to avoid breaking stage1 builds and causing unneeded circular
+   dependencies.
+   (Patch by Silvan Calarco)
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   Minor fix in 'curl.download()'.
+
+ * po/it/spec-create.po - Davide Madrisan:
+   Add missing translations.
+
+-- Update
+
+ * autospec.spec - Davide Madrisan:
+   Make the specfile more distro-agnostic.
+   Update the list of requirements for subpackages.
+
+ * tests/test01_pkgquality - Davide Madrisan:
+   Do not use the operator '|&' to be at least bash 3.2 compatible.
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   Clone the entire git repository when the option '--preserve-dot-git' is
+   selected by user.
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   Print an informational message before creating the source compressed
+   tarball. This may take a while.
+
+ * lib/libnetwork.lib - Davide Madrisan:
+   New helper function: 'git.download()'.
+
+ * po/it/pck-update.po - Davide Madrisan:
+   Updated.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.12.5
 
 -- Improvement
