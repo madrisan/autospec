@@ -468,6 +468,9 @@ msgstr "release del nuovo pacchetto non indicata"
 msgid "package not found"
 msgstr "pacchetto non trovato"
 
+msgid "ignoring requirement"
+msgstr "requirement ignorato"
+
 msgid "rpm exited with error code:"
 msgstr "rpm è terminato con il codice di errore:"
 

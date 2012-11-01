@@ -2252,7 +2252,7 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
             else
                # other requirements probably coming from static 'Requires:'
                # so don't treat them as build requirements
-               :
+               notify.warning $"ignoring requirement: \`${NOTE}$req${NORM}'"
             fi
             if [ -n "$buildreq" \
                  -a "${buildreq/%-devel/}" = "$buildreq" ]; then
