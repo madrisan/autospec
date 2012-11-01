@@ -69,6 +69,12 @@ Changes in version 1.12.6
     function is not the expected one (that is a string made by the current 
     date in the format YYYYMMDD followed by "git").
 
+  * pck-update - Silvan Calarco:
+    Try to avoid reporting package requirements set with 'Requires:' as build
+    requirements. Unless not better identified requirements are in 'a(b)' form
+    don't report them as build requirements to avoid breaking stage1 builds and
+    causing unneeded circular dependencies.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.12.5
