@@ -90,8 +90,6 @@ notify.disable_colors
  { echo "$me: "$"library not found"": @libdir@/libcfg.lib" 1>&2
    exit 1; }
 
-. @libdir@/libcfg.lib
-
 for arg in $@; do
    case $arg in
       -u|--update)
@@ -129,6 +127,8 @@ case "$(( $pck_update + $spec_create + $pck_extract + $config_getvar ))" in
    1) ;;
    *) autospec.usage 1 ;;
 esac
+
+. @libdir@/libcfg.lib
 
 [ "$logging" = "1" ] && let "colorize = 0"
 [ "$colorize" = "1" ] && notify.enable_colors

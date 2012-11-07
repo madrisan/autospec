@@ -25,6 +25,11 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * templates/standard - Davide Madrisan:
     Add a devel subpackage.
 
++ update
+  * autospec - Davide Madrisan:
+    Postpone the load of libcfg.lib to allow users to set a different
+    configuration file (will be done in a following patch).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.0
