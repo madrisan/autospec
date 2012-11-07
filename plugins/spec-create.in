@@ -95,7 +95,8 @@ function usage() {
 "$"Try to create a specfile for the specified source archive"".
 
 "$"Usage"":
- @frontend@ -s <source-archive> [-n <name>] [-v <ver>] [-t <type>] [-o <outfile>]
+ @frontend@ -s <source-archive> [-n <name>] [-v <ver>] [-t <type>] \\
+    [-o <outfile>] [--changelog \""$"message""\"] [<"$"git-opts"">]
 
 "$"where the above options mean"":
  -s, --source       "$"Try to create a specfile for the specified source archive""
@@ -111,6 +112,7 @@ function usage() {
                       python          : "$"specfile for python modules""
                       standard-daemon : "$"standard specfile for system/network services""
  -o, --output       "$"Redirect the output to the file <outfile>""
+ --changelog        "$"Set change information for the package""
  --git-branch       "$"Specify a git branch""
  --preserve-dot-git "$"Do not remove git files""
 
@@ -124,6 +126,7 @@ function usage() {
 "$"Samples"":
  @frontend@ -s ~/software/@package@-@version@.tar.bz2 -t standard -o @package@.spec
  @frontend@ -s http://ftp.qilinux.it/devel/tools/@package@/@package@-@version@.tar.bz2
+ @frontend@ -s @package@-@version@.tar.bz2 --changelog \"First build\"
  @frontend@ -s git://anongit.freedesktop.org/gstreamer/gst-omx \\
     --git-branch=\"raspberry\" --preserve-dot-git -o gst-omx.spec
 
@@ -157,7 +160,8 @@ config.check4user
 exec_options=`LC_ALL=C getopt \
    -o s:n:v:t:o:DqrhV \
    --long \
-source:,pck-name:,pck-version:,type:,output:,git-branch:,preserve-dot-git,\
+source:,pck-name:,pck-version:,type:,output:,changelog:,\
+git-branch:,preserve-dot-git,\
 debug,quiet,colorize,help,version,\
 frontend_opts: \
    -n "$me" -- "$@"`
@@ -181,6 +185,8 @@ while :; do
          spec_type=$2; shift ;;
       -o|--output)
          outfile=$2; shift ;;
+      --changelog)
+         spec_changelog_comment="$2"; shift ;;
       --git-branch)
          git_branch=$2; shift ;;
       --preserve-dot-git)
@@ -484,7 +490,7 @@ function specfile.create() {
    local pck_name pck_version
 
    case "$2" in
-      git://*|http://*.git|https://*.git)        
+      git://*|http://*.git|https://*.git)
          git.create_tarball \
             --git-branch="$git_branch" \
             --preserve-dot-git="$preserve_dot_git" \

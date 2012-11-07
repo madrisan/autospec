@@ -37,6 +37,12 @@ msgstr "Cerca di creare uno specfile per l'archivio sorgente indicato"
 msgid "Usage"
 msgstr "Utilizzo"
 
+msgid "message"
+msgstr "messaggio"
+
+msgid "git-opts"
+msgstr "opzioni-git"
+
 msgid "where the above options mean"
 msgstr "dove le precedenti opzioni significano"
 
@@ -102,6 +108,9 @@ msgstr "Attiva la modalità di debugging (output prolisso)"
 
 msgid "Samples"
 msgstr "Alcuni esempi"
+
+msgid "Set change information for the package"
+msgstr "Scrive il messaggio indicato nel changelog del pacchetto"
 
 msgid "Report bugs to <davide.madrisan@gmail.com>."
 msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
