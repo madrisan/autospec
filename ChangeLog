@@ -1,5 +1,8 @@
 Changes in version 1.14.1 - _TO*Hacklab release
 Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
++ bugfix
+  * plugins/pck-update.in - Silvan Calarco:
+    Restore build requirement detection for *.so requirements
 
 + improvement
   * plugins/spec-create - Davide Madrisan:
