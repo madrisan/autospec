@@ -2244,15 +2244,15 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                   echo "\
 #$req: library not reported by ldconfig; run \`ldconfig' and try again"
                fi
-            elif [[ "$req" =~ .*\(.*\) ]]; then
-               # other a(b) requirements
+            elif [[ "$req" =~ .*\(.*\) || "$req" =~ .*\.so ]]; then
+               # a(b) requirement or *.so library
                rpm -q --qf %{name} --whatprovides "$req" &>/dev/null &&
                   buildreq="$(rpm -q --qf %{name} --whatprovides "$req")" ||
                   echo "#$req: unidentified build requirement"
             else
                # other requirements probably coming from static 'Requires:'
                # so don't treat them as build requirements
-               notify.warning $"ignoring requirement: \`${NOTE}$req${NORM}'"
+               notify.warning $"ignoring requirement"": \`${NOTE}$req${NORM}'"
             fi
             if [ -n "$buildreq" \
                  -a "${buildreq/%-devel/}" = "$buildreq" ]; then
