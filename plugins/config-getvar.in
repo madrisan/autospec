@@ -56,7 +56,8 @@ function usage() {
 "$"where the above options mean"":
      --eval         "$"Print the value of the configuration variable <var>""
  -C, --config       "$"Use an alternate configuration file"" <conf_file>""
-                    "$"Default files:"" ${default_cfg[0]}, ${default_cfg[1]}""
+                    "$"Default files:"" $default_cfg_strlist""
+                    "$"Default user files:"" $default_cfg_user_strlist""
 
 "$"Operation modes"":
  -h, --help         "$"Print this help, then exit""

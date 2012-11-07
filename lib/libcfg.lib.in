@@ -21,6 +21,9 @@ default_cfg=(\
 `ls /etc/@package@.conf /etc/@package@.d/*.conf \
     ~/.@package@ ~/.@package@.d/*.conf 2>/dev/null`)
 
+default_cfg_strlist="/etc/@package@.conf /etc/@package@.d/*.conf"
+default_cfg_user_strlist="~/.@package@ ~/.@package@.d/*.conf"
+
 # check if the user configurations file for autospec is present
 function config.check4user() {
    local user_data=$(getent passwd 2>/dev/null | grep "x:$(id -u):")

@@ -9,6 +9,14 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * po/it/spec-create - Davide Madrisan:
     Updated.
 
++ bugfix
+  * plugins/config-getvar, lib/libcfg.lib - Davide Madrisan:
+    Fix the help message (incorrect list of default files).
+
++ update
+  * po/it/config-getvar - Davide Madrisan:
+    Updated.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.0

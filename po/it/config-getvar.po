@@ -51,6 +51,9 @@ msgstr "Utilizza un file di configurazione alternativo"
 msgid "Default files:"
 msgstr "File di default:"
 
+msgid "Default user files:"
+msgstr "File di default utente:"
+
 msgid "Operation modes"
 msgstr "Modalità operative"
 
