@@ -24,6 +24,17 @@ BuildRoot:     @rpm_default_buildroot@
 %description
 ...
 
+@if:pck_devel
+## remove the following two blocks if there's no devel files
+%package devel
+Group:         ...
+Summary:       Development files for %{name}
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+
+%description devel
+This package contains libraries and header files for developing applications that use %{name}.
+@fi:pck_devel
+
 @if:pck_apidocs
 %package apidocs
 Group:         Documentation
@@ -90,6 +101,25 @@ exit 0
 @standard_docs@
 ## note: eventually add the remaining documents (if any)
 # @standard_docs_devel@
+
+@if:pck_devel
+## remove this block if there's no devel files
+%files devel
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_datadir}/aclocal/*.m4
+# %{_includedir}/*.h
+# %{_includedir}/%{name}
+# %{_libdir}/*.a
+# %{_libdir}/*.la
+# %{_libdir}/*.so
+# %{_libdir}/pkgconfig/*.pc
+# %{_mandir}/man3/*
+@if:infopages
+# %{_infodir}/*.info.*
+@fi:infopages
+@standard_docs_devel@
+@fi:pck_devel
 
 @if:pck_apidocs
 %files apidocs

@@ -21,6 +21,10 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * plugins/pck-update.in - Silvan Calarco:
     Restore build requirement detection for *.so requirements
 
++ improvement
+  * templates/standard - Davide Madrisan:
+    Add a devel subpackage.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.0
