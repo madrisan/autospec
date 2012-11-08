@@ -1,6 +1,6 @@
 #!/bin/bash
 # config-getvar -- plugin for @package@
-# Copyright (C) 2007,2008,2010,2011 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2007,2008,2010-2012 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
