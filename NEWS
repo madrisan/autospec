@@ -1,3 +1,35 @@
+List of user visible changes in the release 1.14.1 - _TO*Hacklab release
+
+-- Improvement
+
+ * spec-create - Davide Madrisan:
+   New option '--changeglog'.
+
+ * templates/standard - Davide Madrisan:
+   Add a devel subpackage.
+
+ * lib/libmsgmng.lib - Davide Madrisan:
+   Allow users to modify ESC, CRIT, NOTE, WARN, EXIT, and NORM color codes.
+   (A feature asked by Silvan for the openmamba webbuild service).
+
+-- Bug Fixes
+
+ * pck-update - Silvan Calarco:
+   Action 6: restore build requirement detection for *.so requirements.
+
+ * config-getvar, lib/libcfg.lib - Davide Madrisan:
+   Minor fix: incorrect list of default files in the help message.
+
+-- Update
+
+ * po/it/* - Davide Madrisan:
+   The italian translation files have been updated.
+
+ * conf/autospec.conf - Davide Madrisan:
+   Better documentation for terminal (and web) color setup.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.14.0
 
 -- Improvement
