@@ -37,6 +37,10 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     define very different color sequences, like the colors used in web pages.
     (A feature asked by Silvan for openmamba webbuild).
 
++ improvement
+  * conf/autospec.conf - Davide Madrisan:
+    Better documentation for terminal (and web) color setup.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.0

@@ -36,10 +36,19 @@ spec_backup_attr="hidden"
 
 ## Output using ascii colors (enabled by default) -----------------------------
 # Default colors are:
+#  ESC=$(echo -en "\033")
 #  CRIT="${ESC}[1;31m" (red)
 #  NOTE="${ESC}[1;33m" (yellow)
 #  WARN="${ESC}[1;31m"
 #  EXIT="${ESC}[1;31m"
+#  NORM=$(echo -en "${ESC}[m\017")
+#
+# A possible setup for the web:
+#  CRIT="<font color=white style=\"background-color:red\">"
+#  NOTE="<font color=gold>"
+#  WARN="<font color=red>"
+#  EXIT="$CRIT"
+#  NORM="</font>"
 colorize=1
 
 ## Logging directory (default is /var/tmp/@package@) --------------------------
