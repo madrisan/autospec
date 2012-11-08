@@ -30,6 +30,13 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Postpone the load of libcfg.lib to allow users to set a different
     configuration file (will be done in a following patch).
 
++ improvement
+  * lib/libmsgmng.lib - Davide Madrisan:
+    Do not set ESC, CRIT, NOTE, WARN, EXIT, and NORM when already defined by 
+    the user.  This will permit users to redefine the terminal colors or even
+    define very different color sequences, like the colors used in web pages.
+    (A feature asked by Silvan for openmamba webbuild).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.0

@@ -17,12 +17,12 @@ TEXTDOMAIN="libmsgmng"; export TEXTDOMAIN
 #    none
 function notify.enable_colors() {
    if [[ -t 1 && "$TERM" != raw && "$TERM" != dumb ]]; then
-      ESC=$(echo -en "\033")  # ascii ESCape
-      CRIT="${ESC}[1;31m"     # switch on red
-      NOTE="${ESC}[1;33m"     # switch on yellow
-      WARN="${ESC}[1;31m"
-      EXIT="${ESC}[1;31m"
-      NORM=$(echo -en "${ESC}[m\017")
+      ESC=$(echo -en "\033")                 # ascii ESCape
+      [ "$CRIT" ] || CRIT="${ESC}[1;31m"     # switch on red
+      [ "$NOTE" ] || NOTE="${ESC}[1;33m"     # switch on yellow
+      [ "$WARN" ] || WARN="${ESC}[1;31m"
+      [ "$EXIT" ] || EXIT="${ESC}[1;31m"
+      [ "$NORM" ] || NORM=$(echo -en "${ESC}[m\017")
    else
       ESC= CRIT= NOTE= WARN= EXIT= NORM=
    fi
