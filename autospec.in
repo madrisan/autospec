@@ -131,7 +131,7 @@ esac
 . @libdir@/libcfg.lib
 
 [ "$logging" = "1" ] && let "colorize = 0"
-[ "$colorize" = "1" ] && notify.enable_colors
+[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
 
 notify.debug "[${me[0]}, "$"version"" ${me[1]}]"
 

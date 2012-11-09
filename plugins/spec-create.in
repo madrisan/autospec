@@ -207,11 +207,11 @@ while :; do
    shift
 done
 
+[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
+
 for arg in $@; do
    notify.error $"unrecognized option"" -- \`$arg'"
 done
-
-[ "$colorize" = "1" ] && notify.enable_colors
 
 function specfile.ckeck_defvalues() {
    # $1: name of the specfile

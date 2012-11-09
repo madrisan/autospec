@@ -137,7 +137,7 @@ for arg in $@; do
       notify.error $"unrecognized option"" -- \`$arg'"
 done
 
-[ "$colorize" = "1" ] && notify.enable_colors
+[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
 
 # s_rpm_pck : the name of the srpm package (local or remote)
 #             (i.e. /usr/src/RPM/SRPMS/automake-1.9-1qilnx.src.rpm)

@@ -131,7 +131,7 @@ for arg in $@; do
       notify.error $"unrecognized option"" -- \`$arg'"
 done
 
-[ "$colorize" = "1" ] && notify.enable_colors
+[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
 
 # config.getvar()
 # Parameters:
