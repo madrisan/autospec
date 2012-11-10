@@ -2,9 +2,6 @@
 # libtest.lib -- @package@ library used by the test framework
 # Copyright (C) 2012 Davide Madrisan <davide.madrisan@gmail.com>
 
-[ "$libtest_is_loaded" = 1 ] || {
-libtest_is_loaded=1
-
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
 
@@ -173,5 +170,3 @@ function test.runall() {
                --tmpdir "$tmpextractdir"
    done
 }
-
-} # endif $libtest_is_loaded

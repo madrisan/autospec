@@ -5,10 +5,6 @@ Changes in version 1.14.2
   Execute 'notify.disable_colors()' when 'colorize' is set to '0' (disabled)
   to ignore color redefinitions made by user.
 
-+ improvement
-  * plugins/* - Davide Madrisan:
-  Do not load a library already loaded by another autospec module.
-
 + update
   * autospec - Davide Madrisan:
   Send the debug message showing autospec version as soon as possible.

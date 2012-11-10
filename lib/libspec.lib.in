@@ -2,9 +2,6 @@
 # libspec.lib -- @package@ library to manage rpm specfiles
 # Copyright (C) 2004-2010,2012 Davide Madrisan <davide.madrisan@gmail.com>
 
-[ "$libspec_is_loaded" = 1 ] || {
-libspec_is_loaded=1
-
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
 
@@ -1247,5 +1244,3 @@ function getversionfromtarball() {
    notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
    echo "$pck_version"
 }
-
-} # endif $libspec_is_loaded

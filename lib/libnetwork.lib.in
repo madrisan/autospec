@@ -2,9 +2,6 @@
 # libnetwork.lib -- @package@ library to get info from internet repositories
 # Copyright (C) 2008,2010,2012 Davide Madrisan <davide.madrisan@gmail.com>
 
-[ "$libnetwork_is_loaded" = 1 ] || {
-libnetwork_is_loaded=1
-
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
 
@@ -1065,5 +1062,3 @@ an error occurred while creating"": ${pck_tarball}.tar.bz2"
 
    return 0
 }
-
-} # endif $libnetwork_is_loaded
