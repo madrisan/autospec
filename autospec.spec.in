@@ -1,7 +1,6 @@
 # modify these definitions according to your distribution
 %define distribution openmamba
 %define vendor openmamba
-%define rpmbuild_group packager
 
 Name:          autospec
 Version:       @version@
@@ -151,22 +150,13 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-extract.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-update.mo
 %lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/spec-create.mo
-%if %{rpmbuild_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
-%else
-%config %attr(640,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.conf
-%endif
 
 %files config-%{distribution}
 %defattr(-,root,root)
 %dir %{_sysconfdir}/%{name}.d
-%if %{rpmbuild_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.d/color-theme.*
-%else
-%config %attr(640,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.d/*.conf
-%config %attr(644,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.d/color-theme.*
-%endif
 
 %files libs
 %defattr(-,root,root)

@@ -18,8 +18,14 @@ Changes in version 1.14.2
   A color scheme can be selected now by using the new command-line option
   '--colorize-theme'.
 
++ improvement
   * lib/libmsgmng.lib, conf/Makefile - Davide Madrisan:
   Move theme settings to configuration files (color-theme.*)
+
++ update
+  * autospec.spec - Davide Madrisan:
+  Remove the variable 'rpmbuild_group': it's no more needed. Personal data is
+  located in the files ~/.autospec and ~/.autospec.d/*.conf
 
 -------------------------------------------------------------------------------
 
