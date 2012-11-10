@@ -118,7 +118,8 @@ while :; do
       -r|--colorize)
          let "colorize = 1" ;;
       --colorize-theme)
-         colorize_theme="$2"; shift ;;
+         colorize_theme="$2"; shift
+         let "colorize = 1" ;;
       -h|--help)
          usage 0 ;;
       -V|--version)

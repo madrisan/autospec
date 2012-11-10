@@ -129,7 +129,8 @@ while (($# > 0)); do
       -r|--colorize)
          let "colorize = 1" ;;
       --colorize-theme)
-         read_arg colorize_theme "$@" || shift ;;
+         read_arg colorize_theme "$@" || shift 
+         let "colorize = 1" ;;
       -h|--help)
          let "print_help = 1" ;;
       -V|--version)

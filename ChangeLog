@@ -14,7 +14,7 @@ Changes in version 1.14.2
   Send the debug message showing autospec version as soon as possible.
 
 + improvement
-  * autospec, plugins/*,lib/lib*.lib - Davide Madrisan:
+  * autospec, plugins/*, lib/lib*.lib - Davide Madrisan:
   A color scheme can be selected now by using the new command-line option
   '--colorize-theme'.
 
@@ -32,6 +32,10 @@ Changes in version 1.14.2
   config.security(): do not check for configuration files groups and
   permissions. These files are now own by root and never contain sensible
   data (that is passwords).
+
++ update
+  * plugins/* - Davide Madrisan:
+  The option '--colorize-theme' must set colorize to '1'.
 
 -------------------------------------------------------------------------------
 
