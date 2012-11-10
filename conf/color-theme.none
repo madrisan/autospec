@@ -1,0 +1,4 @@
+#
+# color scheme "none" (disable colors)
+#
+ESC= CRIT= NOTE= WARN= EXIT= NORM=

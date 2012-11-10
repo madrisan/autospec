@@ -1,0 +1,9 @@
+#
+# color scheme "terminal-white"
+#
+ESC=$(echo -en "\033")  # ascii ESCape
+CRIT="${ESC}[1;31m"     # switch on red
+NOTE="${ESC}[1;34m"     # switch on blu
+WARN="${ESC}[1;31m"
+EXIT="${ESC}[1;31m"
+NORM=$(echo -en "${ESC}[m\017")

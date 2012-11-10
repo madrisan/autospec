@@ -1,0 +1,9 @@
+#
+# color scheme "web"
+#
+ESC=
+CRIT="<font color=white style=\"background-color:red\">"
+NOTE="<font color=gold>"
+WARN="<font color=red>"
+EXIT="$CRIT"
+NORM="</font>"
