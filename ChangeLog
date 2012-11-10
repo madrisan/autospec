@@ -33,6 +33,10 @@ Changes in version 1.14.2
   * plugins/* - Davide Madrisan:
   The option '--colorize-theme' must set colorize to '1'.
 
++ update
+  * autospec - Davide Madrisan:
+  Deprecate the option '--colorize'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release

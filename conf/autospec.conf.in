@@ -34,7 +34,7 @@ spec_backup_extension="old"
 # Create "hidden" (default) or "visible" backup copies
 spec_backup_attr="hidden"
 
-## Output using ascii colors (enabled by default) -----------------------------
+## Output using ascii or web colors (enabled by default) ----------------------
 # Default colors are:
 #  ESC=$(echo -en "\033")
 #  CRIT="${ESC}[1;31m" (red)
@@ -42,13 +42,7 @@ spec_backup_attr="hidden"
 #  WARN="${ESC}[1;31m"
 #  EXIT="${ESC}[1;31m"
 #  NORM=$(echo -en "${ESC}[m\017")
-#
-# A possible setup for the web:
-#  CRIT="<font color=white style=\"background-color:red\">"
-#  NOTE="<font color=gold>"
-#  WARN="<font color=red>"
-#  EXIT="$CRIT"
-#  NORM="</font>"
+# See the files: see /etc/@package@.d/color-theme.*
 colorize=1
 
 ## Logging directory (default is /var/tmp/@package@) --------------------------

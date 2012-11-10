@@ -127,7 +127,9 @@ while (($# > 0)); do
       -q|--quiet)
          let "verbose = 0" ;;
       -r|--colorize)
-         let "colorize = 1" ;;
+         let "colorize = 1"
+         notify.warning $"\
+deprecated option"" (-r|--colorize), "$"use \`--colorize-theme' instead" ;;
       --colorize-theme)
          read_arg colorize_theme "$@" || shift 
          let "colorize = 1" ;;
@@ -160,7 +162,8 @@ esac
 . @libdir@/libcfg.lib
 
 [ "$logging" = "1" ] && let "colorize = 0"
-[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
+[ "$colorize" = "1" ] && notify.enable_colors "$colorize_theme" \
+   || notify.disable_colors
 
 # checking for errors in the configuration file
 [ "$config_getvar" = 1 ] || config.integrity

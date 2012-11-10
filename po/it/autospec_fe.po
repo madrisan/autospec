@@ -76,6 +76,12 @@ msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
 msgid "library not found"
 msgstr "libreria non trovata"
 
+msgid "deprecated option"
+msgstr "opzione deprecata"
+
+msgid "use \\`--colorize-theme' instead"
+msgstr "utilizzare invece \\`--colorize-theme'"
+
 msgid "version"
 msgstr "versione"
 
