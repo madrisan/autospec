@@ -114,6 +114,8 @@ for arg in $@; do
    esac
 done
 
+notify.debug "[${me[0]}, "$"version"" ${me[1]}]"
+
 case "$(( $pck_update + $spec_create + $pck_extract + $config_getvar ))" in
    0) [ "$print_help" = "1" ] && autospec.usage 0
       if [ "$print_version" = "1" ]; then
@@ -132,8 +134,6 @@ esac
 
 [ "$logging" = "1" ] && let "colorize = 0"
 [ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
-
-notify.debug "[${me[0]}, "$"version"" ${me[1]}]"
 
 # checking for errors in the configuration file
 [ "$config_getvar" = 1 ] || config.integrity

@@ -9,6 +9,10 @@ Changes in version 1.14.2
   * plugins/* - Davide Madrisan:
   Do not load a library already loaded by another autospec module.
 
++ update
+  * autospec - Davide Madrisan:
+  Send the debug message showing autospec version as soon as possible.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
