@@ -3,6 +3,9 @@
 # Copyright (C) 2007,2012 Stefano Cotta Ramusino <stefano.cotta@openmamba.org>
 # Copyright (C) 2008-2011 Silvan Calarco <silvan.calarco@mambasoft.it>
 
+[ "$libapse_is_loaded" = 1 ] || {
+libapse_is_loaded=1
+
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
 
@@ -590,3 +593,5 @@ a newer version of \`${NOTE}$specname${NORM}' is already installed"
 
    return $retval
 }
+
+} # endif $libapse_is_loaded

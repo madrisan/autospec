@@ -1,3 +1,16 @@
+Changes in version 1.14.2
+
++ bugfix
+  * plugins/* - Davide Madrisan:
+  Execute 'notify.disable_colors()' when 'colorize' is set to '0' (disabled)
+  to ignore color redefinitions made by user.
+
++ improvement
+  * plugins/* - Davide Madrisan:
+  Do not load a library already loaded by another autospec module.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.14.1 - _TO*Hacklab release
 Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
@@ -18,7 +31,7 @@ Fri Nov 09 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Updated.
 
 + bugfix
-  * plugins/pck-update.in - Silvan Calarco:
+  * plugins/pck-update - Silvan Calarco:
     Restore build requirement detection for *.so requirements
 
 + improvement
