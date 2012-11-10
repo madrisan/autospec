@@ -21,3 +21,6 @@ msgstr "questo script richiede bash versione 2 o superiore"
 
 msgid "no message"
 msgstr "nessun messaggio"
+
+msgid "unknown color theme \\`\\$colorize_theme': colors will be disabled"
+msgstr "tema di colori sconosciuto \\`\\$colorize_theme': output con colori disabilitato"

@@ -13,6 +13,11 @@ Changes in version 1.14.2
   * autospec - Davide Madrisan:
   Send the debug message showing autospec version as soon as possible.
 
++ improvement
+  * autospec, plugins/*,lib/lib*.lib - Davide Madrisan:
+  A color scheme can be selected now by using the new command-line option
+  '--colorize-theme'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release

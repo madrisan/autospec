@@ -121,6 +121,7 @@ function usage() {
  -V, --version      "$"Print version number, then exit""
  -q, --quiet        "$"Run in quiet mode""
  -r, --colorize     "$"Enable the colorized output""
+ --colorize-theme   "$"Select the theme to be used for the colorized output""
  -D, --debug        "$"Run in debugging mode (very verbose output)""
 
 "$"Samples"":
@@ -162,7 +163,7 @@ exec_options=`LC_ALL=C getopt \
    --long \
 source:,pck-name:,pck-version:,type:,output:,changelog:,\
 git-branch:,preserve-dot-git,\
-debug,quiet,colorize,help,version,\
+debug,quiet,colorize,colorize-theme:,help,version,\
 frontend_opts: \
    -n "$me" -- "$@"`
 [ $? = 0 ] || exit 1
@@ -197,6 +198,8 @@ while :; do
          let "verbose = 0" ;;
       -r|--colorize)
          let "colorize = 1" ;;
+      --colorize-theme)
+         colorize_theme="$2"; shift ;;
       -h|--help)
          usage 0 ;;
       -V|--version)
@@ -207,7 +210,8 @@ while :; do
    shift
 done
 
-[ "$colorize" = "1" ] && notify.enable_colors || notify.disable_colors
+[ "$colorize" = "1" ] && notify.enable_colors "$colorize_theme" \
+   || notify.disable_colors
 
 for arg in $@; do
    notify.error $"unrecognized option"" -- \`$arg'"
