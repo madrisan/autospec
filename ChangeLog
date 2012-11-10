@@ -37,6 +37,10 @@ Changes in version 1.14.2
   * autospec - Davide Madrisan:
   Deprecate the option '--colorize'.
 
++ update
+  * configuration - Davide Madrisan:
+  Add 'color-theme.none'. This theme can be used to disable color themes.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
