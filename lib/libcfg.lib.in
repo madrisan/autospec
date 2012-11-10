@@ -61,15 +61,6 @@ function config.security() {
       [ "$(groups 2>/dev/null | grep $packager_group 2>/dev/null)" ] ||
          notify.error $"\
 user \`$(id -nu)' does not belong to group \`$packager_group'"
-
-      # security check for configuration file(s) groups and permissions
-      for f in ${default_cfg[0]}; do
-         cfg_file_mod=(`find $f -printf "%g %m" 2>/dev/null`)
-         [[ ${cfg_file_mod[0]} = $packager_group &&
-            "`expr ${cfg_file_mod[1]} : '.*\(.\)'`" = 0 ]] ||
-         notify.warning $"\
-the file \`$f' should be readable only by the group \`$packager_group'"
-      done
    else
       notify.warning "\`packager_group' "$"unset in the configuration files"
    fi

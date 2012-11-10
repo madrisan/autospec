@@ -27,6 +27,12 @@ Changes in version 1.14.2
   Remove the variable 'rpmbuild_group': it's no more needed. Personal data is
   located in the files ~/.autospec and ~/.autospec.d/*.conf
 
++ update
+  * lib/libcfg.lib - Davide Madrisan:
+  config.security(): do not check for configuration files groups and
+  permissions. These files are now own by root and never contain sensible
+  data (that is passwords).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
