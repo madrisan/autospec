@@ -39,18 +39,21 @@ pck_confs := autospec.conf \
 
 pck_confs_infiles := $(wildcard *.in)
 
+pck_color_themes := color-theme.terminal-dark \
+   color-theme.terminal-white color-theme.web
+
 all:
 
-check: $(pck_confs)
-	@for f in $(pck_confs); do\
+check: $(pck_confs) $(pck_color_themes)
+	@for f in $(pck_confs) $(pck_color_themes); do\
 	   echo -n "checking $$f... ";\
 	   bash -n $$f \
 	      && echo "[PASSED]" || { echo "[FAILED]"; exit 1; };\
 	done
 
-install: $(pck_confs)
+install: $(pck_confs) $(pck_color_themes)
 	@$(INSTALL_DIR) $(DESTDIR)$(confdir)
-	for f in $(pck_confs); do\
+	for f in $(pck_confs) $(pck_color_themes); do\
 	   if [ $${f} = "autospec.conf" ]; then\
 	      $(INSTALL_DATA) $${f} $(DESTDIR)$(sysconfdir)/$${f};\
 	   else\

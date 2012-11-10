@@ -57,42 +57,13 @@ function notify.enable_colors() {
    # for backward compatibility
    [ "$colorize_theme" ] || colorize_theme="terminal-dark"
 
-   case "$colorize_theme" in
-      "web")
-         CRIT="<font color=white style=\"background-color:red\">"
-         NOTE="<font color=gold>"
-         WARN="<font color=red>"
-         EXIT="$CRIT"
-         NORM="</font>"
-      ;;
-      "terminal-white")
-         if [[ -t 1 && "$TERM" != raw && "$TERM" != dumb ]]; then
-            ESC=$(echo -en "\033")                 # ascii ESCape
-            [ "$NOTE" ] || NOTE="${ESC}[1;34m"     # switch on blu
-            [ "$WARN" ] || WARN="${ESC}[1;31m"
-            [ "$EXIT" ] || EXIT="${ESC}[1;31m"
-            [ "$NORM" ] || NORM=$(echo -en "${ESC}[m\017")
-         else
-            ESC= CRIT= NOTE= WARN= EXIT= NORM=
-         fi
-      ;;
-      "terminal-dark")
-         if [[ -t 1 && "$TERM" != raw && "$TERM" != dumb ]]; then
-            ESC=$(echo -en "\033")                 # ascii ESCape
-            [ "$CRIT" ] || CRIT="${ESC}[1;31m"     # switch on red
-            [ "$NOTE" ] || NOTE="${ESC}[1;33m"     # switch on yellow
-            [ "$WARN" ] || WARN="${ESC}[1;31m"
-            [ "$EXIT" ] || EXIT="${ESC}[1;31m"
-            [ "$NORM" ] || NORM=$(echo -en "${ESC}[m\017")
-         else
-            ESC= CRIT= NOTE= WARN= EXIT= NORM=
-         fi
-      ;;
-      *) echo \
+   if [ -r /etc/@package@.d/color-theme.${colorize_theme} ]; then
+      . /etc/@package@.d/color-theme.${colorize_theme}
+   else
+      notify.warning \
 $"unknown color theme \`$colorize_theme': colors will be disabled"
-         ESC= CRIT= NOTE= WARN= EXIT= NORM=
-      ;;
-   esac
+      ESC= CRIT= NOTE= WARN= EXIT= NORM=
+   fi
 }
 
 # function notify.disable_colors

@@ -18,6 +18,9 @@ Changes in version 1.14.2
   A color scheme can be selected now by using the new command-line option
   '--colorize-theme'.
 
+  * lib/libmsgmng.lib, conf/Makefile - Davide Madrisan:
+  Move theme settings to configuration files (color-theme.*)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release

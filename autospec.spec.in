@@ -162,8 +162,10 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %dir %{_sysconfdir}/%{name}.d
 %if %{rpmbuild_group} == "root"
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.d/*.conf
+%config %attr(644,root,root) %{_sysconfdir}/%{name}.d/color-theme.*
 %else
 %config %attr(640,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.d/*.conf
+%config %attr(644,root,%{rpmbuild_group}) %{_sysconfdir}/%{name}.d/color-theme.*
 %endif
 
 %files libs
