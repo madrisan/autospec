@@ -18,30 +18,11 @@ srcdir = ..
 
 include $(srcdir)/Makefile.env
 
-pck_confs := autospec.conf \
-   00-distribution.conf \
-   01-repositories.conf \
-   02-specfile-approved-licenses.conf \
-   02-specfile-autoformatting.conf \
-   02-specfile-default-values.conf \
-   02-specfile-formatting-rules.conf \
-   02-specfile-man-info-settings.conf \
-   02-specfile-rpm-groups.conf \
-   02-specfile-rpm-macros-debug.conf \
-   02-specfile-rpm-macros-perl.conf \
-   02-specfile-rpm-macros-python.conf \
-   02-specfile-rpm-macros.conf \
-   03-apse.conf \
-   04-rpmbuild-format-unpackaged-filelist.conf \
-   05-system-external-commands.conf \
-   06-security-packager-group.conf \
-   06-security-system-library-paths.conf
+pck_confs_infiles := $(wildcard *.conf.in)
+pck_confs := \
+   $(wildcard *.conf) $(patsubst %.conf.in,%.conf,$(wildcard *.conf.in))
 
-pck_confs_infiles := $(wildcard *.in)
-
-pck_color_themes := color-theme.default \
-   color-theme.terminal-dark color-theme.terminal-white color-theme.web \
-   color-theme.none
+pck_color_themes := $(wildcard color-theme.*)
 
 all:
 

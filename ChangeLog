@@ -51,6 +51,10 @@ Changes in version 1.14.2
   Allow users to write and select customized color schemes:
   ~/.autospec.d/color-theme.<color_scheme>"
 
++ update
+  * conf/Makefile - Davide Madrisan:
+  Simplify the makefile by removing the static list of files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
