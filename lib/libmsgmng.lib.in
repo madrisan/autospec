@@ -50,9 +50,11 @@ function notify.note() {
 # args:
 #    none
 function notify.enable_colors() {
-   local color_scheme="$1"
-   [ "$color_scheme" ] || color_scheme="default"
-   if [ -r /etc/@package@.d/color-theme.${color_scheme} ]; then
+   local color_scheme="${1:-default}"
+   if [ -r  ~/.@package@.d/color-theme.${color_scheme} ]; then
+      . ~/.@package@.d/color-theme.${color_scheme}
+      notify.debug "loading ~/.@package@.d/color-theme.${color_scheme}"
+   elif [ -r /etc/@package@.d/color-theme.${color_scheme} ]; then
       . /etc/@package@.d/color-theme.${color_scheme}
       notify.debug "loading /etc/@package@.d/color-theme.${color_scheme}"
    else

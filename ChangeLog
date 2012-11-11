@@ -1,4 +1,5 @@
 Changes in version 1.14.2
+--- Nov -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * plugins/* - Davide Madrisan:
@@ -44,6 +45,11 @@ Changes in version 1.14.2
 + update
   * autospec, autospec.conf, plugins/* - Davide Madrisan:
   Replace the option '--colorize' by '--colors <color-theme>'.
+
++ improvement
+  * libmsgmng.lib - Davide Madrisan:
+  Allow users to write and select customized color schemes:
+  ~/.autospec.d/color-theme.<color_scheme>"
 
 -------------------------------------------------------------------------------
 
