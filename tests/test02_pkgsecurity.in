@@ -179,7 +179,7 @@ ${NOTE}"$"Hint for perl scripts"":${NORM}
    test_number=$(($test_number + 1))
 
    notify.note "
- --> ${NOTE}"$"Security checks: ${#rpmpkg_name[@]} \
-package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}""
+ --> "$"${NOTE}Security checks: ${#rpmpkg_name[@]} \
+package(s) checked: ${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}""
 "
 }

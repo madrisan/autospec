@@ -118,5 +118,6 @@ msgstr "ricerca di pacchetti con errato tag BuildArch"
 msgid "this package should be tagged \\`noarch'"
 msgstr "questo pacchetto dovrebbe essere di tipo \\`noarch'"
 
-msgid "Quality checks: ${#rpmpkg_name[@]} package(s) checked: ${WARN}$total_issues${NOTE} warning(s)."
-msgstr "Controlli di qualità: pacchetti rpm: ${#rpmpkg_name[@]}; problemi riscontrati: ${WARN}$total_issues${NOTE}"
+msgid "${NOTE}Quality checks: ${#rpmpkg_name[@]} package(s) checked: ${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
+msgstr "${NOTE}Controlli di qualità: pacchetti rpm: ${#rpmpkg_name[@]}; problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
+

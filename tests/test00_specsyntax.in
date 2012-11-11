@@ -309,8 +309,8 @@ ${NOTE}@package@ --eval=rpm_approved_licenses${NORM}
    test_number=$(($test_number + 1))
 
    notify.note "
- --> ${NOTE}"$"Specfile checks: ${WARN}$total_issues${NOTE} warning(s).""\
-${NORM}""
+ --> "$"${NOTE}Specfile checks: ${NORM}\
+${WARN}$total_issues${NORM} ${NOTE}warnings.${NORM}""
 "
    return $total_issues
 }

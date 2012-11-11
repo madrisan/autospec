@@ -72,5 +72,5 @@ msgstr "Licenza valida"
 msgid "not approved \\`License'"
 msgstr "\\`License' non approvata"
 
-msgid "Specfile checks: ${WARN}$total_issues${NOTE} warning(s)."
-msgstr "Controllo dello specfile: problemi riscontrati: ${WARN}$total_issues${NOTE}"
+msgid "${NOTE}Specfile checks: ${NORM}${WARN}$total_issues${NORM} ${NOTE}warnings.${NORM}"
+msgstr "${NOTE}Controllo dello specfile: problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"

@@ -441,7 +441,7 @@ BuildArch:     noarch
    test_number=$(($test_number + 1))
 
    notify.note "
- --> ${NOTE}"$"Quality checks: ${#rpmpkg_name[@]} \
-package(s) checked: ${WARN}$total_issues${NOTE} warning(s).""${NORM}""
+ --> "$"${NOTE}Quality checks: ${#rpmpkg_name[@]} \
+package(s) checked: ${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}""
 "
 }

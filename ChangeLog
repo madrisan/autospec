@@ -59,6 +59,12 @@ Changes in version 1.14.2
   * italian manpage - Davide Madrisan:
   Update italian manpage and document new extensions.
 
++ bugfix
+  * tests/* - Davide Madrisan:
+  Fix the color tags of the final message in each test module; they worked for
+  teminal colors but not for the web scheme.
+  (Bug discovered by Silvan Calarco)
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
