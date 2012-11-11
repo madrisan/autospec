@@ -1,8 +1,8 @@
 .TH AUTOSPEC "9" "@date_my@" "@package@ @version@" "User Commands"
 .SH NOME
-\fB@package@\fR - script di frontend per la creazione e l'aggiornamento e la verifica di pacchetti rpm.
+\fB@package@\fR - frontend per la creazione e l'aggiornamento e la verifica di pacchetti rpm.
 .br
-\fBconfig-getvar\fR - plugin per la visualizzazione di variabili presenti nei file di configurazione.
+\fBconfig-getvar\fR - plugin per visualizzare le variabili presenti nei file di configurazione.
 .br
 \fBpck-extract\fR - plugin per l'estrazione di file da archivi srpm.
 .br
@@ -12,15 +12,28 @@
 .br
 \fB@pck_lib@\fR - libreria di funzioni per l'analisi degli specfile.
 
+.B
+\fBlibapse.lib\fR - libreria del motore di ricerca 'Autospec Package Search Engine'.
+.br
+\fBlibcfg.lib\fR - libreria per il caricamento dei file di configurazione.
+.br
+\fBlibmsgmng.lib\fR - libreria per gestire i messaggi di debug/warning/errore.
+.br
+\fBlibnetwork.lib\fR - libreria per la gestione delle operazioni di rete.
+.br
+\fBlibtest.lib\fR - libreria con le funzioni del framework di test.
+
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.12.0 di
+Questo documento e' aggiornato alla versione 1.14.2 di
 .B @package@.
 
 .SH DESCRIZIONE
 .B @package@
-e' una suite di script che permette di \fIvelocizzare\fP ed \fIautomatizzare\fP una parte
-delle operazioni necessarie alla creazione, al mantenimento (aggiornamento) dei pacchetti
-rpm di una intera distribuzione ed al controllo di comuni errori e vulnerabilita'.
+e' costituito da un frontend (lo script autospec propriamente detto) e da una suite di
+script che permetteno di \fIvelocizzare\fP ed \fIautomatizzare\fP una parte importante
+delle operazioni necessarie alla creazione, al mantenimento (aggiornamento) dei 
+pacchetti rpm di una intera distribuzione ed al controllo di comuni errori e 
+vulnerabilita'.
 
 .B @package@
 e' modulare ed altamente \fIconfigurabile\fP e quindi facilmente adattabile alle
@@ -29,6 +42,9 @@ particolarita' specifiche di ogni distribuzione basata su pacchetti rpm.
 .B @package@
 fornisce inoltre la libreria \fB@pck_lib@\fR, utilizzabile anche da script di shell
 esterni per ricavare in modo semplice informazioni su un qualsiasi specfile dato in input.
+
+.B Le restanti librerie non sono state concepite per essere utilizzate da script 
+esterni ma piuttosto come ulteriore modularizzazione del codice.
 
 .B @package@
 e' stato utilizzato con successo dagli sviluppatori della distribuzione
@@ -158,20 +174,22 @@ Si ricorda che le opzioni indicate tra parentesi quadre sono opzionali.
 
 .SS "Creazione di specfile"
 \fB@package@\fR \
-\fB\-s\fR \fItarball\fR \
+\fB\-s\fR \fIarchivio\fR \
 [\fB\-n\fR \fIname\fR] \
 [\fB\-v\fR \fIver\fR] \
 [\fB\-t\fR \fItype\fR] \
-[\fB\-o\fR \fIoutfile\fR]
+[\fB\-o\fR \fIoutfile\fR] \
+[\fB\--changelog\fR \fI"messaggio"\fR] \
+[\fB\<opzioni-git>\fR]
 .TP
 \fB\-s\fR, \fB\-\-source\fR
-cerca di creare uno specfile per il \fItarball\fR indicato
+cerca di creare uno specfile per l'\fIarchivio\fR indicato
 .TP
 \fB\-n\fR, \fB\-\-pck\-name\fR
-nome del pacchetto (default: ricavato dal nome del tarball)
+nome del pacchetto (default: ricavato dal nome dell'archivio)
 .TP
 \fB\-v\fR, \fB\-\-pck\-version\fR
-versione del pacchetto (default: ricavato dal nome del tarball)
+versione del pacchetto (default: ricavato dal nome dell'archivio)
 .TP
 \fB\-t\fR, \fB\-\-type\fR
 categoria dello specfile da generare:
@@ -195,6 +213,15 @@ categoria dello specfile da generare:
 \fB\-o\fR, \fB\-\-output\fR
 redirige lo standard output sul file \fIoutfile\fR
 .TP
+\fB\-\-changelog\fR
+permette di scegliere un messaggio di ChangeLog diverso da quello di default
+.TP
+\fB<opzioni\-git>\fR
+.br
+\fB\-\-git\-branch\fR : specifica un branch git
+.br
+\fB\-\-preserve\-dot\-git\fR : non rimuove i file git
+.TP
 \fIEsempi\fR
 .TP
 .PD 0
@@ -207,6 +234,11 @@ redirige lo standard output sul file \fIoutfile\fR
   http://ovh.dl.sourceforge.net/sourceforge/avifile/avifile-0.7-0.7.45.tar.bz2 \\
   \fB\-t\fR library \fB\-n\fR libavifile \fB\-v\fR 0.7.45 \\
   \fB\-o\fR /usr/src/RPM/SPECS/libavifile.spec
+.TP
+\fB@package@\fR \fB\-s\fR @package@-@version@.tar.bz2 \fB\-\-changelog\fR "First build"
+.TP
+\fB@package@\fR \fB\-s\fR git://anongit.freedesktop.org/gstreamer/gst-omx \\
+  \fB\-\-git-branch\fR="raspberry" \fB\-\-preserve-dot-git\fR \fB\-o\fR gst-omx.spec
 .TP
 \fB@package@\fR \fB\-s\fR \fB\-\-help\fR
 .PD
@@ -449,8 +481,17 @@ stampa il numero di versione e termina il programma
 \fB\-q\fR, \fB\-\-quiet\fR
 non stampa alcun dettaglio delle operazioni in esecuzione
 .TP
-\fB\-r\fR, \fB\-\-colorize\fR
-abilita l'output colorato
+\fB\-\-colors\fR \fI<tema-di-colori>\fR
+abilita l'output colorato descritto dal tema \fI<tema-di-colori>\fR.
+.br
+I temi disponibili sono: \fIterminal-dark\fR, \fIterminal-white\fR e \fIweb\fR.
+.br
+Altri temi possono essere aggiunti dagli utenti, ad esempio il tema \fIterminal-custom\fR,
+creando il file:
+.br
+\fI~/.@package@.d/color-theme.terminal-custom\fR
+.br
+Si vedano come esempio i file /etc/@package@.d/color-theme.*
 .TP
 \fB\-D\fR, \fB\-\-debug\fR
 attiva la modalita' di debugging (output prolisso)

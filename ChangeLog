@@ -55,6 +55,10 @@ Changes in version 1.14.2
   * conf/Makefile - Davide Madrisan:
   Simplify the makefile by removing the static list of files.
 
++ update
+  * italian manpage - Davide Madrisan:
+  Update italian manpage and document new extensions.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.1 - _TO*Hacklab release
