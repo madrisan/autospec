@@ -43,7 +43,7 @@ spec_backup_attr="hidden"
 #  EXIT="${ESC}[1;31m"
 #  NORM=$(echo -en "${ESC}[m\017")
 # See the files: see /etc/@package@.d/color-theme.*
-colorize=1
+color_scheme="default"
 
 ## Logging directory (default is /var/tmp/@package@) --------------------------
 logging_dir="/var/tmp/@package@"

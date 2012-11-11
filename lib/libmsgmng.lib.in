@@ -50,15 +50,14 @@ function notify.note() {
 # args:
 #    none
 function notify.enable_colors() {
-   local colorize_theme="$1"
-   # for backward compatibility
-   [ "$colorize_theme" ] || colorize_theme="terminal-dark"
-
-   if [ -r /etc/@package@.d/color-theme.${colorize_theme} ]; then
-      . /etc/@package@.d/color-theme.${colorize_theme}
+   local color_scheme="$1"
+   [ "$color_scheme" ] || color_scheme="default"
+   if [ -r /etc/@package@.d/color-theme.${color_scheme} ]; then
+      . /etc/@package@.d/color-theme.${color_scheme}
+      notify.debug "loading /etc/@package@.d/color-theme.${color_scheme}"
    else
       notify.warning \
-$"unknown color theme \`$colorize_theme': colors will be disabled"
+$"unknown color theme \`$color_scheme': colors will be disabled"
       ESC= CRIT= NOTE= WARN= EXIT= NORM=
    fi
 }

@@ -180,9 +180,6 @@ msgstr "Stampa il numero di versione e termina il programma"
 msgid "Run in quiet mode"
 msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
 
-msgid "Enable the colorized output"
-msgstr "Abilita l'output colorato"
-
 msgid "Select the theme to be used for the colorized output"
 msgstr "Seleziona il tema da usare per generare l'output colorato"
 

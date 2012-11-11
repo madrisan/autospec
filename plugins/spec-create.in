@@ -18,8 +18,6 @@ me=(${0##*/} "@version@" "@date@")
 . @libdir@/libnetwork.lib
 
 # set default variables
-# colorized output (disabled by default)
-let "colorize = 0"
 # output verbosity
 let "verbose = 1"
 
@@ -120,8 +118,7 @@ function usage() {
  -h, --help         "$"Print this help, then exit""
  -V, --version      "$"Print version number, then exit""
  -q, --quiet        "$"Run in quiet mode""
- -r, --colorize     "$"Enable the colorized output""
- --colorize-theme   "$"Select the theme to be used for the colorized output""
+ --colors           "$"Select the theme to be used for the colorized output""
  -D, --debug        "$"Run in debugging mode (very verbose output)""
 
 "$"Samples"":
@@ -163,7 +160,7 @@ exec_options=`LC_ALL=C getopt \
    --long \
 source:,pck-name:,pck-version:,type:,output:,changelog:,\
 git-branch:,preserve-dot-git,\
-debug,quiet,colorize,colorize-theme:,help,version,\
+debug,quiet,colors:,help,version,\
 frontend_opts: \
    -n "$me" -- "$@"`
 [ $? = 0 ] || exit 1
@@ -196,11 +193,8 @@ while :; do
          let "verbose = 2" ;;
       -q|--quiet)
          let "verbose = 0" ;;
-      -r|--colorize)
-         let "colorize = 1" ;;
-      --colorize-theme)
-         colorize_theme="$2"; shift
-         let "colorize = 1" ;;
+      --colors)
+         color_scheme="$2"; shift ;;
       -h|--help)
          usage 0 ;;
       -V|--version)
@@ -211,8 +205,7 @@ while :; do
    shift
 done
 
-[ "$colorize" = "1" ] && notify.enable_colors "$colorize_theme" \
-   || notify.disable_colors
+notify.enable_colors "$color_scheme"
 
 for arg in $@; do
    notify.error $"unrecognized option"" -- \`$arg'"

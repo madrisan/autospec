@@ -39,8 +39,9 @@ pck_confs := autospec.conf \
 
 pck_confs_infiles := $(wildcard *.in)
 
-pck_color_themes := color-theme.terminal-dark \
-   color-theme.terminal-white color-theme.web color-theme.none
+pck_color_themes := color-theme.default \
+   color-theme.terminal-dark color-theme.terminal-white color-theme.web \
+   color-theme.none
 
 all:
 
