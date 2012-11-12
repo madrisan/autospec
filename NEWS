@@ -1,3 +1,27 @@
+List of user visible changes in the release 1.14.2
+
+-- Improvement
+
+ * autospec, autospec,conf, plugins, libmsgmng.lib - Davide Madrisan:
+   Completely rewrite the code that manage colorized output.
+   Colors are no more hardcoded in libmsgmng.lib but located in the color
+   scheme files:
+      /etc/autospec.d/color-theme.<color-scheme>
+   A user can add a customized color theme by adding the file:
+      ~/.autospec.d/color-theme.<color-scheme>
+
+-- Update
+
+ * autospec - Davide Madrisan:
+   Deprecate the option '--colorize'.
+   This option is  now replaced by the option '--colors':
+      --colors <color-theme>
+
+ * italian manpage - Davide Madrisan:
+   Update italian manpage and document the new extensions.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.14.1 - _TO*Hacklab release
 
 -- Improvement
