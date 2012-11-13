@@ -134,7 +134,8 @@ deprecated option"" \`-r|--colorize': "$"use \`--colors' instead"
          # for backward compatibility
          color_scheme="default" ;;
       --colors)
-         read_arg color_scheme "$@" || shift ;;
+         read_arg color_scheme "$@" ||
+          { shift; args[${#args[*]}]="$1"; } ;;
       -h|--help)
          let "print_help = 1" ;;
       -V|--version)
