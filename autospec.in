@@ -112,8 +112,9 @@ function read_arg() {
    fi
 }
 
-args=($@)
+args=()
 while (($# > 0)); do
+   args[${#args[*]}]="$1"
    case ${1%%=*} in
       -u|--update)
          let "pck_update = 1" ;;

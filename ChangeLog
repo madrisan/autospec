@@ -1,3 +1,12 @@
+Changes in version 1.14.3
+--- Nov -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
+
++ bugfix
+  * autospec - Davide Madrisan:
+    Fix parsing of multi-string arguments.
+  
+-------------------------------------------------------------------------------
+
 Changes in version 1.14.2
 Mon Nov 12 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
