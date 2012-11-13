@@ -4,7 +4,11 @@ Changes in version 1.14.3
 + bugfix
   * autospec - Davide Madrisan:
     Fix parsing of multi-string arguments.
-  
+
++ update
+  * autospec - Davide Madrisan:
+    Add some update debug messages.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.2

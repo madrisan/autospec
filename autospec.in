@@ -193,6 +193,10 @@ echo >> $tmpargfile
 
 notify.debug "\
 running: \`$plugin_to_run --autospec-args-file=$tmpargfile'"
+
+notify.debug "[$tmpargfile]"
+notify.debug "$(cat $tmpargfile)"
+
 $plugin_to_run --autospec-args-file=$tmpargfile
 
 exit $?
