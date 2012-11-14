@@ -21,67 +21,67 @@ Mon Nov 12 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * plugins/* - Davide Madrisan:
-  Execute 'notify.disable_colors()' when 'colorize' is set to '0' (disabled)
-  to ignore color redefinitions made by user.
+    Execute 'notify.disable_colors()' when 'colorize' is set to '0' (disabled)
+    to ignore color redefinitions made by user.
 
 + update
   * autospec - Davide Madrisan:
-  Send the debug message showing autospec version as soon as possible.
+    Send the debug message showing autospec version as soon as possible.
 
 + improvement
   * autospec, plugins/*, lib/lib*.lib - Davide Madrisan:
-  A color scheme can be selected now by using the new command-line option
-  '--colorize-theme'.
+    A color scheme can be selected now by using the new command-line option
+    '--colorize-theme'.
 
 + improvement
   * lib/libmsgmng.lib, conf/Makefile - Davide Madrisan:
-  Move theme settings to configuration files (color-theme.*)
+    Move theme settings to configuration files (color-theme.*)
 
 + update
   * autospec.spec - Davide Madrisan:
-  Remove the variable 'rpmbuild_group': it's no more needed. Personal data is
-  located in the files ~/.autospec and ~/.autospec.d/*.conf
+    Remove the variable 'rpmbuild_group': it's no more needed. Personal data
+    is located in the files ~/.autospec and ~/.autospec.d/*.conf
 
 + update
   * lib/libcfg.lib - Davide Madrisan:
-  config.security(): do not check for configuration files groups and
-  permissions. These files are now own by root and never contain sensible
-  data (that is passwords).
+    config.security(): do not check for configuration files groups and
+    permissions. These files are now own by root and never contain sensible
+    data (that is passwords).
 
 + update
   * plugins/* - Davide Madrisan:
-  The option '--colorize-theme' must set colorize to '1'.
+    The option '--colorize-theme' must set colorize to '1'.
 
 + update
   * autospec - Davide Madrisan:
-  Deprecate the option '--colorize'.
+    Deprecate the option '--colorize'.
 
 + update
   * configuration - Davide Madrisan:
-  Add 'color-theme.none'. This theme can be used to disable color themes.
+    Add 'color-theme.none'. This theme can be used to disable color themes.
 
 + update
   * autospec, autospec.conf, plugins/* - Davide Madrisan:
-  Replace the option '--colorize' by '--colors <color-theme>'.
+    Replace the option '--colorize' by '--colors <color-theme>'.
 
 + improvement
   * libmsgmng.lib - Davide Madrisan:
-  Allow users to write and select customized color schemes:
-  ~/.autospec.d/color-theme.<color_scheme>"
+    Allow users to write and select customized color schemes:
+    ~/.autospec.d/color-theme.<color_scheme>"
 
 + update
   * conf/Makefile - Davide Madrisan:
-  Simplify the makefile by removing the static list of files.
+    Simplify the makefile by removing the static list of files.
 
 + update
   * italian manpage - Davide Madrisan:
-  Update italian manpage and document new extensions.
+    Update italian manpage and document new extensions.
 
 + bugfix
   * tests/* - Davide Madrisan:
-  Fix the color tags of the final message in each test module; they worked for
-  teminal colors but not for the web scheme.
-  (Bug discovered by Silvan Calarco)
+    Fix the color tags of the final message in each test module; they worked 
+    for teminal colors but not for the web scheme.
+    (Bug discovered by Silvan Calarco)
 
 -------------------------------------------------------------------------------
 
