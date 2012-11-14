@@ -52,20 +52,20 @@ function usage() {
  @frontend@ [-C <conf_file>] --eval=<var>
 
 "$"where the above options mean"":
-     --eval         "$"Print the value of the configuration variable <var>""
- -C, --config       "$"Use an alternate configuration file"" <conf_file>""
-                    "$"Default files:"" $default_cfg_strlist""
-                    "$"Default user files:"" $default_cfg_user_strlist""
+     --eval     "$"Print the value of the configuration variable <var>""
+     --colors   "$"Select the theme to be used for the colorized output""
+ -C, --config   "$"Use an alternate user configuration file"" <conf_file>""
+                "$"Default files:"" $default_cfg_strlist""
+                "$"Default user files:"" $default_cfg_user_strlist""
 
 "$"Operation modes"":
- -h, --help         "$"Print this help, then exit""
- -V, --version      "$"Print version number, then exit""
- -q, --quiet        "$"Run in quiet mode""
- --colors           "$"Select the theme to be used for the colorized output""
- -D, --debug        "$"Run in debugging mode (very verbose output)""
+ -h, --help     "$"Print this help, then exit""
+ -V, --version  "$"Print version number, then exit""
+ -q, --quiet    "$"Run in quiet mode""
+ -D, --debug    "$"Run in debugging mode (very verbose output)""
 
 "$"Samples"":
- @frontend@ -q -C ${default_cfg[0]} --eval=\"logging_dir\"
+ @frontend@ -q -C ${default_cfg_list[0]} --eval=\"logging_dir\"
 
 "$"Report bugs to <davide.madrisan@gmail.com>."
 
@@ -104,16 +104,16 @@ eval set -- "$exec_options"
 
 while :; do
    case $1 in
-      -C|--config)
-         cfg_file=$2; shift ;;
       --eval)
          autospecvar="$2"; shift ;;
+      --colors)
+         color_scheme="$2"; shift ;;
+      -C|--config)
+         cfg_file=$2; shift ;;
       -D|--debug)
          let "verbose = 2" ;;
       -q|--quiet)
          let "verbose = 0" ;;
-      --colors)
-         color_scheme="$2"; shift ;;
       -h|--help)
          usage 0 ;;
       -V|--version)
@@ -149,7 +149,7 @@ function config.getvar() {
          notify.error $"configuration file not found"" -- \`$cfg_file'"
       cfg_file_lst="$cfg_file"
    else
-      cfg_file_lst="${default_cfg[*]}"
+      cfg_file_lst="${default_cfg_list[*]}"
    fi
    notify.debug "cfg_file_lst = \"$cfg_file_lst\""
 

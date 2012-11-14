@@ -9,6 +9,11 @@ Changes in version 1.14.3
   * autospec - Davide Madrisan:
     Add some update debug messages.
 
++ improvement
+  * autospec, plugins/* - Davide Madrisan:
+    Add the option '-C|--config' for selecting a different user configuration
+    file or list of user configuration files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.2

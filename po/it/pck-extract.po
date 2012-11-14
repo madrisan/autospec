@@ -66,6 +66,15 @@ msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
 msgid "Select the theme to be used for the colorized output"
 msgstr "Seleziona il tema da usare per generare l'output colorato"
 
+msgid "Use an alternate user configuration file"
+msgstr "Definisce uno o più file di configurazione utente alternativi"
+
+msgid "Default files:"
+msgstr "File di default:"
+
+msgid "Default user files:"
+msgstr "File di default utente:"
+
 msgid "Run in debugging mode (very verbose output)"
 msgstr "Attiva la modalità di debugging (output prolisso)"
 

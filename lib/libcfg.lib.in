@@ -17,7 +17,7 @@ fi
 TEXTDOMAIN="libcfg"; export TEXTDOMAIN
 
 # list of the configuration file(s)
-default_cfg=(\
+default_cfg_list=(\
 `ls /etc/@package@.conf /etc/@package@.d/*.conf \
     ~/.@package@ ~/.@package@.d/*.conf 2>/dev/null`)
 
@@ -100,16 +100,32 @@ missing variable in the configuration file"" -- \`$cfg_var'"
    done
 }
 
-cfg_files_num=0
-for cfg_file in ${default_cfg[*]}; do
-   if [ -e "$cfg_file" ]; then
-      cfg_files_num=$(($cfg_files_num + 1))
-      notify.debug $"loading"": \`$cfg_file'..."
-      [ -r "$cfg_file" ] || notify.error $"cannot read"" \`$cfg_file'"
-      . "$cfg_file"
+# load configuration files
+function cfg_load_files() {
+   notify.debug "$FUNCNAME: loading configuration files..."
+   if [ "$1" ]; then
+      # select a different list of user configuration files
+      cfgfile_list=(\
+`ls /etc/@package@.conf /etc/@package@.d/*.conf` $1)
+   else
+      # default configuration files
+      cfgfile_list=(${default_cfg_list[@]})
    fi
-done
 
-[ "$cfg_files_num" = 0 ] && notify.error $"configuration file not found"
+   notify.debug "$FUNCNAME: cfgfile_list = (${cfgfile_list[*]})"
 
-unset cfg_file
+   local cfg_file
+   local cfg_files_num=0
+   for cfg_file in ${cfgfile_list[*]}; do
+      if [ -e "$cfg_file" ]; then
+         cfg_files_num=$(($cfg_files_num + 1))
+         notify.debug $"loading"": \`$cfg_file'..."
+         [ -r "$cfg_file" ] || notify.error $"cannot read"" \`$cfg_file'"
+         . "$cfg_file"
+      else
+         notify.error $"configuration file not found"": $cfg_file"
+      fi
+   done
+
+   [ "$cfg_files_num" = 0 ] && notify.error $"configuration file not found"
+}

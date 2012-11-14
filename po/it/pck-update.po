@@ -168,6 +168,15 @@ msgstr "Attiva modalità ed impostazioni di rebuild (azione 4)"
 msgid "Specify an alternative root directory to rpm"
 msgstr "Definisce una root directory alternativa per rpm"
 
+msgid "Use an alternate user configuration file"
+msgstr "Definisce uno o più file di configurazione utente alternativi"
+
+msgid "Default files:"
+msgstr "File di default:"
+
+msgid "Default user files:"
+msgstr "File di default utente:"
+
 msgid "Operation modes"
 msgstr "Modalità operative"
 

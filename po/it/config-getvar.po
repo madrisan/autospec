@@ -45,8 +45,8 @@ msgstr "dove le precedenti opzioni significano"
 msgid "Print the value of the configuration variable <var>"
 msgstr "Stampa il valore che <var> assume nei file di configurazione"
 
-msgid "Use an alternate configuration file"
-msgstr "Utilizza un file di configurazione alternativo"
+msgid "Use an alternate user configuration file"
+msgstr "Definisce uno o più file di configurazione utente alternativi"
 
 msgid "Default files:"
 msgstr "File di default:"
