@@ -106,7 +106,7 @@ function cfg_load_files() {
    if [ "$1" ]; then
       # select a different list of user configuration files
       cfgfile_list=(\
-`ls /etc/@package@.conf /etc/@package@.d/*.conf` $1)
+`ls /etc/@package@.conf /etc/@package@.d/*.conf $1 2>/dev/null`)
    else
       # default configuration files
       cfgfile_list=(${default_cfg_list[@]})

@@ -18,6 +18,11 @@ Changes in version 1.14.3
   * pck-update - Davide Madrisan:
     Fix a string translation by adding the missing '$' prefix.
 
++ improvement
+  * libcfg.lib, plugins/config-getvar - Davide Madrisan:
+    Option '-C|--config': accept a list of configuration files containing
+    wilcards.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.2

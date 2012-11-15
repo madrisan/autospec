@@ -145,9 +145,11 @@ function config.getvar() {
    local cfg_file_lst
 
    if [ "$cfg_file" ]; then
-      [ -r $cfg_file ] ||
-         notify.error $"configuration file not found"" -- \`$cfg_file'"
-      cfg_file_lst="$cfg_file"
+      for f in $(ls $cfg_file 2>/dev/null); do
+         [ -r "$f" ] ||
+            notify.error $"configuration file not found"" -- \`$f'"
+      done
+      cfg_file_lst="$(ls $cfg_file 2>/dev/null)"
    else
       cfg_file_lst="${default_cfg_list[*]}"
    fi
