@@ -14,6 +14,10 @@ Changes in version 1.14.3
     Add the option '-C|--config' for selecting a different user configuration
     file or list of user configuration files.
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    Fix a string translation by adding the missing '$' prefix.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.2

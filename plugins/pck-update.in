@@ -458,7 +458,7 @@ specfile with CRLF line terminators"": $SRPM_SPECFILE_WITH_PATH"
 specfile with CR line terminators"": $SRPM_SPECFILE_WITH_PATH"
         ;;
         *"text"*) : ;;
-        *) notify.error "\
+        *) notify.error $"\
 specfile with an unsupported format"" ($specfile_mimetype)""\
 : $SRPM_SPECFILE_WITH_PATH"
         ;;
