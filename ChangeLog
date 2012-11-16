@@ -2,6 +2,10 @@ Changes in version 1.14.3
 --- Nov -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
+  * lib/libapse.lib - Silvan Calarco:
+    Fix some version comparison errors by specifying numbers base.
+
++ bugfix
   * autospec - Davide Madrisan:
     Fix parsing of multi-string arguments.
 

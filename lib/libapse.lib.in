@@ -156,10 +156,10 @@ $FUNCNAME: \`$code2' has position ${version2[$i]} in precedence"
 $FUNCNAME: \`$code1' has position ${version1[$i]} in precedence"
       fi
 
-      if [[ ${version2[$i]} -gt ${version1[$i]} ]]; then
+      if [[ 10#${version2[$i]} -gt 10#${version1[$i]} ]]; then
          retval=2
          break
-      elif [[ ${version2[$i]} -lt ${version1[$i]} ]]; then
+      elif [[ 10#${version2[$i]} -lt 10#${version1[$i]} ]]; then
          retval=1
          break
       elif [ "${version2[$i]}" = "8" ]; then
