@@ -102,8 +102,15 @@ missing variable in the configuration file"" -- \`$cfg_var'"
 
 # load configuration files
 function cfg_load_files() {
+   local cfg_file
+
    notify.debug "$FUNCNAME: loading configuration files..."
+
    if [ "$1" ]; then
+      # this will catch some error cases when the files do not exist,
+      # like /etc/donotexists.conf or /etc/nofiles*.conf
+      [ "`ls $1 2>/dev/null`" ] ||
+         notify.error $"configuration file not found:"" $1"
       # select a different list of user configuration files
       cfgfile_list=(\
 `ls /etc/@package@.conf /etc/@package@.d/*.conf $1 2>/dev/null`)
@@ -114,7 +121,6 @@ function cfg_load_files() {
 
    notify.debug "$FUNCNAME: cfgfile_list = (${cfgfile_list[*]})"
 
-   local cfg_file
    local cfg_files_num=0
    for cfg_file in ${cfgfile_list[*]}; do
       if [ -e "$cfg_file" ]; then
