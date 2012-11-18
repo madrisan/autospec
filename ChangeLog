@@ -2,10 +2,6 @@ Changes in version 1.14.3
 --- Nov -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
-  * lib/libapse.lib - Silvan Calarco:
-    Fix some version comparison errors by specifying numbers base.
-
-+ bugfix
   * autospec - Davide Madrisan:
     Fix parsing of multi-string arguments.
 
@@ -27,6 +23,10 @@ Changes in version 1.14.3
     Option '-C|--config': accept a list of configuration files containing
     wilcards.
 
++ bugfix
+  * lib/libapse.lib - Silvan Calarco:
+    Fix some version comparison errors by specifying numbers base.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.2
@@ -46,7 +46,6 @@ Mon Nov 12 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     A color scheme can be selected now by using the new command-line option
     '--colorize-theme'.
 
-+ improvement
   * lib/libmsgmng.lib, conf/Makefile - Davide Madrisan:
     Move theme settings to configuration files (color-theme.*)
 
@@ -55,25 +54,20 @@ Mon Nov 12 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
     Remove the variable 'rpmbuild_group': it's no more needed. Personal data
     is located in the files ~/.autospec and ~/.autospec.d/*.conf
 
-+ update
   * lib/libcfg.lib - Davide Madrisan:
     config.security(): do not check for configuration files groups and
     permissions. These files are now own by root and never contain sensible
     data (that is passwords).
 
-+ update
   * plugins/* - Davide Madrisan:
     The option '--colorize-theme' must set colorize to '1'.
 
-+ update
   * autospec - Davide Madrisan:
     Deprecate the option '--colorize'.
 
-+ update
   * configuration - Davide Madrisan:
     Add 'color-theme.none'. This theme can be used to disable color themes.
 
-+ update
   * autospec, autospec.conf, plugins/* - Davide Madrisan:
     Replace the option '--colorize' by '--colors <color-theme>'.
 
@@ -86,7 +80,6 @@ Mon Nov 12 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
   * conf/Makefile - Davide Madrisan:
     Simplify the makefile by removing the static list of files.
 
-+ update
   * italian manpage - Davide Madrisan:
     Update italian manpage and document new extensions.
 
