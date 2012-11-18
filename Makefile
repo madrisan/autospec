@@ -64,6 +64,7 @@ all: dist-update locales check
 check: dist-update
 	@echo "Checking libraries and scripts for syntax errors..."
 	@$(MAKE) check -C conf || exit 1
+	@$(MAKE) check -C lib || exit 1
 	@$(MAKE) check -C plugins || exit 1
 	@$(MAKE) check -C tests || exit 1
 	@$(MAKE) check -C tools || exit 1
