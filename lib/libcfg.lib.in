@@ -110,7 +110,7 @@ function cfg_load_files() {
       # this will catch some error cases when the files do not exist,
       # like /etc/donotexists.conf or /etc/nofiles*.conf
       [ "`ls $1 2>/dev/null`" ] ||
-         notify.error $"configuration file not found:"" $1"
+         notify.error $"configuration file not found"": $1"
       # select a different list of user configuration files
       cfgfile_list=(\
 `ls /etc/@package@.conf /etc/@package@.d/*.conf $1 2>/dev/null`)
