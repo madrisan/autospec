@@ -1,3 +1,31 @@
+List of user visible changes in the release 1.14.3
+
+-- Improvement
+
+ * autospec, all the plugins - Davide Madrisan:
+   Add the option '-C|--config' for selecting a different user configuration
+   file or list of user configuration files (wilcards are allowed).
+   (Feature asked by Silvan Calarco and required by openmamba webbuild)
+
+-- Update
+
+ * autospec - Davide Madrisan:
+   Add more debug messages.
+
+-- Bug Fixes
+
+ * autospec - Davide Madrisan:
+   Fix parsing of command line arguments containing spaces.
+   (Bun introduced in version 1.14.2)
+
+ * lib/libapse.lib - Silvan Calarco:
+   Fix some version comparison errors by specifying numbers base.
+
+ * pck-update - Davide Madrisan:
+   Fix a string translation by adding the missing '$' prefix.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.14.2
 
 -- Improvement
