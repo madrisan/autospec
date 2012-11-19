@@ -59,7 +59,7 @@ pck_infiles := $(wildcard *.in conf/*.in lib/*.in man/*.in man/*/*.in plugins/*.
             s,@date@,`LC_ALL="C" date "+%a %b %d %Y"`,g;\
             s,@date_my@,`LC_ALL="C" date "+%B %Y"`," $< > $@
 
-all: dist-update locales check
+all: dist-update locales check pot-files
 
 check: dist-update
 	@echo "Checking libraries and scripts for syntax errors..."
@@ -70,6 +70,22 @@ check: dist-update
 	@$(MAKE) check -C tools || exit 1
 
 dist-update: $(pck_infiles:.in=)
+
+pot-files: dist-update
+	@echo "Creating pot files..."
+	@echo "Generating po template '$(PACKAGE).pot'..."; \
+	/usr/bin/xgettext -i -L shell \
+	   --copyright-holder="Davide Madrisan" \
+	   --msgid-bugs-address="davide.madrisan@gmail.com" \
+	   --no-location \
+	   --package-name=$(PACKAGE) \
+	   --package-version=${VERSION} \
+	   $(PACKAGE) -o $(srcdir)/po/$(PACKAGE).pot 2>/dev/null
+	@$(MAKE) pot-files -C lib || exit 1
+	@$(MAKE) pot-files -C plugins || exit 1
+	@$(MAKE) pot-files -C tests || exit 1
+
+#	/usr/bin/msgmerge -i --update po/it/$(PACKAGE).po po/$(PACKAGE).pot
 
 locales:
 	@for loc in $(LOCALES); do\
@@ -208,4 +224,5 @@ mostlyclean:
 	   $(MAKE) clean -C man/$$loc || exit 1;\
 	   $(MAKE) clean -C po/$$loc || exit 1;\
 	done
+	@rm -f po/$(PACKAGE).pot
 

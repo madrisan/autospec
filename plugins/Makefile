@@ -30,6 +30,19 @@ check: $(pck_plugins)
 	      && echo "[PASSED]" || { echo "[FAILED]"; exit 1; };\
 	done
 
+pot-files: $(pck_plugins)
+	@for f in $(pck_plugins); do\
+	   echo -n "Generating po template '$$f.pot'...";\
+	   /usr/bin/xgettext -i -L shell \
+	      --copyright-holder="Davide Madrisan" \
+	      --msgid-bugs-address="davide.madrisan@gmail.com" \
+	      --no-location \
+	      --package-name=$(PACKAGE) \
+	      --package-version=${VERSION} \
+	      $$f -o $(srcdir)/po/$$f.pot 2>/dev/null \
+	   && echo "[DONE]" || { echo "[ERROR]"; exit 1; };\
+	done
+
 install: $(pck_plugins)
 	@$(INSTALL_DIR) $(DESTDIR)$(plugindir)
 	for f in $(pck_plugins); do\
@@ -43,3 +56,6 @@ uninstall:
 
 clean:
 	rm -f $(patsubst %.in,%,$(pck_plugins_infiles))
+	@for f in $(pck_plugins); do\
+	   rm -f $(srcdir)/po/$$f.pot;\
+	done

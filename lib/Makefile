@@ -19,8 +19,9 @@ srcdir = ..
 include $(srcdir)/Makefile.env
 
 pck_libs := libapse.lib libcfg.lib libmsgmng.lib libnetwork.lib libspec.lib \
-            libtest.lib README.API
+            libtest.lib
 pck_libs_infiles := $(wildcard *.in)
+pck_libs_all := $(pck_libs) README.API
 
 all:
 
@@ -31,16 +32,32 @@ check: $(pck_libs)
 	      && echo "[PASSED]" || { echo "[FAILED]"; exit 1; };\
 	done
 
-install: $(pck_libs)
+pot-files: $(pck_libs)
+	@for f in $(pck_libs); do\
+	   echo -n "Generating po template '$$f.pot'...";\
+	   /usr/bin/xgettext -i -L shell \
+	      --copyright-holder="Davide Madrisan" \
+	      --msgid-bugs-address="davide.madrisan@gmail.com" \
+	      --no-location \
+	      --package-name=$(PACKAGE) \
+	      --package-version=${VERSION} \
+	      $$f -o $(srcdir)/po/$$f.pot 2>/dev/null \
+	   && echo "[DONE]" || { echo "[ERROR]"; exit 1; };\
+	done
+
+install: $(pck_libs_all)
 	@$(INSTALL_DIR) $(DESTDIR)$(libdir)
 	for f in $(pck_libs); do\
 	   $(INSTALL_DATA) $${f} $(DESTDIR)$(libdir)/$${f};\
 	done
 
 uninstall:
-	for f in $(pck_libs); do\
+	for f in $(pck_libs_all); do\
 	   rm -f $(DESTDIR)$(libdir)/$${f};\
 	done
 
 clean:
 	rm -f $(patsubst %.in,%,$(pck_libs_infiles))
+	@for f in $(pck_libs_all); do\
+	   rm -f $(srcdir)/po/$$f.pot;\
+	done
