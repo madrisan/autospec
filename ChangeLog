@@ -1,6 +1,12 @@
 Changes in version 1.16.0
 ---
 
+ + bugfix
+  * conf/03-apse.conf - Silvan Calarco:
+    Fix sed expression not to match trailing spaces in:
+     . http://directory.fsf.org
+     . http://launchpad.net
+
  + 
   * Makefile - Davide Madrisan:
     Target 'check': also check library files.
