@@ -15,6 +15,10 @@ Changes in version 1.16.0
   * Makefiles - Davide Madrisan:
     New target 'pot-files'.
 
+  * Makefiles.env, Makefile's - Davide Madrisan:
+    Add some variables to Makefiles.env and use them in the make targets
+    'pot-files'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3

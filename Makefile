@@ -75,8 +75,8 @@ pot-files: dist-update
 	@echo "Creating pot files..."
 	@echo "Generating po template '$(PACKAGE).pot'..."; \
 	/usr/bin/xgettext -i -L shell \
-	   --copyright-holder="Davide Madrisan" \
-	   --msgid-bugs-address="davide.madrisan@gmail.com" \
+	   --copyright-holder="$(PO_COPYRIGH_HOLDER)" \
+	   --msgid-bugs-address="$(PO_BUGS_ADDRESS)" \
 	   --no-location \
 	   --package-name=$(PACKAGE) \
 	   --package-version=${VERSION} \
@@ -84,8 +84,6 @@ pot-files: dist-update
 	@$(MAKE) pot-files -C lib || exit 1
 	@$(MAKE) pot-files -C plugins || exit 1
 	@$(MAKE) pot-files -C tests || exit 1
-
-#	/usr/bin/msgmerge -i --update po/it/$(PACKAGE).po po/$(PACKAGE).pot
 
 locales:
 	@for loc in $(LOCALES); do\

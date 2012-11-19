@@ -34,8 +34,8 @@ pot-files: $(pck_plugins)
 	@for f in $(pck_plugins); do\
 	   echo -n "Generating po template '$$f.pot'...";\
 	   /usr/bin/xgettext -i -L shell \
-	      --copyright-holder="Davide Madrisan" \
-	      --msgid-bugs-address="davide.madrisan@gmail.com" \
+	      --copyright-holder="$(PO_COPYRIGH_HOLDER)" \
+	      --msgid-bugs-address="$(PO_BUGS_ADDRESS)" \
 	      --no-location \
 	      --package-name=$(PACKAGE) \
 	      --package-version=${VERSION} \
