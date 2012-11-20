@@ -237,7 +237,7 @@ while :; do
          ftp_server_upload_id="$2"
          shift ;;
       --changelog)
-         changelog_userdef="$2"; shift ;;
+         changelog_commandline="$2"; shift ;;
       --nosrpm)
          let "nosrpm = 1" ;;
       --norpm)
@@ -305,6 +305,8 @@ done
 
 notify.debug "${0} ${exec_options}"
 #echo -e "[ ${0} \\ \n    ${exec_options} ]\n"
+
+notify.debug "changelog_commandline = \"$changelog_commandline\""
 
 if [ -n "$rpm_rootdir" ]; then
    [ -d "$rpm_rootdir" ] ||
@@ -1209,7 +1211,9 @@ s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
 
          # set the changelog entry
          local changelog_new
-         if [ "$changelog_userdef" ]; then
+         if [ "$changelog_commandline" ]; then
+            changelog_new="$changelog_commandline"
+         elif [ "$changelog_userdef" ]; then
             changelog_new="$changelog_userdef"
          else
             if [ "$pck_newver" = "$SPEC_VERSION" ]; then
@@ -1221,6 +1225,7 @@ s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
                changelog_new="update to $pck_newver"
             fi
          fi
+         notify.debug "changelog_new = \"$changelog_new\""
 
          # NOTE: local specfile_newrelease="$(...)" does not work!
          local specfile_newrelease

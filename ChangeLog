@@ -19,6 +19,11 @@ Changes in version 1.16.0
     Add some variables to Makefiles.env and use them in the make targets
     'pot-files'.
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    Do not ignore the option '--changelog' when the variable 
+    'changelog_userdef' is defined in one of the configuration files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3
