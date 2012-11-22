@@ -85,6 +85,9 @@ pot-files: dist-update
 	@$(MAKE) pot-files -C plugins || exit 1
 	@$(MAKE) pot-files -C tests || exit 1
 
+pot-merge: pot-files
+	@$(MAKE) pot-merge -C po/it || exit 1
+
 locales:
 	@for loc in $(LOCALES); do\
 	   $(MAKE) -C po/$$loc || exit 1;\

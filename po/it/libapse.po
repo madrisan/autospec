@@ -1,21 +1,23 @@
-# translation of it.po to Italiana
-# Copyright (C) 2004-2008 Davide Madrisan
-# Davide Madrisan <davide.madrisan@gmail.com>
+# Italian translation.
+# Copyright (C) 2004-2012 Davide Madrisan
+# This file is distributed under the same license as the autospec package.
+# Davide Madrisan <davide.madrisan@gmail.com>, 2004-2012.
+#
 
 msgid ""
 msgstr ""
-"Project-Id-Version: it\n"
-"POT-Creation-Date: 2004-09-01 22:48+0200\n"
-"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Project-Id-Version: autospec 1.16.0\n"
+"Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
+"POT-Creation-Date: 2012-11-19 23:37+0100\n"
+"PO-Revision-Date: 2012-11-19 23:37+0100\n"
 "Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
-"Language-Team: Italiana <it@li.org>\n"
+"Language-Team: \n"
+"Language: Italian \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.10.2\n"
 
 # lib/libapse.lib
-
 msgid "this script requires bash version 2 or better"
 msgstr "questo script richiede bash versione 2 o superiore"
 
@@ -85,6 +87,7 @@ msgstr "impossibile risolvere il nome dell'host"
 msgid "failed to connect to host"
 msgstr "impossibile connettersi all'host"
 
+#, sh-format
 msgid "curl error (exit code: $retval)"
 msgstr "errore curl (codice di errore: $retval)"
 
@@ -94,17 +97,25 @@ msgstr "source0 in formato non parametrico: impossibile aggiornare"
 msgid "found version:"
 msgstr "versione trovata:"
 
+msgid "assertion failed:"
+msgstr ""
+
+#, sh-format
 msgid "last version of \\`${NOTE}$specname${NORM}' found:"
 msgstr "ultima versione di \\`${NOTE}$specname${NORM}' trovata:"
 
+#, sh-format
 msgid "package \\`${NOTE}$specname${NORM}' is already the latest version"
 msgstr "il pacchetto \\`${NOTE}$specname${NORM}' è già aggiornato all'ultima versione"
 
+#, sh-format
 msgid "a new version of \\`${NOTE}$specname${NORM}' is available!"
 msgstr "è disponibile una nuova versione di \\`${NOTE}$specname${NORM}'!"
 
+#, sh-format
 msgid "a newer version of \\`${NOTE}$specname${NORM}' is already installed"
 msgstr "è già installata una versione successiva di \\`${NOTE}$specname${NORM}'"
 
+#, sh-format
 msgid "cannot find a new version of \\`$specname'"
 msgstr "impossibile trovare una nuova versione per \\`$specname'"

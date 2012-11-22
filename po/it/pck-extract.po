@@ -1,21 +1,23 @@
-# translation of it.po to Italiana
-# Copyright (C) 2004-2008 Davide Madrisan
-# Davide Madrisan <davide.madrisan@gmail.com>
+# Italian translation.
+# Copyright (C) 2004-2012 Davide Madrisan
+# This file is distributed under the same license as the autospec package.
+# Davide Madrisan <davide.madrisan@gmail.com>, 2004-2012.
+#
 
 msgid ""
 msgstr ""
-"Project-Id-Version: it\n"
-"POT-Creation-Date: 2004-09-01 22:48+0200\n"
-"PO-Revision-Date: 2005-11-05 18:03+0100\n"
+"Project-Id-Version: autospec 1.16.0\n"
+"Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
+"POT-Creation-Date: 2012-11-19 23:37+0100\n"
+"PO-Revision-Date: 2012-11-19 23:37+0100\n"
 "Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
-"Language-Team: Italiana <it@li.org>\n"
+"Language-Team: \n"
+"Language: Italian \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.10.2\n"
 
 # plugins/pck-extract
-
 msgid "this script requires bash version 3 or better"
 msgstr "questo script richiede bash versione 3 o superiore"
 
@@ -51,18 +53,6 @@ msgstr "...il file o la lista di file <file(s)>"
 msgid "Save extracted files in the directory <dir>"
 msgstr "Salva i file estratti nella cartella <dir>"
 
-msgid "Operation modes"
-msgstr "Modalità operative"
-
-msgid "Print this help, then exit"
-msgstr "Stampa questa schermata di aiuto e termina il programma"
-
-msgid "Print version number, then exit"
-msgstr "Stampa il numero di versione e termina il programma"
-
-msgid "Run in quiet mode"
-msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
-
 msgid "Select the theme to be used for the colorized output"
 msgstr "Seleziona il tema da usare per generare l'output colorato"
 
@@ -74,6 +64,18 @@ msgstr "File di default:"
 
 msgid "Default user files:"
 msgstr "File di default utente:"
+
+msgid "Operation modes"
+msgstr "Modalità operative"
+
+msgid "Print this help, then exit"
+msgstr "Stampa questa schermata di aiuto e termina il programma"
+
+msgid "Print version number, then exit"
+msgstr "Stampa il numero di versione e termina il programma"
+
+msgid "Run in quiet mode"
+msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
 
 msgid "Run in debugging mode (very verbose output)"
 msgstr "Attiva la modalità di debugging (output prolisso)"
@@ -96,23 +98,23 @@ msgstr "programma non trovato"
 msgid "can't create temporary files"
 msgstr "impossibile creare file temporanei"
 
-msgid "cannot download"
-msgstr "impossibile scaricare"
-
 msgid "cannot find:"
 msgstr "impossibile trovare:"
 
 msgid "not a srpm package"
 msgstr "non è un pacchetto srpm"
 
+#, sh-format
 msgid "cannot create \\`$destdir'"
 msgstr "impossibile creare \\`$destdir'"
 
+#, sh-format
 msgid "can't save extracted files to \\`$destdir'"
 msgstr "impossibile salvare i file estratti in \\`$destdir'"
 
 msgid "can't decompress the file"
 msgstr "impossibile decomprimere il file"
 
+#, sh-format
 msgid "can't save files to \\`$destdir'"
 msgstr "impossibile salvare i file in \\`$destdir'"

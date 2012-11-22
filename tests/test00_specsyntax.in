@@ -81,7 +81,7 @@ not a standard structure (see config file)";
    # 3. check if `%setup' have `-D' and/or `-T' options
    test.skip $test_number || {
    notify.note "$(test.num2str). ${NOTE}"\
-$"%setup""${NORM}..."
+"%setup""${NORM}..."
 
    [[ "$(cat $specfile | \
       sed -n "/%setup/{/-D /p;/-T /p;/-D$/p;/-T$/p}")" ]] &&
@@ -95,7 +95,7 @@ found \`-D' and/or \`-T' option(s) in the \`%setup' directive"
    #    note: skip commented out blocks
    test.skip $test_number || {
    notify.note "$(test.num2str). ${NOTE}"\
-$"%defattr""${NORM}..."
+"%defattr""${NORM}..."
    [[ "$(sed -e '
             # print paragraph if it contains "%files" and "%defattr"
             /./{H;$!d;}' -e 'x;/%files/!d;/%defattr/!d' $specfile | \
@@ -111,7 +111,7 @@ missing at least one \`%defattr' directive"
    # - look in the block : `%build' to `%install'
    test.skip $test_number || {
    notify.note "$(test.num2str). ${NOTE}"\
-$"%build, %install""${NORM}..."
+"%build, %install""${NORM}..."
 
    local token tokens
    sed -n '/%build/,/%install/p' $specfile | \
@@ -160,8 +160,7 @@ $([[ "$rpm_macro_makeinstall" ]] &&
 
    # 6. check if '%find_lang' is used when localization files are detected
    test.skip $test_number || {
-   notify.note "$(test.num2str). ${NOTE}"\
-$"%find_lang""${NORM}..."
+   notify.note "$(test.num2str). ${NOTE}%find_lang${NORM}..."
 
    # FIXME : the test should perhaps be improved...
    grep -q "^[ ]*[^# ]*/share/locale/" $specfile &&

@@ -31,6 +31,13 @@ all: locales
 
 locales: $(pck_catalogs:.po=.mo)
 
+pot-merge:
+	@for f in $(pck_catalogs:.po=); do\
+	   echo "Merging '$$f.po' with '$$f.lib.pot'...";\
+	   /usr/bin/msgmerge --update --no-wrap \
+	      $(srcdir)/po/it/$$f.po $(srcdir)/po/$$f.pot;\
+	done
+
 install: locales
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
 	$(INSTALL_DIR) $$destdir;\
@@ -46,4 +53,4 @@ uninstall:
 
 clean:
 	rm -f $(pck_catalogs:.po=.mo)
-
+	rm -f *.po~

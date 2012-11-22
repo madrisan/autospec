@@ -1,21 +1,23 @@
-# translation of it.po to Italiana
-# Copyright (C) 2008,2012 Davide Madrisan
-# Davide Madrisan <davide.madrisan@gmail.com>
+# Italian translation.
+# Copyright (C) 2004-2012 Davide Madrisan
+# This file is distributed under the same license as the autospec package.
+# Davide Madrisan <davide.madrisan@gmail.com>, 2004-2012.
+#
 
 msgid ""
 msgstr ""
-"Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-10-28 22:00+0100\n"
-"PO-Revision-Date: 2008-10-28 22:03+0100\n"
+"Project-Id-Version: autospec 1.16.0\n"
+"Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
+"POT-Creation-Date: 2012-11-19 23:37+0100\n"
+"PO-Revision-Date: 2012-11-19 23:37+0100\n"
 "Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
-"Language-Team: Italiana <it@li.org>\n"
+"Language-Team: \n"
+"Language: Italian \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.10.2\n"
 
 # tests/pkg_security_test_001
-
 msgid "this script requires bash version 2 or better"
 msgstr "questo script richiede bash versione 2 o superiore"
 
@@ -28,11 +30,11 @@ msgstr "programma non trovato"
 msgid "performing quality checks"
 msgstr "esecuzione dei test di qualità"
 
-msgid "\\`getopt' error"
-msgstr "errore in \\`getopt'"
-
 msgid "(bug)"
 msgstr "(bug)"
+
+msgid "\\`getopt' error"
+msgstr "errore in \\`getopt'"
 
 msgid "missing mandatory arg"
 msgstr "parametro mancante"
@@ -46,14 +48,15 @@ msgstr "file o cartella non trovata"
 msgid "checking for wrong symbolic links"
 msgstr "ricerca di link simbolici errati"
 
-msgid "empty string"
-msgstr "stringa vuota"
+msgid "wrong symlink"
+msgstr "link simbolico incorretto"
 
-msgid "checking"
-msgstr "controllo"
-
+#, sh-format
 msgid "checking for \\`$SPEC_BUILDROOT' (%buildroot) strings"
 msgstr "ricerca della stringa \\`$SPEC_BUILDROOT' (%buildroot)"
+
+msgid "skipped"
+msgstr "ignorato"
 
 msgid "checking for %buildroot strings"
 msgstr "ricerca delle stringhe %buildroot"
@@ -61,18 +64,18 @@ msgstr "ricerca delle stringhe %buildroot"
 msgid "N/A"
 msgstr "N/A"
 
-msgid "skipped"
-msgstr "ignorato"
+#, fuzzy
+msgid "mime type: "
+msgstr "tipo mime:"
 
+#, sh-format
 msgid "checking for \\`$BUILDDIR' (%_builddir) strings"
 msgstr "ricerca della stringa \\`$BUILDDIR' (%_builddir)"
-
-msgid "mime type:"
-msgstr "tipo mime:"
 
 msgid "checking for suspicious plugins in devel packages"
 msgstr "controllo di plugin sospetti nei pacchetti devel"
 
+#, sh-format
 msgid "found suspect plugin \\`${NOTE}$f${NORM}'"
 msgstr "trovato sospetto plugin \\`${NOTE}$f${NORM}'"
 
@@ -94,14 +97,14 @@ msgstr "ricerca di file binari installati in /etc (vedi FHS)"
 msgid "checking if the info catalog is updated when necessary"
 msgstr "controllo se il registro delle pagine info viene aggiornato"
 
+msgid "package not found"
+msgstr "pacchetto non trovato"
+
 msgid "info pages should be installed/uninstalled"
 msgstr "le pagine info dovrebbero essere installate/disinstallate"
 
 msgid "checking packages for wrong user and/or group ownerships"
 msgstr "ricerca di pacchetti contenenti file con errato utente e/o gruppo"
-
-msgid "package not found"
-msgstr "pacchetto non trovato"
 
 msgid "checking packages for desktop files installed in the applnk dir"
 msgstr "ricerca di pacchetti con file desktop installati in applnk"
@@ -120,4 +123,3 @@ msgstr "questo pacchetto dovrebbe essere di tipo \\`noarch'"
 
 msgid "${NOTE}Quality checks: ${#rpmpkg_name[@]} package(s) checked: ${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
 msgstr "${NOTE}Controlli di qualità: pacchetti rpm: ${#rpmpkg_name[@]}; problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
-
