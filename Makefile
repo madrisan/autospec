@@ -17,7 +17,6 @@
 include VERSION
 include Makefile.env
 
-PACKAGE = autospec
 FRONTEND = $(PACKAGE)
 PACKAGE_LIB = libspec.lib
 
@@ -91,6 +90,11 @@ pot-merge: pot-files
 locales:
 	@for loc in $(LOCALES); do\
 	   $(MAKE) -C po/$$loc || exit 1;\
+	done
+
+locales-concatenate: locales pot-files
+	@for loc in $(LOCALES); do\
+	   $(MAKE) locales-concatenate -C po/$$loc || exit 1;\
 	done
 
 install-frontend: $(PACKAGE)
@@ -225,5 +229,5 @@ mostlyclean:
 	   $(MAKE) clean -C man/$$loc || exit 1;\
 	   $(MAKE) clean -C po/$$loc || exit 1;\
 	done
-	@rm -f po/$(PACKAGE).pot
+	@rm -f po/*.pot
 

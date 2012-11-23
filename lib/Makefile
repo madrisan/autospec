@@ -41,7 +41,7 @@ pot-files: $(pck_libs)
 	      --no-location \
 	      --package-name=$(PACKAGE) \
 	      --package-version=${VERSION} \
-	      $$f -o $(srcdir)/po/$$f.pot 2>/dev/null \
+	      $$f -o $(srcdir)/po/$${f/.lib}.pot 2>/dev/null \
 	   && echo "[DONE]" || { echo "[ERROR]"; exit 1; };\
 	done
 

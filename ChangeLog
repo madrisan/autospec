@@ -24,6 +24,11 @@ Changes in version 1.16.0
     Do not ignore the option '--changelog' when the variable 
     'changelog_userdef' is defined in one of the configuration files.
 
++ improvement
+  * Makefiles.env, Makefile's, po files - Davide Madrisan:
+    Improved translation framework.
+    New makefile targets: 'pot-files', 'pot-merge', and 'locales-concatenate'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3

@@ -31,12 +31,19 @@ all: locales
 
 locales: $(pck_catalogs:.po=.mo)
 
-pot-merge:
+pck_manpages := 
+
+pot-merge: $(patsubst %.po,%.pot,$(wildcard $(srcdir)/po/*.po))
 	@for f in $(pck_catalogs:.po=); do\
-	   echo "Merging '$$f.po' with '$$f.lib.pot'...";\
+	   echo "Merging '$$f.po' with '$$f.pot'...";\
 	   /usr/bin/msgmerge --update --no-wrap \
-	      $(srcdir)/po/it/$$f.po $(srcdir)/po/$$f.pot;\
+	      $$f.po $(srcdir)/po/$$f.pot;\
 	done
+
+locales-concatenate: pot-merge
+	@echo "Concatenating locales...";\
+	/usr/bin/msgcat $(pck_catalogs:.po=) -o $(PACKAGE)-all.po;\
+	echo "... $(PACKAGE)-all.po [DONE]"
 
 install: locales
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
@@ -53,4 +60,5 @@ uninstall:
 
 clean:
 	rm -f $(pck_catalogs:.po=.mo)
+	rm -f $(srcdir)/po/$(PACKAGE)-all.po
 	rm -f *.po~

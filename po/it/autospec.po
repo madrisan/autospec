@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the autospec package.
 # Davide Madrisan <davide.madrisan@gmail.com>, 2004-2012.
 #
-
 msgid ""
 msgstr ""
 "Project-Id-Version: autospec 1.16.0\n"
 "Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
-"POT-Creation-Date: 2012-11-19 23:37+0100\n"
+"POT-Creation-Date: 2012-11-23 22:50+0100\n"
 "PO-Revision-Date: 2012-11-19 23:37+0100\n"
 "Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
 "Language-Team: \n"
@@ -99,4 +98,3 @@ msgstr "plugin non trovato"
 
 msgid "can't create temporary files"
 msgstr "impossibile creare file temporanei"
-
