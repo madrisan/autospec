@@ -16,7 +16,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="libnetwork"; export TEXTDOMAIN
+TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
 
 # check if all the needed tools are available
 # note: 'host' has been removed from this list because the package

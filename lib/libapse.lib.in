@@ -20,7 +20,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="libapse"; export TEXTDOMAIN
+TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
 
 # function apse.cmpversion()
 #    compare two version

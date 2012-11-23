@@ -29,6 +29,10 @@ Changes in version 1.16.0
     Improved translation framework.
     New makefile targets: 'pot-files', 'pot-merge', and 'locales-concatenate'.
 
+  * autospec, plugins/*, lib/*, tests/* - Davide Madrisan:
+    Set TEXTDOMAIN to "autospec-all" (point to the global translation file
+    instead of using the partial ones).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3

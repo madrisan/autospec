@@ -16,7 +16,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="libtest"; export TEXTDOMAIN
+TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
 
 [ -n "$testdir" ] ||
    notify.error "\`testdir': "$"unset in the configuration files"

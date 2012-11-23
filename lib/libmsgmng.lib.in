@@ -9,7 +9,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="libmsgmng"; export TEXTDOMAIN
+TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
 
 # notify family of message handling functions:
 #  - notify.warning

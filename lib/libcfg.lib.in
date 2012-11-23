@@ -14,7 +14,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="libcfg"; export TEXTDOMAIN
+TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
 
 # list of the configuration file(s)
 default_cfg_list=(\

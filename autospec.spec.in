@@ -137,7 +137,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %defattr(-,root,root)
 %{_bindir}/%{name}
 %lang(it) %{_mandir}/it/man1/%{name}.*
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/autospec.mo
+%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/%{name}-all.mo
 %doc AUTHORS BUGS ChangeLog COPYING NEWS TODO
 
 %files plugins
@@ -146,10 +146,6 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %{_bindir}/pck-extract
 %{_bindir}/pck-update
 %{_bindir}/spec-create
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/config-getvar.mo
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-extract.mo
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/pck-update.mo
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/spec-create.mo
 %config %attr(644,root,root) %{_sysconfdir}/%{name}.conf
 
 %files config-%{distribution}
@@ -161,7 +157,6 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %files libs
 %defattr(-,root,root)
 %{_datadir}/%{name}/lib/*
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/lib*.mo
 
 %files templates-%{distribution}
 %defattr(-,root,root)
@@ -170,7 +165,6 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %files tests
 %defattr(-,root,root)
 %{_datadir}/%{name}/tests
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/test??_*.mo
 
 %files tools
 %defattr(-,root,root)

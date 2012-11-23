@@ -48,9 +48,10 @@ locales-concatenate: pot-merge
 install: locales
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
 	$(INSTALL_DIR) $$destdir;\
-	for f in $(pck_catalogs:.po=); do\
-	   $(INSTALL_DATA) $${f}.mo $$destdir/$${f}.mo;\
-	done
+	$(INSTALL_DATA) $(PACKAGE)-all.mo $$destdir/$(PACKAGE)-all.mo
+	#for f in $(pck_catalogs:.po=); do\
+	#   $(INSTALL_DATA) $${f}.mo $$destdir/$${f}.mo;\
+	#done
 
 uninstall:
 	@for f in $(pck_catalogs:.po=); do\
