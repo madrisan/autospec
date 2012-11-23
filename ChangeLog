@@ -33,6 +33,15 @@ Changes in version 1.16.0
     Set TEXTDOMAIN to "autospec-all" (point to the global translation file
     instead of using the partial ones).
 
+  * plugins/* - Davide Madrisan:
+    Do not load a library previously loaded by another module.
+
++ bugfix
+  * plugins/* - Davide Madrisan:
+    Bug introduced in version 1.14.3.
+    Run 'notify.enable_colors' once the configuration files are loaded.
+    (Problem noticed by Silvan Calarco in 'pck-update').
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3

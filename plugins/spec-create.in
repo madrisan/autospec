@@ -211,14 +211,14 @@ while :; do
    shift
 done
 
-notify.enable_colors "$color_scheme"
-
 for arg in $@; do
    notify.error $"unrecognized option"" -- \`$arg'"
 done
 
 notify.debug "custom_cfgfile_list = \"$custom_cfgfile_list\""
 cfg_load_files "$custom_cfgfile_list"
+
+notify.enable_colors "$color_scheme"
 
 function specfile.ckeck_defvalues() {
    # $1: name of the specfile

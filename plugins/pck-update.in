@@ -313,11 +313,11 @@ if [ -n "$rpm_rootdir" ]; then
       notify.error $"no such file or directory"": $rpm_rootdir"
 fi
 
-[ "$logging" = "1" ] && color_scheme="none"
-notify.enable_colors "$color_scheme"
-
 notify.debug "custom_cfgfile_list = \"$custom_cfgfile_list\""
 cfg_load_files "$custom_cfgfile_list"
+
+[ "$logging" = "1" ] && color_scheme="none"
+notify.enable_colors "$color_scheme"
 
 # default values for non mandatory configuration variables
 [ "$logging_dir" ] || logging_dir="${tmppath_dir:-/var/tmp}/@package@"
