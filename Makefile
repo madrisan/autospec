@@ -58,7 +58,7 @@ pck_infiles := $(wildcard *.in conf/*.in lib/*.in man/*.in man/*/*.in plugins/*.
             s,@date@,`LC_ALL="C" date "+%a %b %d %Y"`,g;\
             s,@date_my@,`LC_ALL="C" date "+%B %Y"`," $< > $@
 
-all: dist-update locales check pot-files
+all: dist-update locales check
 
 check: dist-update
 	@echo "Checking libraries and scripts for syntax errors..."
@@ -70,31 +70,18 @@ check: dist-update
 
 dist-update: $(pck_infiles:.in=)
 
-pot-files: dist-update
-	@echo "Creating pot files..."
+pot-file: dist-update
 	@echo "Generating po template '$(PACKAGE).pot'..."; \
-	/usr/bin/xgettext -i -L shell \
-	   --copyright-holder="$(PO_COPYRIGH_HOLDER)" \
-	   --msgid-bugs-address="$(PO_BUGS_ADDRESS)" \
-	   --no-location \
-	   --package-name=$(PACKAGE) \
-	   --package-version=${VERSION} \
-	   $(PACKAGE) -o $(srcdir)/po/$(PACKAGE).pot 2>/dev/null
+	/bin/bash --dump-po-strings $(PACKAGE) \
+	   > $(srcdir)/po/$(PACKAGE)_fe.pot
 	@$(MAKE) pot-files -C lib || exit 1
 	@$(MAKE) pot-files -C plugins || exit 1
 	@$(MAKE) pot-files -C tests || exit 1
+	@$(MAKE) merge-pot-files -C po/it || exit 1
 
-pot-merge: pot-files
-	@$(MAKE) pot-merge -C po/it || exit 1
-
-locales:
+locales: pot-file
 	@for loc in $(LOCALES); do\
 	   $(MAKE) -C po/$$loc || exit 1;\
-	done
-
-locales-concatenate: locales pot-files
-	@for loc in $(LOCALES); do\
-	   $(MAKE) locales-concatenate -C po/$$loc || exit 1;\
 	done
 
 install-frontend: $(PACKAGE)

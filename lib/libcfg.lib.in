@@ -2,6 +2,9 @@
 # libcfg.lib -- @package@ library for loading the configuration file(s)
 # Copyright (C) 2008,2011,2012 Davide Madrisan <davide.madrisan@gmail.com>
 
+[ "$libcfg_is_loaded" = 1 ] || {
+libcfg_is_loaded=1
+
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
 
@@ -14,7 +17,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
+TEXTDOMAIN="@package@"; export TEXTDOMAIN
 
 # list of the configuration file(s)
 default_cfg_list=(\
@@ -135,3 +138,5 @@ function cfg_load_files() {
 
    [ "$cfg_files_num" = 0 ] && notify.error $"configuration file not found"
 }
+
+} # endif $libcfg_is_loaded

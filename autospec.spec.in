@@ -137,7 +137,7 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 %defattr(-,root,root)
 %{_bindir}/%{name}
 %lang(it) %{_mandir}/it/man1/%{name}.*
-%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/%{name}-all.mo
+%lang(it) %{?_localedir:%{_localedir}}%{!?_localedir:%_datadir/locale}/it/LC_MESSAGES/%{name}.mo
 %doc AUTHORS BUGS ChangeLog COPYING NEWS TODO
 
 %files plugins

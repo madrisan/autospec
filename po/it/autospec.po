@@ -1,100 +1,1056 @@
+msgid   "this script requires bash version 2 or better"
+msgstr  "questo script richiede bash versione 2 o superiore"
+
+msgid   "This program is free software; you can redistribute it and/or modify "
+        "it under\n"
+        "the terms of the GNU General Public License version 2 as published "
+        "by the\n"
+        "Free Software Foundation.  There is NO warranty; not even for "
+        "MERCHANTABILITY\n"
+        "or FITNESS FOR A PARTICULAR PURPOSE."
+msgstr  "Questo è software libero; è possibile redistribuirlo e/o modificarlo "
+        "nei termini\n"
+        "della GNU General Public License versione 2 così come pubblicata "
+        "dalla\n"
+        "Free Software Foundation.  Non è fornita ALCUNA garanzia; neppure di "
+        "NEGOZIABILITA'\n"
+        "o di APPLICABILITA' PER UN PARTICOLARE SCOPO."
+
+msgid   "Automatically update rpm packages and help creating new specfiles."
+msgstr  "Aggiorna automaticamente pacchetti rpm ed assiste nella creazione di "
+        "specfile."
+
+msgid   "Operation modes"
+msgstr  "Modalità operative"
+
+msgid   "Update the given package to a specified version and release"
+msgstr  "Aggiorna il pacchetto indicato ad una specifica versione e release"
+
+msgid   "Try to create a specfile for the specified tarball"
+msgstr  "Cerca di creare uno specfile per il tarball indicato"
+
+msgid   "Extract a given file or list of files from a srpm archive"
+msgstr  "Estrae da un archivio srpm un file o una lista di file indicati"
+
+msgid   "Print the value of the given configuration variable"
+msgstr  "Stampa il valore che la variabile indicata ha nei file di "
+        "configurazione"
+
+msgid   "Print this help, then exit"
+msgstr  "Stampa questa schermata di aiuto e termina il programma"
+
+msgid   "Print version number, then exit"
+msgstr  "Stampa il numero di versione e termina il programma"
+
+msgid   "Run in quiet mode"
+msgstr  "Non stampa alcun dettaglio delle operazioni in esecuzione"
+
+msgid   "Run in debugging mode (very verbose output)"
+msgstr  "Attiva la modalità di debugging (output prolisso)"
+
+msgid   "Common options"
+msgstr  "Opzioni comuni"
+
+msgid   "Select the theme to be used for the colorized output"
+msgstr  "Seleziona il tema da usare per generare l'output colorato"
+
+msgid   "Use an alternate user configuration file"
+msgstr  "Definisce uno o più file di configurazione utente alternativi"
+
+msgid   "Usage"
+msgstr  "Utilizzo"
+
+msgid   "Use '-u -h', '-s -h', '-x -h', and '--eval -h' to display specific "
+        "command line options."
+msgstr  "Usa '-u -h', '-s -h', '-x -h', '--eval -h' per avere le opzioni a "
+        "linea di comando specifiche."
+
+msgid   "Report bugs to <davide.madrisan@gmail.com>."
+msgstr  "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
+
+msgid   "library not found"
+msgstr  "libreria non trovata"
+
+msgid   "deprecated option"
+msgstr  "opzione deprecata"
+
+msgid   "use \\`--colors' instead"
+msgstr  "utilizzare \\`--colors'"
+
+msgid   "version"
+msgstr  "versione"
+
+msgid   "unset in the configuration files"
+msgstr  "non configurato nei file di configurazione"
+
+msgid   "plugin not found"
+msgstr  "plugin non trovato"
+
+msgid   "can't create temporary files"
+msgstr  "impossibile creare file temporanei"
+
+msgid   "this script requires bash version 3 or better"
+msgstr  "questo script richiede bash versione 3 o superiore"
+
+msgid   "Print the value of a given configuration variable"
+msgstr  "Stampa il valore che una data variabile assume nei file di "
+        "configurazione"
+
+msgid   "where the above options mean"
+msgstr  "dove le precedenti opzioni significano"
+
+msgid   "Print the value of the configuration variable <var>"
+msgstr  "Stampa il valore che <var> assume nei file di configurazione"
+
+msgid   "Default files:"
+msgstr  "File di default:"
+
+msgid   "Default user files:"
+msgstr  "File di default utente:"
+
+msgid   "Samples"
+msgstr  "Alcuni esempi"
+
+msgid   "cannot read"
+msgstr  "impossibile leggere"
+
+msgid   "unrecognized option"
+msgstr  "opzione non conosciuta"
+
+msgid   "configuration file not found"
+msgstr  "file di configurazione non trovato"
+
+msgid   "(bug)"
+msgstr  "(bug)"
+
+msgid   "unknown variable type"
+msgstr  "tipo di variabile sconosciuto"
+
+msgid   "Find for updates scanning the web."
+msgstr  "Ricerca aggiornamenti cercando nel web."
+
+msgid   "Name of the package"
+msgstr  "Nome del pacchetto"
+
+msgid   "Name of the spec file"
+msgstr  "Nome dello specfile"
+
+msgid   "URL of the project home page"
+msgstr  "Indirizzo internet dell'homepage del progetto"
+
+msgid   "URL with no variable expansion"
+msgstr  "Indirizzo internet senza espansione delle variabili"
+
+msgid   "Proxy"
+msgstr  "Proxy"
+
+msgid   "Proxy user"
+msgstr  "Utenza proxy"
+
+msgid   "Report bugs to <stefano.cotta@openmamba.org>."
+msgstr  "Segnalare eventuali bug a <stefano.cotta@openmamba.org>."
+
+msgid   "\\`getopt' error"
+msgstr  "errore in \\`getopt'"
+
+msgid   "\\`getopt' error: bad command \\`$1'"
+msgstr  "errore in \\`getopt': comando errato \\`$1'"
+
+msgid   "looking at"
+msgstr  "cerco in"
+
+msgid   "couldn't resolve host"
+msgstr  "impossibile risolvere il nome dell'host"
+
+msgid   "failed to connect to host"
+msgstr  "impossibile connettersi all'host"
+
+msgid   "curl error (exit code: $retval)"
+msgstr  "errore curl (codice di errore: $retval)"
+
+msgid   "not parametric source0 name; cannot update"
+msgstr  "source0 in formato non parametrico: impossibile aggiornare"
+
+msgid   "found version:"
+msgstr  "versione trovata:"
+
+msgid   "assertion failed:"
+msgstr  "asserzione fallita:"
+
+msgid   "last version of \\`${NOTE}$specname${NORM}' found:"
+msgstr  "ultima versione di \\`${NOTE}$specname${NORM}' trovata:"
+
+msgid   "package \\`${NOTE}$specname${NORM}' is already the latest version"
+msgstr  "il pacchetto \\`${NOTE}$specname${NORM}' è già aggiornato all'ultima "
+        "versione"
+
+msgid   "a new version of \\`${NOTE}$specname${NORM}' is available!"
+msgstr  "è disponibile una nuova versione di \\`${NOTE}$specname${NORM}'!"
+
+msgid   "a newer version of \\`${NOTE}$specname${NORM}' is already installed"
+msgstr  "è già installata una versione successiva di \\`${NOTE}$specname"
+        "${NORM}'"
+
+msgid   "cannot find a new version of \\`$specname'"
+msgstr  "impossibile trovare una nuova versione per \\`$specname'"
+
+msgid   "Hint"
+msgstr  "Suggerimento"
+
+msgid   "user \\`$(id -nu)' does not belong to group \\`$packager_group'"
+msgstr  "l'utente \\`$(id -nu)' non appartiene al gruppo \\`$packager_group'"
+
+msgid   "missing variable in the configuration file"
+msgstr  "variabile non inizializzata nel file di configurazione"
+
+msgid   "loading"
+msgstr  "caricamento di"
+
+msgid   "no message"
+msgstr  "nessun messaggio"
+
+msgid   "unknown color theme \\`$color_scheme': colors will be disabled"
+msgstr  "tema di colori sconosciuto \\`$color_scheme': output con colori "
+        "disabilitato"
+
+msgid   "utility not found"
+msgstr  "programma non trovato"
+
+msgid   "missing mandatory arg"
+msgstr  "parametro mancante"
+
+msgid   "usage error (--ftp/--html)"
+msgstr  "errato utilizzo (--ftp/--html)"
+
+msgid   "'\\\\' characters detected in \\$pck_name"
+msgstr  "trovato carattere '\\\\' in \\$pck_name"
+
+msgid   "not a number"
+msgstr  "non è un numero"
+
+msgid   "getting list of files from"
+msgstr  "ricavo l'elenco dei file da"
+
+msgid   "unsupported query type for this protocol"
+msgstr  "ricerca non supportata in questo protocollo"
+
+msgid   "failure in receiving network data"
+msgstr  "impossibile recevere dati via rete"
+
+msgid   "cannot get the list of files"
+msgstr  "impossibile ottenere la lista dei file"
+
+msgid   "no list of architectures set"
+msgstr  "nessuna lista di architetture specificata"
+
+msgid   "unsupported protocol"
+msgstr  "protocollo non supportato"
+
+msgid   "file not found"
+msgstr  "file non trovato"
+
+msgid   "skipped"
+msgstr  "ignorato"
+
+msgid   "downloading"
+msgstr  "download di"
+
+msgid   "no such directory"
+msgstr  "cartella non trovata"
+
+msgid   "cannot download"
+msgstr  "impossibile scaricare"
+
+msgid   "package not found"
+msgstr  "pacchetto non trovato"
+
+msgid   "unknown action"
+msgstr  "azione sconosciuta"
+
+msgid   "not the expected package version"
+msgstr  "non è la versione di pacchetto prevista"
+
+msgid   "cloning git repository"
+msgstr  "clonazione del repository"
+
+msgid   "cannot clone git repository"
+msgstr  "impossibile clonare il repository git"
+
+msgid   "creating the compressed source tarball"
+msgstr  "creazione del file sorgente compresso"
+
+msgid   "done"
+msgstr  "fatto"
+
+msgid   "an error occurred while creating"
+msgstr  "si è verificato un errore durante la creazione di"
+
+msgid   "detected a specfile with unsupported syntax:"
+msgstr  "lo specfile usa una sintassi non supportata:"
+
+msgid   "specfile not found"
+msgstr  "specfile non trovato"
+
+msgid   "FIXME: sorry, not implemented yet..."
+msgstr  "FIXME: spiacente, implementazione mancante..."
+
+msgid   "\\`%end' found; should perhaps be \\`%endif'"
+msgstr  "\\`%end' utilizzata; forse si intendeva \\`%endif'"
+
+msgid   "cannot evaluate:"
+msgstr  "impossibile valutare:"
+
+msgid   "Get informations from a given specfile."
+msgstr  "Ricava informazioni da un specfile dato."
+
+msgid   "name (and patch) of the specfile"
+msgstr  "nome (e percorso) dello specfile"
+
+msgid   "do not try to expand variables"
+msgstr  "non cercare di espandere le variabili"
+
+msgid   "and <query> belongs to the following list"
+msgstr  "e <query> appartiene alla lista seguente"
+
+msgid   "list of package groups"
+msgstr  "lista dei gruppi utilizzati"
+
+msgid   "full name of the srpm package"
+msgstr  "nome completo del pacchetto srpm"
+
+msgid   "list of patches"
+msgstr  "lista delle patch"
+
+msgid   "name of the source0 file"
+msgstr  "name del file indicato da source0"
+
+msgid   "list of source files"
+msgstr  "lista dei source file"
+
+msgid   "list of all the generated rpm packages"
+msgstr  "lista dei pacchetti rpm generati"
+
+msgid   "list of the obsoleted packages"
+msgstr  "lista dei pacchetti resi obsoleti"
+
+msgid   "list of the declared build requirements"
+msgstr  "lista dei \\`build requirements' dichiarati"
+
+msgid   "bad specfile preamble"
+msgstr  "preambolo dello specfile non conforme"
+
+msgid   "bad arg \\`$var'"
+msgstr  "argomento errato \\`$var'"
+
+msgid   "cannot initialize \\`$var' from specfile data"
+msgstr  "impossibile assegnare un valore a \\`$var' usando i dati dello "
+        "specfile"
+
+msgid   "no such file or directory"
+msgstr  "file o cartella non trovata"
+
+msgid   "can't create temporary directory"
+msgstr  "impossibile creare la cartella temporanea"
+
+msgid   "cannot extract files from rpm archive"
+msgstr  "impossibile estrarre i file dall'archivio rpm"
+
+msgid   "cannot extract files from cpio archive"
+msgstr  "impossibile estrarre i file dall'archivio cpio"
+
+msgid   "Extract from the srpm package <srpm_pck>..."
+msgstr  "Estrae dal pacchetto srpm <srpm_pck>..."
+
+msgid   "...the specified file or list of files <file(s)>"
+msgstr  "...il file o la lista di file <file(s)>"
+
+msgid   "Save extracted files in the directory <dir>"
+msgstr  "Salva i file estratti nella cartella <dir>"
+
+msgid   "cannot find:"
+msgstr  "impossibile trovare:"
+
+msgid   "not a srpm package"
+msgstr  "non è un pacchetto srpm"
+
+msgid   "cannot create \\`$destdir'"
+msgstr  "impossibile creare \\`$destdir'"
+
+msgid   "can't save extracted files to \\`$destdir'"
+msgstr  "impossibile salvare i file estratti in \\`$destdir'"
+
+msgid   "can't decompress the file"
+msgstr  "impossibile decomprimere il file"
+
+msgid   "can't save files to \\`$destdir'"
+msgstr  "impossibile salvare i file in \\`$destdir'"
+
+msgid   "you're running $me as root"
+msgstr  "stai eseguendo $me come root"
+
+msgid   "Update the package <pck> to version <ver> and release <rel>"
+msgstr  "Aggiorna il pacchetto <pck> a versione <ver> e release <rel>"
+
+msgid   "Do the actions specified in the comma separated list <lst>"
+msgstr  "Esegue la lista di azioni separate da virgole <lst>"
+
+msgid   "check for available versions in the $DISTRO repositories"
+msgstr  "cerca se il pacchetto è disponibile nei repository $DISTRO"
+
+msgid   "download and install the srpm package"
+msgstr  "download ed installazione del pacchetto srpm"
+
+msgid   "check if a new version is available"
+msgstr  "controlla se è disponibile un aggiornamento"
+
+msgid   "download new source files"
+msgstr  "download dei nuovi file sorgente"
+
+msgid   "update and check the specfile"
+msgstr  "aggiornamento e controllo dello specfile"
+
+msgid   "build the rpm(s) and srpm packages"
+msgstr  "creazione dei pacchetti rpm e srpm"
+
+msgid   "build the list of the build requirements"
+msgstr  "creazione della lista dei build requirement"
+
+msgid   "simulate the installation of the rpm package(s)"
+msgstr  "simulazione dell'installazione dei pacchetti rpm"
+
+msgid   "perform some quality and security checks"
+msgstr  "esecuzione dei test di qualità e sicurezza"
+
+msgid   "calculate the md5/sha1 hashing values"
+msgstr  "calcolo dei valori di hashing md5 e sha1"
+
+msgid   "upload the new packages to the ftp repository"
+msgstr  "upload dei nuovi pacchetti sul sito ftp"
+
+msgid   "*remove* old packages from the ftp repository"
+msgstr  "*rimozione* dei vecchi pacchetti dal sito ftp"
+
+msgid   "(move packages to \\`\\$ftp_rw_old_dir', if set)"
+msgstr  "(backup in \\`\\$ftp_rw_old_dir', se definita)"
+
+msgid   "install the new rpm packages"
+msgstr  "installazione dei nuovi pacchetti rpm"
+
+msgid   "Force the update of the rpm(s) and srpm packages"
+msgstr  "Forza l'aggiornamento dei pacchetti rpm e srpm"
+
+msgid   "Force the rebuild of the rpm(s) and srpm packages"
+msgstr  "Ricrea comunque i pacchetti rpm e srpm"
+
+msgid   "Install the new packages even if rpm complains for errors"
+msgstr  "Installa i nuovi pacchetti anche in caso di errori rpm"
+
+msgid   "Download the source files even if found in SOURCE"
+msgstr  "Scarica i file sorgente anche se presenti in SOURCE"
+
+msgid   "Try to execute the given action(s) bypassing errors"
+msgstr  "Cerca di eseguire comunque le azioni specificate"
+
+msgid   "Skip the given test number(s)"
+msgstr  "Non esegue i test indicati"
+
+msgid   "Define variables <v1>,<v2>,... with values <r1>,<r2>,..."
+msgstr  "Assegna alle variabili v1,v2,... i valori r1,r2,..."
+
+msgid   "Select a server from where to download srpm packages"
+msgstr  "Server da utilizzare nel download dei pacchetti"
+
+msgid   "Select a server where to upload packages"
+msgstr  "Server dove effettuare l'upload dei pacchetti"
+
+msgid   "Select a server to be used for both download and upload"
+msgstr  "Server per l'upload e il download dei pacchetti"
+
+msgid   "FTP user (usr) and password (pswd) for packages upload"
+msgstr  "User (usr) e password (pswd) per l'upload sul sito FTP"
+
+msgid   "Name of the specfile (default: <name>.spec)"
+msgstr  "Nome dello specfile (default: <name>.spec)"
+
+msgid   "Force the architecture to a given value"
+msgstr  "Forza un valore per l'architettura"
+
+msgid   "Set change information for the package"
+msgstr  "Scrive il messaggio indicato nel changelog del pacchetto"
+
+msgid   "action"
+msgstr  "azione"
+
+msgid   "Only build the rpm packages"
+msgstr  "Crea soltanto i pacchetti rpm"
+
+msgid   "Do not upload the srpm package"
+msgstr  "Non effettua l'upload del pacchetto srpm"
+
+msgid   "Only build the srpm package"
+msgstr  "Crea soltanto il pacchetto srpm"
+
+msgid   "Do not upload the rpm packages"
+msgstr  "Non effettua l'upload dei pacchetti rpm"
+
+msgid   "Do a \\`list check'"
+msgstr  "Cerca i file non pacchettizzati"
+
+msgid   "Replace the block AUTOBUILDREQ"
+msgstr  "Aggiorna il blocco AUTOBUILDREQ"
+
+msgid   "Remove all the temporary files except (s)rpm packages"
+msgstr  "Rimuove tutti i file temporanei"
+
+msgid   "Enable specfile autoformatting"
+msgstr  "Abilita la riformattazione dello specfile"
+
+msgid   "Unable logging to file (logging dir: \\`\\$logging_dir')"
+msgstr  "Abilita il log su file (nella directory: \\`\\$logging_dir'"
+
+msgid   "Enable rebuilding mode and settings (action 4 only)"
+msgstr  "Attiva modalità ed impostazioni di rebuild (azione 4)"
+
+msgid   "Specify an alternative root directory to rpm"
+msgstr  "Definisce una root directory alternativa per rpm"
+
+msgid   "changelog entry"
+msgstr  "stringa di changelog"
+
+msgid   "must be set in the configuration file"
+msgstr  "non inizializzato nei file di configurazione"
+
+msgid   "must have the same size"
+msgstr  "devono avere la stessa dimensione"
+
+msgid   "illegal value"
+msgstr  "valore non valido"
+
+msgid   "assuming as specfile"
+msgstr  "assumo che lo specfile sia"
+
+msgid   "unsupported path for specfile"
+msgstr  "persorso dello specfile non supportato"
+
+msgid   "specfile with CRLF line terminators"
+msgstr  "specfile con fine linea CRLF"
+
+msgid   "specfile with CR line terminators"
+msgstr  "specfile con fine linea CR"
+
+msgid   "specfile with an unsupported format"
+msgstr  "specfile in formato non supportato"
+
+msgid   "specfile has errors:"
+msgstr  "lo specfile contiene degli errori"
+
+msgid   "release number: unsupported format"
+msgstr  "numero di release: formato non supportato"
+
+msgid   "new release \\`$pck_newrel' must be greater than current one \\`"
+        "$SPEC_RELEASE'"
+msgstr  "la nuova release \\`$pck_newrel' deve essere maggiore di quella "
+        "corrente \\`$SPEC_RELEASE'"
+
+msgid   "making a ${NOTE}backup copy${NORM} of the current specfile"
+msgstr  "creazione di una ${NOTE}copia di backup${NORM} dello specfile "
+        "corrente"
+
+msgid   "unsupported architecture"
+msgstr  "architettura non supportata"
+
+msgid   "missing package name"
+msgstr  "nome del pacchetto mancante"
+
+msgid   "cannot create logging directory"
+msgstr  "impossibile creare la directory di logging"
+
+msgid   "logging file"
+msgstr  "file di log"
+
+msgid   "no action specified: set with \\`--action'"
+msgstr  "nessuna azione specificata: utilizzare \\`--action'"
+
+msgid   "sintax error in --action \\`$4'"
+msgstr  "errore di instassi in --action \\`$4'"
+
+msgid   "sintax error in the command"
+msgstr  "errore di sintassi nel comando"
+
+msgid   "illegal value for arg"
+msgstr  "valore non valido per l'argomento"
+
+msgid   "updating package ${NOTE}${pck_name##*/}${NORM} to version "
+        "${NOTE}${pck_newver}${NORM}"
+msgstr  "aggiornamento del pacchetto ${NOTE}${pck_name##*/}${NORM} alla "
+        "versione ${NOTE}${pck_newver}${NORM}"
+
+msgid   "updating package"
+msgstr  "aggiornamento del pacchetto"
+
+msgid   "multiple package update (regexp: ${NOTE}$pck_name${NORM}) to version "
+        "${NOTE}${pck_newver}${NORM}"
+msgstr  "aggiornamento multiplo di pacchetti (${NOTE}$pck_name${NORM}) alla "
+        "versione ${NOTE}${pck_newver}${NORM}"
+
+msgid   "multiple package update (regexp: ${NOTE}$pck_name${NORM})"
+msgstr  "aggiornamento multiplo di pacchetti (${NOTE}$pck_name${NORM})"
+
+msgid   "several occurrences found"
+msgstr  "trovati diversi pacchetti candidati"
+
+msgid   "Repository"
+msgstr  "Archivio"
+
+msgid   "Package"
+msgstr  "Pacchetto"
+
+msgid   "cannot find a matching SRPM package in the given repositories"
+msgstr  "impossibile trovare il pacchetto SRPM nei repository indicati"
+
+msgid   "too many packages found"
+msgstr  "trovati troppi pacchetti candidati"
+
+msgid   "installing"
+msgstr  "installazione di"
+
+msgid   "an error occurred while installing \\`$got_SPEC_FILENAME'"
+msgstr  "si è verificato un errore installando \\`$got_SPEC_FILENAME'"
+
+msgid   "unknown retcode for apse.scrapeversion()"
+msgstr  "codice di ritorno sconosciuto per apse.scrapeversion()"
+
+msgid   "version for new package required"
+msgstr  "versione del nuovo pacchetto non indicata"
+
+msgid   "${NOTE}updating${NORM} the new specfile \\`${NOTE}$spec_dir/"
+        "$SRPM_SPECFILE${NORM}'"
+msgstr  "${NOTE}aggiornamento${NORM} del nuovo specfile \\`${NOTE}$spec_dir/"
+        "$SRPM_SPECFILE${NORM}'"
+
+msgid   "specfile autoformattig enabled"
+msgstr  "formattazione automatica dello specfile abilitata"
+
+msgid   "illegal \\`format_extra_rules' (see configuration file(s))"
+msgstr  "\\`format_extra_rules' non corretta (vedi file di configurazione)"
+
+msgid   "missing entry forced"
+msgstr  "aggiunta voce mancante"
+
+msgid   "missing entry in the specfile:"
+msgstr  "voce mancante nello specfile:"
+
+msgid   "\\`%description' has empty body"
+msgstr  "trovata \\`%description' senza testo"
+
+msgid   "parsing the \\`%package' block"
+msgstr  "parsing del blocco \\`%package'"
+
+msgid   "cannot create \\`$SRPM_SPECFILE_WITH_PATH'"
+msgstr  "impossibile creare \\`$SRPM_SPECFILE_WITH_PATH'"
+
+msgid   "build the srpm package"
+msgstr  "creazione del pacchetto srpm"
+
+msgid   "the version entered at command line doesn't match the version set in "
+        "the specfile"
+msgstr  "versione specificata a linea di comando differente da quanto "
+        "indicato nello specfile"
+
+msgid   "the release entered at command line doesn't match the version set in "
+        "the specfile"
+msgstr  "release specificata a linea di comando differente da quanto indicato "
+        "nello specfile"
+
+msgid   "building the rpm packages"
+msgstr  "creazione dei pacchetti rpm"
+
+msgid   "specfile is newer than rpm package(s) (according to modification "
+        "date)"
+msgstr  ""
+
+msgid   "building the srpm package"
+msgstr  "creazione del pacchetto srpm"
+
+msgid   "specfile is newer than srpm (according to modification date)"
+msgstr  "lo specfile è più recente del file srpm"
+
+msgid   "build requirement found"
+msgstr  "trovato build requirement"
+
+msgid   "installing missing build requirement"
+msgstr  "installazione del \"build requirement\""
+
+msgid   "cannot install the needed build requirements"
+msgstr  "impossibile installare i \"build requirement\" necessari"
+
+msgid   "found ${NOTE}missing BuildRequirement${NORM} \\`${NOTE}$f${NORM}'"
+msgstr  "trovato ${NOTE}BuildRequirement non soddisfatto${NORM} \\`${NOTE}$f"
+        "${NORM}'"
+
+msgid   "testing out specfile"
+msgstr  "esecuzione dei test sullo specfile"
+
+msgid   "rpmbuild exited with error code"
+msgstr  "rpmbuild è terminato con il codice d'errore"
+
+msgid   "checking for unpackaged files"
+msgstr  "ricerca di file non inseriti nei blocchi %files"
+
+msgid   "building rpm and srpm packages"
+msgstr  "creazione dei pacchetti rpm e srpm"
+
+msgid   "It seems good but do not forget to run quality and security tests"
+msgstr  "Sembra ok ma non dimenticare di eseguire i test di qualità e "
+        "sicurezza"
+
+msgid   "Add the following files in the right %files blocks"
+msgstr  "Smistare i seguenti file nelle sezioni %files corrispondenti"
+
+msgid   "release for new package required"
+msgstr  "release del nuovo pacchetto non indicata"
+
+msgid   "ignoring requirement"
+msgstr  "requirement ignorato"
+
+msgid   "replacing the AUTOBUILDREQ block by:"
+msgstr  "sostituzione del blocco AUTOBUILDREQ con:"
+
+msgid   "rpm exited with error code:"
+msgstr  "rpm è terminato con il codice di errore:"
+
+msgid   "checking the specfile for common mistakes"
+msgstr  "controllo dello specfile alla ricerca di comuni errori"
+
+msgid   "checking packages for common mistakes"
+msgstr  "controllo dei pacchetti alla ricerca di comuni errori"
+
+msgid   "server unreachable"
+msgstr  "server non raggiungibile"
+
+msgid   "you have no read write access to url#$ftp_server_upload_num"
+msgstr  "accesso in scrittura alla url#$ftp_server_upload_num vietato"
+
+msgid   "ftp upload has been disabled"
+msgstr  "l'upload dei pacchetti via ftp è stato disabilitato"
+
+msgid   "trying with the ${NOTE}anonymous login${NORM}"
+msgstr  "provo ad utilizzare un ${NOTE}login anonimo${NORM}"
+
+msgid   "no old packages have been found."
+msgstr  "non sono stati trovati vecchi pacchetti."
+
+msgid   "moving old packages to the remote backup folder"
+msgstr  "sposto i vecchi pacchetti nella directory di backup del repository"
+
+msgid   "removing old packages from the repository"
+msgstr  "rimozione dei vecchi pacchetti dal sito"
+
+msgid   "force enabled"
+msgstr  "forzata"
+
+msgid   "cannot install the new rpm packages"
+msgstr  "impossibile installare i pacchetti rpm"
+
+msgid   "unknown step \\`$step'"
+msgstr  "lo step \\`$step' non esiste"
+
+msgid   "cleaning up temporary files"
+msgstr  "eliminazione dei file temporanei"
+
+msgid   "removing source packages and patches, if any"
+msgstr  "rimozione dei pacchetti sorgente e delle patch, se presenti"
+
+msgid   "removing"
+msgstr  "rimozione di"
+
+msgid   "Try to create a specfile for the specified source archive"
+msgstr  "Cerca di creare uno specfile per l'archivio sorgente indicato"
+
+msgid   "message"
+msgstr  "messaggio"
+
+msgid   "git-opts"
+msgstr  "opzioni-git"
+
+msgid   "Name of the package (default: taken from <source-archive> name)"
+msgstr  "Nome del pacchetto (default: ricavato dal nome dell'archivio "
+        "sorgente)"
+
+msgid   "Version of the package (default: taken from <source-archive> name)"
+msgstr  "Versione del pacchetto (default: ricavato dal nome dell'archivio "
+        "sorgente)"
+
+msgid   "Typology of the specfile to be created"
+msgstr  "Categoria dello specfile da generare"
+
+msgid   "standard specfile (default)"
+msgstr  "specfile standard (default)"
+
+msgid   "specfile for gnome packages"
+msgstr  "specfile per pacchetti gnome"
+
+msgid   "specfile for kde3 packages"
+msgstr  "specfile per pacchetti kde3"
+
+msgid   "specfile for kde4 packages"
+msgstr  "specfile per pacchetti kde4"
+
+msgid   "specfile for common library packages"
+msgstr  "specfile per librerie"
+
+msgid   "specfile for single-package perl modules"
+msgstr  "specfile per singoli moduli perl"
+
+msgid   "specfile for python modules"
+msgstr  "specfile per moduli python"
+
+msgid   "standard specfile for system/network services"
+msgstr  "specfile per servizi di sistema/rete"
+
+msgid   "Redirect the output to the file <outfile>"
+msgstr  "Redirige lo standard output sul file <outfile>"
+
+msgid   "Specify a git branch"
+msgstr  "Specifica un branch git"
+
+msgid   "Do not remove git files"
+msgstr  "Non rimuove i file git"
+
+msgid   "remember to modify the value for \\`${NOTE}$id${NORM}'"
+msgstr  "ricordarsi di modificare il valore di \\`${NOTE}$id${NORM}'"
+
+msgid   "unknown build techonology"
+msgstr  "tecnologia di build sconosciuta"
+
+msgid   "line"
+msgstr  "linea"
+
+msgid   "too many nested @if blocks"
+msgstr  "troppi livelli di blocchi @if"
+
+msgid   "@else without @if statement"
+msgstr  "@else senza un corrispondente @if"
+
+msgid   "@fi without @if statement"
+msgstr  "@fi senza un corrispondente @if"
+
+msgid   "missing tarball name"
+msgstr  "manca il nome del tarball"
+
+msgid   "cannot find the package $pck_tarball"
+msgstr  "impossibile trovare il pacchetto $pck_tarball"
+
+msgid   "cannot get the package name, use the \\`-n' option"
+msgstr  "impossibile ricavare il nome del pacchetto, usa l'opzione \\`-n'"
+
+msgid   "invalid version number"
+msgstr  "numero di versione non valido"
+
+msgid   "cannot get the package version, use the \\`-v' option"
+msgstr  "impossibile ricavare la versione del pacchetto, usa l'opzione \\`-v'"
+
+msgid   "can't create output file"
+msgstr  "impossibile creare il file di output"
+
+msgid   "generating specfile"
+msgstr  "generazione dello specfile"
+
+msgid   "source"
+msgstr  "sorgente"
+
+msgid   "mode"
+msgstr  "modo"
+
+msgid   "libraries must have this name structure (use \\`-n'):"
+msgstr  "i nomi delle librerie devono avere questa struttura (usare \\`-n'):"
+
+msgid   "perl modules must have this name structure (use \\`-n'):"
+msgstr  "i nomi dei moduli perl devono avere questa struttura (usare \\`-n'):"
+
+msgid   "python modules must have this name structure (use \\`-n'):"
+msgstr  "i nomi dei moduli python devono avere questa struttura (usare \\`-"
+        "n'):"
+
+msgid   "unsupported package compression method"
+msgstr  "metodo di compressione del pacchetto non supportato"
+
+msgid   "looks like a perl package (use \\`-t perl' if this is true)"
+msgstr  "sembra un pacchetto perl (in questo caso usa \\`-t perl')"
+
+msgid   "looks like a python module (use \\`-t python' if this is true)"
+msgstr  "sembra un modulo python (in questo caso usa \\`-t python')"
+
+msgid   "created specfile"
+msgstr  "creato specfile"
+
+msgid   "does not point to a valid internet address"
+msgstr  "non fa riferimento ad un indirizzo internet"
+
+msgid   "patch"
+msgstr  "patch"
+
+msgid   "not a standard structure (see config file)"
+msgstr  "nome con struttura non standard (vedi configurazione)"
+
+msgid   "found \\`-D' and/or \\`-T' option(s) in the \\`%setup' directive"
+msgstr  "sospetta opzione \\`-D' e/o \\`-T' nella direttiva \\`%setup'"
+
+msgid   "missing at least one \\`%defattr' directive"
+msgstr  "manca almeno una direttiva \\`%defattr'"
+
+msgid   "use rpm macros if possible:"
+msgstr  "utilizzare le macro rpm quando possibile:"
+
 # Italian translation.
 # Copyright (C) 2004-2012 Davide Madrisan
 # This file is distributed under the same license as the autospec package.
 # Davide Madrisan <davide.madrisan@gmail.com>, 2004-2012.
 #
-msgid ""
-msgstr ""
-"Project-Id-Version: autospec 1.16.0\n"
-"Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
-"POT-Creation-Date: 2012-11-23 22:50+0100\n"
-"PO-Revision-Date: 2012-11-19 23:37+0100\n"
-"Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
-"Language-Team: \n"
-"Language: Italian \n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+msgid   ""
+msgstr  "Project-Id-Version: autospec 1.16.0\n"
+        "Report-Msgid-Bugs-To: davide.madrisan@gmail.com\n"
+        "POT-Creation-Date: 2012-11-23 22:50+0100\n"
+        "PO-Revision-Date: 2012-11-19 23:37+0100\n"
+        "Last-Translator: Davide Madrisan <davide.madrisan@gmail.com>\n"
+        "Language-Team: \n"
+        "Language: Italian \n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=UTF-8\n"
+        "Content-Transfer-Encoding: 8bit\n"
 
-msgid "this script requires bash version 2 or better"
-msgstr "questo script richiede bash versione 2 o superiore"
+msgid   "localization files must be packaged via \\`%find_lang'"
+msgstr  "trovati file di localizzazione non gestiti da \\`%find_lang'"
 
-msgid ""
-"This program is free software; you can redistribute it and/or modify it under\n"
-"the terms of the GNU General Public License version 2 as published by the\n"
-"Free Software Foundation.  There is NO warranty; not even for MERCHANTABILITY\n"
-"or FITNESS FOR A PARTICULAR PURPOSE."
-msgstr ""
-"Questo è software libero; è possibile redistribuirlo e/o modificarlo nei termini\n"
-"della GNU General Public License versione 2 così come pubblicata dalla\n"
-"Free Software Foundation.  Non è fornita ALCUNA garanzia; neppure di NEGOZIABILITA'\n"
-"o di APPLICABILITA' PER UN PARTICOLARE SCOPO."
+msgid   "info pages"
+msgstr  "pagine info"
 
-msgid "Automatically update rpm packages and help creating new specfiles."
-msgstr "Aggiorna automaticamente pacchetti rpm ed assiste nella creazione di specfile."
+msgid   "info pages are not installed/uninstalled in the correct way"
+msgstr  "le pagine info non vengono installate/disinstallate correttamente"
 
-msgid "Operation modes"
-msgstr "Modalità operative"
+msgid   "package Groups"
+msgstr  "campi Group dei pacchetti"
 
-msgid "Update the given package to a specified version and release"
-msgstr "Aggiorna il pacchetto indicato ad una specifica versione e release"
+msgid   "invalid \\`Group'"
+msgstr  "\\`Group' non valido"
 
-msgid "Try to create a specfile for the specified tarball"
-msgstr "Cerca di creare uno specfile per il tarball indicato"
+msgid   "see configuration files"
+msgstr  "guarda nei file di configurazione"
 
-msgid "Extract a given file or list of files from a srpm archive"
-msgstr "Estrae da un archivio srpm un file o una lista di file indicati"
+msgid   "or enter the command"
+msgstr  "oppure esegui il comando"
 
-msgid "Print the value of the given configuration variable"
-msgstr "Stampa il valore che la variabile indicata ha nei file di configurazione"
+msgid   "approved License"
+msgstr  "Licenza valida"
 
-msgid "Print this help, then exit"
-msgstr "Stampa questa schermata di aiuto e termina il programma"
+msgid   "not approved \\`License'"
+msgstr  "\\`License' non approvata"
 
-msgid "Print version number, then exit"
-msgstr "Stampa il numero di versione e termina il programma"
+msgid   "${NOTE}Specfile checks: ${NORM}${WARN}$total_issues${NORM} ${NOTE}"
+        "warnings.${NORM}"
+msgstr  "${NOTE}Controllo dello specfile: problemi riscontrati: "
+        "${NORM}${WARN}$total_issues${NORM}"
 
-msgid "Run in quiet mode"
-msgstr "Non stampa alcun dettaglio delle operazioni in esecuzione"
+msgid   "performing quality checks"
+msgstr  "esecuzione dei test di qualità"
 
-msgid "Run in debugging mode (very verbose output)"
-msgstr "Attiva la modalità di debugging (output prolisso)"
+msgid   "checking for wrong symbolic links"
+msgstr  "ricerca di link simbolici errati"
 
-msgid "Common options"
-msgstr "Opzioni comuni"
+msgid   "wrong symlink"
+msgstr  "link simbolico incorretto"
 
-msgid "Select the theme to be used for the colorized output"
-msgstr "Seleziona il tema da usare per generare l'output colorato"
+msgid   "checking for \\`$SPEC_BUILDROOT' (%buildroot) strings"
+msgstr  "ricerca della stringa \\`$SPEC_BUILDROOT' (%buildroot)"
 
-msgid "Use an alternate user configuration file"
-msgstr "Definisce uno o più file di configurazione utente alternativi"
+msgid   "checking for %buildroot strings"
+msgstr  "ricerca delle stringhe %buildroot"
 
-msgid "Usage"
-msgstr "Utilizzo"
+msgid   "N/A"
+msgstr  "N/A"
 
-msgid "Use '-u -h', '-s -h', '-x -h', and '--eval -h' to display specific command line options."
-msgstr "Usa '-u -h', '-s -h', '-x -h', '--eval -h' per avere le opzioni a linea di comando specifiche."
+msgid   "mime type: "
+msgstr  "tipo mime: "
 
-msgid "Report bugs to <davide.madrisan@gmail.com>."
-msgstr "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
+msgid   "checking for \\`$BUILDDIR' (%_builddir) strings"
+msgstr  "ricerca della stringa \\`$BUILDDIR' (%_builddir)"
 
-msgid "library not found"
-msgstr "libreria non trovata"
+msgid   "checking for suspicious plugins in devel packages"
+msgstr  "controllo di plugin sospetti nei pacchetti devel"
 
-msgid "deprecated option"
-msgstr "opzione deprecata"
+msgid   "found suspect plugin \\`${NOTE}$f${NORM}'"
+msgstr  "trovato sospetto plugin \\`${NOTE}$f${NORM}'"
 
-msgid "use \\`--colors' instead"
-msgstr "utilizzare \\`--colors'"
+msgid   "checking for wrong file attributes in bin and lib directories"
+msgstr  "ricerca di file binari e librerie con permessi errati"
 
-msgid "version"
-msgstr "versione"
+msgid   "found suspect file"
+msgstr  "file sospetto"
 
-msgid "unset in the configuration files"
-msgstr "non configurato nei file di configurazione"
+msgid   "checking for libraries with undefined symbols after relocation"
+msgstr  "ricerca di librerie con simboli indefiniti dopo rilocazione"
 
-msgid "plugin not found"
-msgstr "plugin non trovato"
+msgid   "checking for binary files installed in /etc (see FHS)"
+msgstr  "ricerca di file binari installati in /etc (vedi FHS)"
 
-msgid "can't create temporary files"
-msgstr "impossibile creare file temporanei"
+msgid   "checking if the info catalog is updated when necessary"
+msgstr  "controllo se il registro delle pagine info viene aggiornato"
+
+msgid   "info pages should be installed/uninstalled"
+msgstr  "le pagine info dovrebbero essere installate/disinstallate"
+
+msgid   "checking packages for wrong user and/or group ownerships"
+msgstr  "ricerca di pacchetti contenenti file con errato utente e/o gruppo"
+
+msgid   "checking packages for desktop files installed in the applnk dir"
+msgstr  "ricerca di pacchetti con file desktop installati in applnk"
+
+msgid   "create desktop files for:"
+msgstr  "creare file desktop per:"
+
+msgid   "see:"
+msgstr  "vedere:"
+
+msgid   "checking for packages with bad BuildArch tag"
+msgstr  "ricerca di pacchetti con errato tag BuildArch"
+
+msgid   "this package should be tagged \\`noarch'"
+msgstr  "questo pacchetto dovrebbe essere di tipo \\`noarch'"
+
+msgid   "${NOTE}Quality checks: ${#rpmpkg_name[@]} package(s) checked: "
+        "${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
+msgstr  "${NOTE}Controlli di qualità: pacchetti rpm: ${#rpmpkg_name[@]}; "
+        "problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
+
+msgid   "performing security checks"
+msgstr  "esecuzione dei test di sicurezza"
+
+msgid   "checking for RPATH vulnerabilities"
+msgstr  "ricerca di vulnerabilità di tipo RPATH"
+
+msgid   "checking for setuid binaries"
+msgstr  "ricerca di binari setuid"
+
+msgid   "checking for setgid directories"
+msgstr  "ricerca di directory setgid"
+
+msgid   "checking for unsecure use of \\`\\$\\$' in shell and perl scripts"
+msgstr  "ricerca di script shell e perl che utilizzano \\`\\$\\$' in modo "
+        "insicuro"
+
+msgid   "seems to be affected"
+msgstr  "sembra affetto"
+
+msgid   "Hint for bash scripts (\\`mktemp' required)"
+msgstr  "Suggerimento per script bash (richiede \\`mktemp')"
+
+msgid   "Hint for perl scripts"
+msgstr  "Suggerimento per script perl"
+
+msgid   "${NOTE}Security checks: ${#rpmpkg_name[@]} package(s) checked: "
+        "${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
+msgstr  "${NOTE}Controlli di sicurezza: pacchetti rpm: ${#rpmpkg_name[@]}; "
+        "problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
+
+#~ msgid        "not an internet address"
+#~ msgstr       "non è un indirizzo internet"

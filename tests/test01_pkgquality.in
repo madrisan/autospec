@@ -15,7 +15,7 @@ if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
    . /etc/sysconfig/i18n
    [ "$LANG" ] && export LANG
 fi
-TEXTDOMAIN="@package@-all"; export TEXTDOMAIN
+TEXTDOMAIN="@package@"; export TEXTDOMAIN
 
 # check if all the needed tools are available
 for tool in file find getopt grep ls ldd; do

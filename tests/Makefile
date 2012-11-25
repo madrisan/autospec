@@ -33,13 +33,8 @@ check: $(pck_tests)
 pot-files: $(pck_tests)
 	@for f in $(pck_tests); do\
 	   echo -n "Generating po template '$$f.pot'...";\
-	   /usr/bin/xgettext -i -L shell \
-	      --copyright-holder="$(PO_COPYRIGH_HOLDER)" \
-	      --msgid-bugs-address="$(PO_BUGS_ADDRESS)" \
-	      --no-location \
-	      --package-name=$(PACKAGE) \
-	      --package-version=${VERSION} \
-	      $$f -o $(srcdir)/po/$$f.pot 2>/dev/null \
+	   /bin/bash --dump-po-strings $$f \
+	      > $(srcdir)/po/$$f.pot \
 	   && echo "[DONE]" || { echo "[ERROR]"; exit 1; };\
 	done
 
