@@ -33,6 +33,9 @@ pck_catalogs_tmpl := autospec_fe.pot \
    test01_pkgquality.pot \
    test02_pkgsecurity.pot
 
+pck_catalog_tmpl := $(PACKAGE).pot
+pck_catalog := $(PACKAGE).po
+
 LANG=it
 
 .SUFFIXES:
@@ -50,19 +53,19 @@ merge-pot-files: $(patsubst %,$(srcdir)/po/%,$(pck_catalogs_tmpl))
 	   > $(srcdir)/po/$(PACKAGE)-all.pot;\
 	/usr/bin/msguniq --use-first --no-location --no-wrap \
 	   $(srcdir)/po/$(PACKAGE)-all.pot \
-	   -o $(srcdir)/po/$(PACKAGE).pot && \
+	   -o $(srcdir)/po/$(pck_catalog_tmpl) && \
 	   echo "... $(PACKAGE)-all.pot [DONE]" || \
 	   { echo ".. $(PACKAGE)-all.pot [FAILED]"; exit 1; }
 
 locales: merge-pot-files
 	@echo "Generating global locale...";\
 	/usr/bin/msgmerge --update --no-fuzzy-matching --indent \
-	   $(PACKAGE).po \
-	   $(srcdir)/po/$(PACKAGE).pot && \
-	   echo "... $(PACKAGE).po [DONE]" || \
-	   { echo ".. $(PACKAGE).po [FAILED]"; exit 1; }
+	   $(pck_catalog) \
+	   $(srcdir)/po/$(pck_catalog_tmpl) && \
+	   echo "... $(pck_catalog) [DONE]" || \
+	   { echo ".. $(pck_catalog) [FAILED]"; exit 1; }
 
-install: locales
+install: $(pck_catalog:.po=.mo)
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
 	$(INSTALL_DIR) $$destdir;\
 	$(INSTALL_DATA) $(PACKAGE).mo $$destdir/$(PACKAGE).mo
