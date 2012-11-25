@@ -204,6 +204,8 @@ debug,quiet,help,version \
 
 eval set -- "$exec_options"
 
+cmdline_vars=()
+
 while :; do
    case $1 in
       -u|--update) ;;
@@ -237,7 +239,8 @@ while :; do
          ftp_server_upload_id="$2"
          shift ;;
       --changelog)
-         changelog_commandline="$2"; shift ;;
+         changelog_cmdline="$2"; shift
+         notify.debug "changelog_cmdline = \"$changelog_cmdline\"" ;;
       --nosrpm)
          let "nosrpm = 1" ;;
       --norpm)
@@ -278,9 +281,16 @@ while :; do
       -q|--quiet)
          let "verbose = 0" ;;
       --colors)
-         color_scheme="$2"; shift ;;
+         color_scheme="$2"; shift
+         notify.debug "color_scheme = \"$color_scheme\""
+         cmdline_vars[${#cmdline_vars[*]}]="color_scheme=\"$color_scheme\""
+      ;;
       -C|--config)
-         custom_cfgfile_list="$2"; shift ;;
+         cfgfile_list_cmdline="$2"; shift
+         notify.debug "cfgfile_list_cmdline = \"$cfgfile_list_cmdline\""
+         cmdline_vars[${#cmdline_vars[*]}]="\
+cfgfile_list_cmdline=\"$cfgfile_list_cmdline\""
+      ;;
       -h|--help)
          usage 0 ;;
       -V|--version)
@@ -306,15 +316,19 @@ done
 notify.debug "${0} ${exec_options}"
 #echo -e "[ ${0} \\ \n    ${exec_options} ]\n"
 
-notify.debug "changelog_commandline = \"$changelog_commandline\""
-
 if [ -n "$rpm_rootdir" ]; then
    [ -d "$rpm_rootdir" ] ||
       notify.error $"no such file or directory"": $rpm_rootdir"
 fi
 
-notify.debug "custom_cfgfile_list = \"$custom_cfgfile_list\""
-cfg_load_files "$custom_cfgfile_list"
+cfg_load_files "$cfgfile_list_cmdline"
+
+# otherwrite the configuration variables by set them again using
+# the values defined via the commanline options
+for i in ${!cmdline_vars[@]}; do
+   notify.debug "eval \"${cmdline_vars[i]}\""
+   eval "${cmdline_vars[i]}"
+done
 
 [ "$logging" = "1" ] && color_scheme="none"
 notify.enable_colors "$color_scheme"
@@ -1211,8 +1225,8 @@ s|\(.*[ \t]*${define_list_name[$i]}[ \t]*\).*|\1${define_list_value[$i]}|}" \
 
          # set the changelog entry
          local changelog_new
-         if [ "$changelog_commandline" ]; then
-            changelog_new="$changelog_commandline"
+         if [ "$changelog_cmdline" ]; then
+            changelog_new="$changelog_cmdline"
          elif [ "$changelog_userdef" ]; then
             changelog_new="$changelog_userdef"
          else

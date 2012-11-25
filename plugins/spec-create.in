@@ -172,6 +172,8 @@ frontend_opts: \
 notify.debug "[ ${0} ${exec_options} ]\n"
 eval set -- "$exec_options"
 
+cmdline_vars=()
+
 while :; do
    case $1 in
       -s|--source)
@@ -198,9 +200,16 @@ while :; do
       -q|--quiet)
          let "verbose = 0" ;;
       --colors)
-         color_scheme="$2"; shift ;;
+         color_scheme="$2"; shift
+         notify.debug "color_scheme = \"$color_scheme\""
+         cmdline_vars[${#cmdline_vars[*]}]="color_scheme=\"$color_scheme\""
+      ;;
       -C|--config)
-         custom_cfgfile_list="$2"; shift ;;
+         cfgfile_list_cmdline="$2"; shift
+         notify.debug "cfgfile_list_cmdline = \"$cfgfile_list_cmdline\""
+         cmdline_vars[${#cmdline_vars[*]}]="\
+cfgfile_list_cmdline=\"$cfgfile_list_cmdline\""
+      ;;
       -h|--help)
          usage 0 ;;
       -V|--version)
@@ -215,8 +224,14 @@ for arg in $@; do
    notify.error $"unrecognized option"" -- \`$arg'"
 done
 
-notify.debug "custom_cfgfile_list = \"$custom_cfgfile_list\""
-cfg_load_files "$custom_cfgfile_list"
+cfg_load_files "$cfgfile_list_cmdline"
+
+# otherwrite the configuration variables by set them again using
+# the values defined via the commanline options
+for i in ${!cmdline_vars[@]}; do
+   notify.debug "eval \"${cmdline_vars[i]}\""
+   eval "${cmdline_vars[i]}"
+done
 
 notify.enable_colors "$color_scheme"
 

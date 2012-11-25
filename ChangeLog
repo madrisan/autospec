@@ -49,6 +49,15 @@ Changes in version 1.16.0
     Remove all the partial .po files and dinamically create a global .pot
     file which will be merged to autospec.po at every build.
 
++ update
+  * autospec - Davide Madrisan:
+    Remove the obsolete option '-r|--colorize'.
+
++ bugfix
+  * autospec, plugins/* - Davide Madrisan:
+    Rework the logic of the command-line options parser to let it work in
+    conjunction with the late load of the configuration files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.14.3

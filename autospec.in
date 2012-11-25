@@ -94,7 +94,7 @@ notify.disable_colors
    exit 1; }
 
 . @libdir@/libcfg.lib
-   
+
 # Little helper function for reading args from the commandline.
 # it automatically handles -a b and -a=b variants, and returns 1 if
 # we need to shift $3.
@@ -116,6 +116,8 @@ function read_arg() {
 }
 
 args=()
+cmdline_vars=()
+
 while (($# > 0)); do
    args[${#args[*]}]="$1"
    case ${1%%=*} in
@@ -131,32 +133,39 @@ while (($# > 0)); do
          let "verbose = 2" ;;
       -q|--quiet)
          let "verbose = 0" ;;
-      -r|--colorize)
-         notify.warning $"\
-deprecated option"" \`-r|--colorize': "$"use \`--colors' instead"
-         # for backward compatibility
-         selected_color_scheme="default" ;;
       -h|--help)
          let "print_help = 1" ;;
       -V|--version)
          let "print_version = 1" ;;
       --colors)
-         read_arg selected_color_scheme "$@" || 
-          { shift; args[${#args[*]}]="$1"; } ;;
+         read_arg color_scheme "$@" || 
+          { shift; args[${#args[*]}]="$1"; } 
+         notify.debug "color_scheme = \"$color_scheme\""
+         cmdline_vars[${#cmdline_vars[*]}]="color_scheme=\"$color_scheme\""
+      ;;
       -C|--config)
-         read_arg custom_cfgfile_list "$@" ||
-          { shift; args[${#args[*]}]="$1"; } ;;
-       *) ;;
+         read_arg cfgfile_list_cmdline "$@" ||
+          { shift; args[${#args[*]}]="$1"; }
+         notify.debug "cfgfile_list_cmdline = \"$cfgfile_list_cmdline\""
+      ;;
+      *) ;;
    esac
    shift
 done
 
 notify.debug "[${me[0]}, "$"version"" ${me[1]}]"
 
-[ "$selected_color_scheme" ] || color_scheme="$selected_color_scheme"
+cfg_load_files "$cfgfile_list_cmdline"
 
-notify.debug "custom_cfgfile_list = \"$custom_cfgfile_list\""
-cfg_load_files "$custom_cfgfile_list"
+# otherwrite the configuration variables by set them again using
+# the values defined via the commanline options
+for i in ${!cmdline_vars[@]}; do
+   notify.debug "eval \"${cmdline_vars[i]}\""
+   eval "${cmdline_vars[i]}"
+done
+
+[ "$logging" = "1" ] && color_scheme="none"
+notify.enable_colors "$color_scheme"
 
 case "$(( $pck_update + $spec_create + $pck_extract + $config_getvar ))" in
    0) [ "$print_help" = "1" ] && autospec.usage 0
@@ -171,9 +180,6 @@ case "$(( $pck_update + $spec_create + $pck_extract + $config_getvar ))" in
    1) ;;
    *) autospec.usage 1 ;;
 esac
-
-[ "$logging" = "1" ] && color_scheme="none"
-notify.enable_colors "$color_scheme"
 
 # checking for errors in the configuration file
 [ "$config_getvar" = 1 ] || config.integrity
