@@ -51,16 +51,16 @@ merge-pot-files: $(patsubst %,$(srcdir)/po/%,$(pck_catalogs_tmpl))
 	/usr/bin/msguniq --use-first --no-location --no-wrap \
 	   $(srcdir)/po/$(PACKAGE)-all.pot \
 	   -o $(srcdir)/po/$(PACKAGE).pot && \
-	   echo "... $(PACKAGE)-all.pot [PASSED]" || \
+	   echo "... $(PACKAGE)-all.pot [DONE]" || \
 	   { echo ".. $(PACKAGE)-all.pot [FAILED]"; exit 1; }
 
 locales: merge-pot-files
 	@echo "Generating global locale...";\
 	/usr/bin/msgmerge --update --no-fuzzy-matching --indent \
 	   $(PACKAGE).po \
-	   $(srcdir)/po/$(PACKAGE).pot;\
-	echo "... $(PACKAGE)-all.po [DONE]"
-	
+	   $(srcdir)/po/$(PACKAGE).pot && \
+	   echo "... $(PACKAGE).po [DONE]" || \
+	   { echo ".. $(PACKAGE).po [FAILED]"; exit 1; }
 
 install: locales
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
@@ -68,12 +68,9 @@ install: locales
 	$(INSTALL_DATA) $(PACKAGE).mo $$destdir/$(PACKAGE).mo
 
 uninstall:
-	@for f in $(pck_catalogs:.po=); do\
-	   echo "rm -f $(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES/$${f}.mo";\
-	   rm -f $(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES/$${f}.mo;\
-	done
+	rm -f $(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES/$(PACKAGE).mo
 
 clean:
-	rm -f $(pck_catalogs:.po=.mo)
-	rm -f $(srcdir)/po/$(PACKAGE)-all.po
+	rm -f $(PACKAGE).mo
+	rm -f $(srcdir)/po/*.pot
 	rm -f *.po~
