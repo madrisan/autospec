@@ -1,3 +1,38 @@
+List of user visible changes in the release 1.16.0
+
+-- Improvement
+
+ * autospec, plugins, libraries, makefiles - Davide Madrisan:
+   The translation framework has been completely rewritten.
+   The partial translation files (.po)i have been removedi.
+   A global .pot file is now dinamically created and merged with the file
+   autospec.po at every build.
+
+ * lib/* - Davide Madrisan:
+   Do not load a library previously loaded by another module.
+ 
+-- Update
+
+ * autospec - Davide Madrisan:
+   Remove the obsolete option '-r|--colorize'.
+
+-- Bugfix
+
+ * Makefile - Davide Madrisan:
+   'check' target: also check the syntax of library files.
+
+ * conf/03-apse.conf - Silvan Calarco:
+   Fix sed expression not to match trailing spaces in:
+    . http://directory.fsf.org
+    . http://launchpad.net
+
+ * autospec, plugins/* - Davide Madrisan:
+   Rework the logic of the command-line options parser to let it work in
+   conjunction with the late load of the configuration files.
+   This fixes two bugs introduced in v1.14.3 and noticed by Silvan Calarco.)
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.14.3
 
 -- Improvement
