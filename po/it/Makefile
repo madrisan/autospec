@@ -63,7 +63,11 @@ locales: merge-pot-files
 	   $(pck_catalog) \
 	   $(srcdir)/po/$(pck_catalog_tmpl) && \
 	   echo "... $(pck_catalog) [DONE]" || \
-	   { echo ".. $(pck_catalog) [FAILED]"; exit 1; }
+	   { echo "... $(pck_catalog) [FAILED]"; exit 1; }
+	@echo -n "Checking $(pck_catalog) for untranslated strings... ";\
+	/bin/grep -q 'msgstr[ \t]*\"\"' $(pck_catalog) && \
+	   { echo "[UNTRASLATED STRING]"; exit 1; } || \
+           echo "[NONE]"
 
 install: $(pck_catalog:.po=.mo)
 	@destdir="$(DESTDIR)$(localedir)/$(LANG)/LC_MESSAGES";\
