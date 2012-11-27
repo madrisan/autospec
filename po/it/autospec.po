@@ -667,7 +667,7 @@ msgstr  "creazione dei pacchetti rpm"
 
 msgid   "specfile is newer than rpm package(s) (according to modification "
         "date)"
-msgstr  ""
+msgstr  "lo specfile è stato modificato dopo la creazione dei pacchetti rpm"
 
 msgid   "building the srpm package"
 msgstr  "creazione del pacchetto srpm"

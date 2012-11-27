@@ -5,6 +5,10 @@ Changes in version 1.16.1
   * Makefile - Davide Madrisan:
     Target 'locales': check 'autospec.po' for untranslated strings.
 
++ bugfix
+  * po/it/autospec.po - Davide Madrisan:
+    Add a missing translation.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.0
