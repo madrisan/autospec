@@ -2,12 +2,16 @@ Changes in version 1.16.1
 --- --- -- 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
-  * Makefile - Davide Madrisan:
+  * po/it/Makefile - Davide Madrisan:
     Target 'locales': check 'autospec.po' for untranslated strings.
 
 + bugfix
   * po/it/autospec.po - Davide Madrisan:
     Add a missing translation.
+
++ update
+  * po/it/Makefile - Davide Madrisan:
+    Better output messages.
 
 -------------------------------------------------------------------------------
 

@@ -48,24 +48,24 @@ all: locales
 pck_manpages := 
 
 merge-pot-files: $(patsubst %,$(srcdir)/po/%,$(pck_catalogs_tmpl))
-	@echo "Creating global pot file...";\
-	/bin/cat $(patsubst %,$(srcdir)/po/%,$(pck_catalogs_tmpl)) \
+	@echo -n "Creating global pot file: $(pck_catalog_tmpl)... "
+	@/bin/cat $(patsubst %,$(srcdir)/po/%,$(pck_catalogs_tmpl)) \
 	   > $(srcdir)/po/$(PACKAGE)-all.pot;\
-	/usr/bin/msguniq --use-first --no-location --no-wrap \
+	/usr/bin/msguniq \
+	   --use-first --no-location --no-wrap --to-code=UTF-8 \
 	   $(srcdir)/po/$(PACKAGE)-all.pot \
 	   -o $(srcdir)/po/$(pck_catalog_tmpl) && \
-	   echo "... $(PACKAGE)-all.pot [DONE]" || \
-	   { echo ".. $(PACKAGE)-all.pot [FAILED]"; exit 1; }
+	   echo "[DONE]" || { echo "[FAILED]"; exit 1; }
 
 locales: merge-pot-files
-	@echo "Generating global locale...";\
-	/usr/bin/msgmerge --update --no-fuzzy-matching --indent \
+	@echo -n "Generating global locale: $(pck_catalog)... "
+	@/usr/bin/msgmerge --quiet \
+           --update --no-fuzzy-matching --indent \
 	   $(pck_catalog) \
 	   $(srcdir)/po/$(pck_catalog_tmpl) && \
-	   echo "... $(pck_catalog) [DONE]" || \
-	   { echo "... $(pck_catalog) [FAILED]"; exit 1; }
-	@echo -n "Checking $(pck_catalog) for untranslated strings... ";\
-	/bin/grep -q 'msgstr[ \t]*\"\"' $(pck_catalog) && \
+	   echo "[DONE]" || { echo "[FAILED]"; exit 1; }
+	@echo -n "Checking $(pck_catalog) for untranslated strings... "
+	@/bin/grep -q 'msgstr[ \t]*\"\"' $(pck_catalog) && \
 	   { echo "[UNTRASLATED STRING]"; exit 1; } || \
            echo "[NONE]"
 
