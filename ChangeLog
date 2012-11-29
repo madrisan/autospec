@@ -13,6 +13,11 @@ Changes in version 1.16.1
   * po/it/Makefile - Davide Madrisan:
     Better output messages.
 
++ update
+  * Makefile.env - Davide Madrisan:
+    The variables PO_COPYRIGH_HOLDER and PO_BUGS_ADDRESS are no longer
+    required. Remove them.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.0
