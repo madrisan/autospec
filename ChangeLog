@@ -13,19 +13,19 @@ Changes in version 1.16.1
   * po/it/Makefile - Davide Madrisan:
     Better output messages.
 
-+ update
   * Makefile.env - Davide Madrisan:
     The variables PO_COPYRIGH_HOLDER and PO_BUGS_ADDRESS are no longer
     required. Remove them.
 
-+ update
   * lib/libtranslate.lib - Davide Madrisan:
     New library libtranslate.lib.
 
-+ update
   * lib/*, plugins/*, tests/* - Davide Madrisan:
     Use libtranslate.lib instead of duplicate the code in every library, 
     plugin, and test module.
+
+  * config-getvar - Davide Madrisan:
+    Update the help message.
 
 -------------------------------------------------------------------------------
 
