@@ -1,0 +1,19 @@
+#!/bin/bash
+# libtranslate.lib -- @package@ library used to setup translations
+# Copyright (C) 2012 Davide Madrisan <davide.madrisan@gmail.com>
+
+[ "$libtranslate_is_loaded" = 1 ] || {
+libtest_is_loaded=1
+
+[ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
+ { echo $"this script requires bash version 2 or better" >&2 && exit 1; }
+
+me=("libtranslate.lib" "@version@" "@date@")
+
+if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
+   . /etc/sysconfig/i18n
+   [ "$LANG" ] && export LANG
+fi
+TEXTDOMAIN="@package@"; export TEXTDOMAIN
+
+} # endif $libtranslate_is_loaded

@@ -22,11 +22,10 @@ let "verbose = 1"
    exit 1; }
 . @libdir@/libcfg.lib
 
-if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
-   . /etc/sysconfig/i18n
-   [ "$LANG" ] && export LANG
-fi
-TEXTDOMAIN="@package@"; export TEXTDOMAIN
+[ -r @libdir@/libtranslate.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
+   exit 1; }
+. @libdir@/libtranslate.lib
 
 function copying() {
    echo "\

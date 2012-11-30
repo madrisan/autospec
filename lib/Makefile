@@ -19,7 +19,7 @@ srcdir = ..
 include $(srcdir)/Makefile.env
 
 pck_libs := libapse.lib libcfg.lib libmsgmng.lib libnetwork.lib libspec.lib \
-            libtest.lib
+            libtest.lib libtranslate.lib
 pck_libs_infiles := $(wildcard *.in)
 pck_libs_all := $(pck_libs) README.API
 

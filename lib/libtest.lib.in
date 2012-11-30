@@ -8,18 +8,17 @@ libtest_is_loaded=1
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
 
-me=(${0##*/} "@version@" "@date@")
+me=("libtest.lib" "@version@" "@date@")
 
 [ -r @libdir@/libmsgmng.lib ] ||
  { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
    exit 1; }
 . @libdir@/libmsgmng.lib
 
-if [[ -z "$LANG" && -r /etc/sysconfig/i18n ]]; then
-   . /etc/sysconfig/i18n
-   [ "$LANG" ] && export LANG
-fi
-TEXTDOMAIN="@package@"; export TEXTDOMAIN
+[ -r @libdir@/libtranslate.lib ] ||
+ { echo "$me: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
+   exit 1; }
+. @libdir@/libtranslate.lib
 
 [ -n "$testdir" ] ||
    notify.error "\`testdir': "$"unset in the configuration files"
