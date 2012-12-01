@@ -31,6 +31,9 @@ Changes in version 1.16.1
   * lib/* - Davide Madrisan:
     Get rid of the clashing variables 'me'.
 
+  * lib/libapse.lib - Davide Madrisan:
+    Do not use the real paths of libspe.lib. Use @libdir@ instead.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.0

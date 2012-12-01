@@ -17,7 +17,7 @@ libapse.lib: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
 
 [ -r @libdir@/libspec.lib ] ||
  { echo "\
-libapse.lib: "$"library not found"": /usr/share/autospec/lib/libspec.lib" 1>&2
+libapse.lib: "$"library not found"": @libdir@/libspec.lib" 1>&2
    exit 1; }
 . @libdir@/libspec.lib
 
