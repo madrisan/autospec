@@ -1,3 +1,25 @@
+List of user visible changes in the release 1.16.1
+
+-- Improvement
+
+ * po/it/Makefile - Davide Madrisan:
+   Check 'autospec.po' for untranslated strings.
+
+-- Bugfix
+
+ * po/it/autospec.po - Davide Madrisan:
+   Add a missing translation.
+
+ * lib/* - Davide Madrisan:
+   Get rid of the clashing variables 'me'. This fix soòe debug messages.
+
+-- Update
+
+ * lib/libtranslate.lib - Davide Madrisan:
+   New library libtranslate.lib.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.0
 
 -- Improvement
