@@ -8,15 +8,15 @@ libcfg_is_loaded=1
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
 
-me=("libcfg.lib" "@version@" "@date@")
-
 [ -r @libdir@/libmsgmng.lib ] ||
- { echo "$me: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+ { echo "\
+libcfg.lib: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
    exit 1; }
 . @libdir@/libmsgmng.lib
 
 [ -r @libdir@/libtranslate.lib ] ||
- { echo "$me: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
+ { echo "\
+libcfg.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 

@@ -27,6 +27,10 @@ Changes in version 1.16.1
   * config-getvar - Davide Madrisan:
     Update the help message.
 
++ bugfix
+  * lib/* - Davide Madrisan:
+    Get rid of the clashing variables 'me'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.0
