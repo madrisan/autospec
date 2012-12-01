@@ -8,17 +8,17 @@ libtest_is_loaded=1
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
 
-[ -r @libdir@/libmsgmng.lib ] ||
- { echo "\
-libtest.lib: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
-   exit 1; }
-. @libdir@/libmsgmng.lib
-
 [ -r @libdir@/libtranslate.lib ] ||
  { echo "\
 libtest.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
+
+[ -r @libdir@/libmsgmng.lib ] ||
+ { echo "\
+libtest.lib: "$"library not found"": @libdir@/libmsgmng.lib" 1>&2
+   exit 1; }
+. @libdir@/libmsgmng.lib
 
 notify.debug $"loading"": \`libtest.lib'..."
 

@@ -14,12 +14,10 @@ libmsgmng.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
-notify.debug $"loading"": \`libmsgmng.lib'..."
-
 # notify family of message handling functions:
+#  - notify.debug
 #  - notify.warning
 #  - notify.error
-#  - notify.debug
 #  - notify.note
 # args:
 #    $1 : message to print
@@ -31,6 +29,13 @@ notify.debug $"loading"": \`libmsgmng.lib'..."
 
 notify_def_msg="<"$"no message"">"
 
+function notify.debug() {
+   [ ${verbose:-0} -gt 1 ] || return
+   echo -e "${WARN}DEBUG${NORM}: ${1:-$notify_def_msg}" 1>&2
+}
+
+notify.debug $"loading"": \`libmsgmng.lib'..."
+
 function notify.warning() {
    echo -e "${WARN}WARNING${NORM}: ${1:-$notify_def_msg}" 1>&2
 }
@@ -38,11 +43,6 @@ function notify.warning() {
 function notify.error() {
    echo -e "${EXIT}ERROR${NORM}: ${EXIT}${1:-$notify_def_msg}${NORM}" 1>&2
    ${EXIT_FUNC:-"exit"} 1
-}
-
-function notify.debug() {
-   [ ${verbose:-0} -gt 1 ] || return
-   echo -e "${WARN}DEBUG${NORM}: ${1:-$notify_def_msg}" 1>&2
 }
 
 function notify.note() {
