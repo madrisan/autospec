@@ -27,6 +27,8 @@ libapse.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libapse.lib'..."
+
 # function apse.cmpversion()
 #    compare two version
 # args:

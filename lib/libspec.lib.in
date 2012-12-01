@@ -20,6 +20,8 @@ libspec.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libspec.lib'..."
+
 # function boolexpr.solve
 #    calculate the boolean expression `$1' expanding the variables
 #    found in `rpmvar_name[]' and `define_list_name[]'

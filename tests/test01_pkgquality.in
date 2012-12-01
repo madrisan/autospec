@@ -18,6 +18,8 @@ me=("test01_pkgquality" "@version@" "@date@")
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`test01_pkgquality'..."
+
 # check if all the needed tools are available
 for tool in file find getopt grep ls ldd; do
    [ "$(type -p $tool)" ] ||

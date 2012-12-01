@@ -18,6 +18,8 @@ me=("test02_pkgsecurity" "@version@" "@date@")
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`test02_pkgsecurity'..."
+
 # check if all the needed tools are available
 for tool in file find getopt grep objdump sed; do
    [ "$(type -p $tool)" ] ||

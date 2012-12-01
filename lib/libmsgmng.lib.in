@@ -14,6 +14,8 @@ libmsgmng.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libmsgmng.lib'..."
+
 # notify family of message handling functions:
 #  - notify.warning
 #  - notify.error

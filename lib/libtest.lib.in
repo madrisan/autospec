@@ -20,6 +20,8 @@ libtest.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libtest.lib'..."
+
 [ -n "$testdir" ] ||
    notify.error "\`testdir': "$"unset in the configuration files"
 [ -d "$testdir" ] ||

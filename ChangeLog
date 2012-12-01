@@ -34,6 +34,10 @@ Changes in version 1.16.1
   * lib/libapse.lib - Davide Madrisan:
     Do not use the real paths of libspe.lib. Use @libdir@ instead.
 
++ update
+  * lib/*, tests/* - Davide Madrisan:
+    Add a debug message saying that the file is being loaded.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.0

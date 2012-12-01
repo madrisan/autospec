@@ -20,6 +20,8 @@ libnetwork.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libnetwork.lib'..."
+
 # check if all the needed tools are available
 # note: 'host' has been removed from this list because the package
 #   bind-utils is not available in early stage platform development

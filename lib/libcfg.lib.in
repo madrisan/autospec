@@ -20,6 +20,8 @@ libcfg.lib: "$"library not found"": @libdir@/libtranslate.lib" 1>&2
    exit 1; }
 . @libdir@/libtranslate.lib
 
+notify.debug $"loading"": \`libcfg.lib'..."
+
 # list of the configuration file(s)
 default_cfg_list=(\
 `ls /etc/@package@.conf /etc/@package@.d/*.conf \
