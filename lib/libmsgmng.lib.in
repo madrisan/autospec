@@ -31,17 +31,17 @@ notify_def_msg="<"$"no message"">"
 
 function notify.debug() {
    [ ${verbose:-0} -gt 1 ] || return
-   echo -e "${WARN}DEBUG${NORM}: ${1:-$notify_def_msg}" 1>&2
+   echo -e "${WARN}"$"DEBUG""${NORM}: ${1:-$notify_def_msg}" 1>&2
 }
 
 notify.debug $"loading"": \`libmsgmng.lib'..."
 
 function notify.warning() {
-   echo -e "${WARN}WARNING${NORM}: ${1:-$notify_def_msg}" 1>&2
+   echo -e "${WARN}"$"WARNING""${NORM}: ${1:-$notify_def_msg}" 1>&2
 }
 
 function notify.error() {
-   echo -e "${EXIT}ERROR${NORM}: ${EXIT}${1:-$notify_def_msg}${NORM}" 1>&2
+   echo -e "${EXIT}"$"ERROR""${NORM}: ${EXIT}${1:-$notify_def_msg}${NORM}" 1>&2
    ${EXIT_FUNC:-"exit"} 1
 }
 

@@ -209,6 +209,15 @@ msgstr  "caricamento di"
 msgid   "no message"
 msgstr  "nessun messaggio"
 
+msgid   "DEBUG"
+msgstr  "DEBUG"
+
+msgid   "WARNING"
+msgstr  "ATTENZIONE"
+
+msgid   "ERROR"
+msgstr  "ERRORE"
+
 msgid   "unknown color theme \\`$color_scheme': colors will be disabled"
 msgstr  "tema di colori sconosciuto \\`$color_scheme': output con colori "
         "disabilitato"
