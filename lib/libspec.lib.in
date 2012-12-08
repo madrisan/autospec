@@ -644,7 +644,9 @@ $FUNCNAME: running: rpm -q $rpm_options --specfile --specedit $specfile ..."
 rpm -q $rpm_options --specfile --specedit $specfile \
       > $specfile_preprocessed 2> $tmpspreprerr"
 
-   [ -s "$tmpspreprerr" ] &&
+   [[ -s "$tmpspreprerr" ||
+     $(cat $specfile_preprocessed | wc -l) -lt \
+     $(cat $specfile | wc -l) ]] &&
     { notify.warning $"specfile has errors:"
       while read line; do
          notify.warning "   $line"

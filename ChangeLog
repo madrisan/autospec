@@ -6,6 +6,13 @@ Changes in version 1.16.2
     New function 'specfile.check_syntax()' based on the code previously
     located in the module pck-update (function 'infofile.create()').
 
++ improvement
+  * lib/libspec.lib - Davide Madrisan:
+    'rpm -q --specfile --specedit <specfile>' does not always exit with an
+    error code when the specfiles have syntax errors. 
+    Try to catch these problems too.
+    (This problem has been pointed out by Silvan Calarco).
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.1
