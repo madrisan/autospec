@@ -652,11 +652,11 @@ rpm -q $rpm_options --specfile --specedit $specfile \
          notify.warning "   $line"
       done < $tmpspreprerr
 
-      notify.warning $"error should be here:"
       while read line; do
          notify.warning "   $line"
       done < <(tail -n 3 $specfile_preprocessed)
-      notify.warning ">>"; }
+      notify.warning ">>"
+      notify.warning "   "$"the error should be here!"; }
 
    rm -f $tmpspreprerr
 }
