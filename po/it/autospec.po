@@ -544,6 +544,9 @@ msgstr  "specfile in formato non supportato"
 msgid   "specfile has errors:"
 msgstr  "lo specfile contiene degli errori"
 
+msgid   "error should be here:"
+msgstr  "l'errore dovrebbe essere qui:"
+ 
 msgid   "release number: unsupported format"
 msgstr  "numero di release: formato non supportato"
 

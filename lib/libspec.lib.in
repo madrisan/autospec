@@ -597,6 +597,67 @@ ${output_suffix}")
    echo "$output"
 }
 
+function specfile.check_syntax() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt -o s:o: \
+         --long specfile:,specfile-preprocessed:,rpmopts: \
+         -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   eval set -- "$ARGS"
+
+   local specfile rpmbuild_opts line
+   local specfile_preprocessed="/dev/null"
+
+   while :; do
+      case "$1" in
+      -s|--specfile)
+         specfile="$2"; shift
+         notify.debug "$FUNCNAME: specfile = \"$specfile\""
+      ;;
+      --specfile-preprocessed)
+         specfile_preprocessed="$2"; shift
+         notify.debug "\
+$FUNCNAME: specfile_preprocessed = \"$specfile_preprocessed\""
+      ;;
+      -o|--rpmopts)
+         rpm_options="$2"; shift
+         notify.debug "$FUNCNAME: rpm_options = \"$rpm_options\""
+      ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   local tmpspreprerr=$(mktemp -q -t $me.XXXXXXXX)
+   [ $? -eq 0 ] ||
+      notify.error "$FUNCNAME: "$"can't create temporary files"
+   notify.debug "$FUNCNAME: tmpspreprerr = \`${NOTE}$tmpspreprerr${NORM}'"
+
+   notify.debug "\
+$FUNCNAME: running: rpm -q $rpm_options --specfile --specedit $specfile ..."
+
+   eval "\
+rpm -q $rpm_options --specfile --specedit $specfile \
+      > $specfile_preprocessed 2> $tmpspreprerr"
+
+   [ -s "$tmpspreprerr" ] &&
+    { notify.warning $"specfile has errors:"
+      while read line; do
+         notify.warning "   $line"
+      done < $tmpspreprerr
+
+      notify.warning $"error should be here:"
+      while read line; do
+         notify.warning "   $line"
+      done < <(tail -n 3 $specfile_preprocessed)
+      notify.warning ">>"; }
+
+   rm -f $tmpspreprerr
+}
 
 # function specfile.getvars
 #    set the variable(s) given as argument to the value(s) found

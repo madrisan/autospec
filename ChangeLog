@@ -1,3 +1,13 @@
+Changes in version 1.16.2
+--- --- -- ---- Madrisan <davide.madrisan(a)gmail.com>
+
++ update
+  * lib/libspec.lib - Davide Madrisan:
+    New function 'specfile.check_syntax()' based on the code previously
+    located in the module pck-update (function 'infofile.create()').
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.16.1
 Sun Dec 02 2012 Davide Madrisan <davide.madrisan(a)gmail.com>
 
