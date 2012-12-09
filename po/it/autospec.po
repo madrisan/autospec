@@ -550,8 +550,8 @@ msgstr  "specfile con fine linea CR"
 msgid   "specfile with an unsupported format"
 msgstr  "specfile in formato non supportato"
 
-msgid   "specfile has errors:"
-msgstr  "lo specfile contiene degli errori:"
+msgid   "the specfile has some syntax errors:"
+msgstr  "lo specfile ha degli errori di sintassi:"
 
 msgid   "the error should be here!"
 msgstr  "l'errore dovrebbe essere qui!"
