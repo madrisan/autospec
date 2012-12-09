@@ -16,6 +16,13 @@ Changes in version 1.16.2
   * lib/libmsgmng.lib - Davide Madrisan:
     Translate "ERROR", "WARNING", and "DEBUG".
 
+  * lib/libspec.lib - Davide Madrisan:
+    Better error reporting in case of syntax errors in the specfiles.
+
++ update
+  * po/it/autospec.po - Davide Madrisan:
+    Update the tranlation file.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.1

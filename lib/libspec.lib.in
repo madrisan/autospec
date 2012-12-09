@@ -645,15 +645,16 @@ rpm -q $rpm_options --specfile --specedit $specfile \
       > $specfile_preprocessed 2> $tmpspreprerr"
 
    if [ -s "$tmpspreprerr" ]; then
-      notify.warning $"the specfile has some syntax errors:"
+      notify.warning $"\
+the specfile has some syntax errors"" ("$"rpm output""):"
       while read line; do
-         notify.warning "   $line"
+         echo "   $line"
       done < $tmpspreprerr
    elif [ -z "$(grep "^%changelog" $specfile_preprocessed 2>/dev/null)" ]; then
       # try to catch some other syntax errors even if rpm exit with
       # a zero return code and no messages are sent to stderr
       # FIXME: we assume "%changelog" is the last part of the specfile
-      notify.warning $"the specfile has some syntax errors:"
+      notify.warning $"the specfile has some syntax errors"":"
       while read line; do
          notify.warning "   $line"
       done < <(tail -n 3 $specfile_preprocessed)
