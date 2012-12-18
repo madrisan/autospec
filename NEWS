@@ -1,3 +1,19 @@
+List of user visible changes in the release 1.16.2
+
+-- Improvement
+
+ * lib/libspec.lib - Davide Madrisan:
+   Some specfiles have syntax errors that are not correctly reported by the
+   command 'rpm -q --specfile --specedit <specfile>'. Try to workaround this
+   problem. Make better error reportings.
+
+-- Update
+
+ * lib/libspec.lib - Davide Madrisan:
+   New function 'specfile.check_syntax()'. 
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.1
 
 -- Improvement
