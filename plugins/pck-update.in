@@ -497,7 +497,7 @@ done)"
 --define=\"%_specdir $spec_dir\" --define=\"%_sourcedir $source_dir\""
 
         specfile.check_syntax \
-           --rpmopts "$rpmbuild_opts" \
+           --rpmopts "$rpmbuild_opts $USER_RPMDEFINE_OPTS" \
            --specfile "$SRPM_SPECFILE_WITH_PATH" \
            --specfile-preprocessed "$specfile_preprocessed"
      fi
