@@ -1,3 +1,12 @@
+Changes in version 1.16.3 - Christmas Release
+--- Jan -- 2013 Madrisan <davide.madrisan(a)gmail.com>
+
++ bugfix
+  * libspec.lib - Davide Madrisan:
+    Fix initialization of SPEC_SOURCE0 and SPEC_SOURCE0_VERBATIM".
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.16.2 - Christmas Release
 Tue Dec 18 2012 Madrisan <davide.madrisan(a)gmail.com>
 

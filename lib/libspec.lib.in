@@ -891,7 +891,8 @@ rpmvars.solve "${SPEC_PATCH[$i]}" "$specfile" | \
             [ "$SPEC_SOURCE0_VERBATIM" ] ||
              { SPEC_SOURCE0_VERBATIM=$(\
                   sed -n "/%description/q;{
-                     /^[ \t]*Source[0]*/{s,[ \t]*Source[0]*[ \t]*:[ \t]*,,p}}" \
+                     /^[ \t]*\(Source\|Source0\)[ \t]*:/{
+                        s,[ \t]*Source[0]*[ \t]*:[ \t]*,,p}}" \
                   $specfile)
                notify.debug "\
 $FUNCNAME: SPEC_SOURCE0_VERBATIM = \"$SPEC_SOURCE0_VERBATIM\""
@@ -900,10 +901,10 @@ $FUNCNAME: SPEC_SOURCE0_VERBATIM = \"$SPEC_SOURCE0_VERBATIM\""
          fi
 
          [ "$SPEC_SOURCE0" ] && continue
+
          SPEC_SOURCE0=$(sed -n "/%description/q;{
-            /^[ \t]*Source[0]*/{
-               s,[ \t]*Source[0]*[ \t]*:[ \t]*,,
-            p}}" $specfile)
+            /^[ \t]*\(Source\|Source0\)[ \t]*:/{
+               s,[ \t]*Source[0]*[ \t]*:[ \t]*,,p}}" $specfile)
          SPEC_SOURCE0=$(rpmvars.solve "$SPEC_SOURCE0" "$specfile")
          notify.debug "$FUNCNAME: $var = \"$SPEC_SOURCE0\""
       ;;
