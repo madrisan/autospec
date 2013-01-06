@@ -2,7 +2,14 @@ Changes in version 1.16.3 - Christmas Release
 --- Jan -- 2013 Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
-  * libspec.lib - Davide Madrisan:
+  * lib/libapse.lib - Silvan Calarco:
+    Fix and simplify update check at sourceforge.net.
+
+  * pck-update - Silvan Calarco:
+    Restore support for passing user parameters to rpm.
+    Bug introduced in version 1.16.2 while creating 'specfile.check_syntax()'.
+
+  * lib/libspec.lib - Davide Madrisan:
     Fix initialization of SPEC_SOURCE0 and SPEC_SOURCE0_VERBATIM".
 
 -------------------------------------------------------------------------------
