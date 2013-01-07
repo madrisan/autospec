@@ -914,26 +914,23 @@ $FUNCNAME: SPEC_SOURCE0_VERBATIM = \"$SPEC_SOURCE0_VERBATIM\""
          [ "$SPEC_VERSION" ] || specfile.getvars -s "$specfile" SPEC_VERSION
          [ "$SPEC_SOURCE0" ] || specfile.getvars -s "$specfile" SPEC_SOURCE0
 
-         SPEC_SOURCE0_PCKNAME=$(echo $SPEC_SOURCE0 | sed -n "\
-            s,%[{]*name[}]*,$SPEC_NAME,
-            s,%[{]*version[}]*,$SPEC_VERSION,
+         SPEC_SOURCE0_PCKNAME=$(echo $SPEC_SOURCE0 | sed "\
             s/.*\///  # remove directory name, if any
             s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
             # <pck_name><pck_ver>
-             /^${SPEC_NAME}${SPEC_VERSION}$/{s,$SPEC_VERSION,,p;q}
-             /[^-\.][0-9]\./{s/\(.*[^-\.]\)[0-9]\..*/\1/p;q}
+            /^${SPEC_NAME}${SPEC_VERSION}$/{s,$SPEC_VERSION,,;q}
             # <pck_name>-<pck_ver>
-             /^${SPEC_NAME}\-${SPEC_VERSION}$/{s,\-${SPEC_VERSION},,p;q}
-             /-[0-9]\+/{s/-[0-9].*//p;q}
+            /^.*\-${SPEC_VERSION}.*/{s,\-${SPEC_VERSION}.*,,;q}
             # <pck_name>_<pck_ver>
-             /^${SPEC_NAME}_${SPEC_VERSION}$/{s,_${SPEC_VERSION},,p;q}
-             /_[0-9]\+/{s/_[0-9].*//p;q}
+            /^.*_${SPEC_VERSION}.*/{s,_${SPEC_VERSION}.*,,;q}
             # <pck_name>.<pck_ver>
-             /^${SPEC_NAME}\.${SPEC_VERSION}$/{s,\.${SPEC_VERSION},,p;q}
-             /^[a-zA-Z0-9_]\+\.[0-9\.]\+$/{s,\(^[a-zA-Z0-9_]\+\)\.[0-9\.]\+$,\1,p;q}
-            /^[a-zA-Z0-9]\+$/{p;q}  # <pck_name> (with no version)
-            # <pck_name> (no version, but <pck_name> can end with numbers)
-            /^[^0-9]*[0-9]*$/p")
+            /^.*\.${SPEC_VERSION}.*/{s,\.${SPEC_VERSION}.*,,;q}
+            # name ending with -<something_looking_like_a_version>
+            /^.*-[0-9][0-9.]*[0-9]/{s,\-[0-9][0-9.]*[0-9],,;q}
+            # <pck_name> (not matching version but with <pck_name> ending with numbers)
+            /^[^0-9]*[0-9]*$/{s,[0-9]*$,,;q}
+            # <pck_name> (with no version)
+            /^[a-zA-Z0-9]\+$/{q}")
          notify.debug "$FUNCNAME: $var = \"$SPEC_SOURCE0_PCKNAME\""
       ;;
       SPEC_SOURCE)

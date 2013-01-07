@@ -10,7 +10,10 @@ Changes in version 1.16.3 - Christmas Release
     Bug introduced in version 1.16.2 while creating 'specfile.check_syntax()'.
 
   * lib/libspec.lib - Davide Madrisan:
-    Fix initialization of SPEC_SOURCE0 and SPEC_SOURCE0_VERBATIM".
+    Fix initialization of SPEC_SOURCE0 and SPEC_SOURCE0_VERBATIM.
+
+  * lib/libspec.lib - Silvan Calarco:
+    Reworked sed expressions to get SPEC_SOURCE0_PCKNAME from SPEC_SOURCE0
 
 -------------------------------------------------------------------------------
 
