@@ -15,6 +15,9 @@ Changes in version 1.16.3 - Christmas Release
   * lib/libspec.lib - Silvan Calarco:
     Reworked sed expressions to get SPEC_SOURCE0_PCKNAME from SPEC_SOURCE0
 
+  * lib/libspec.lib - Silvan Calarco:
+    Also support "=" relation when assigning SPEC_OBSOLETES.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.2 - Christmas Release
