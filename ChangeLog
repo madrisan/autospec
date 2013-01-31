@@ -13,10 +13,13 @@ Changes in version 1.16.3 - Christmas Release
     Fix initialization of SPEC_SOURCE0 and SPEC_SOURCE0_VERBATIM.
 
   * lib/libspec.lib - Silvan Calarco:
-    Reworked sed expressions to get SPEC_SOURCE0_PCKNAME from SPEC_SOURCE0
+    Reworked sed expressions to get SPEC_SOURCE0_PCKNAME from SPEC_SOURCE0.
 
   * lib/libspec.lib - Silvan Calarco:
     Also support "=" relation when assigning SPEC_OBSOLETES.
+
+  * plugins/spec-create - Silvan Calarco:
+    Fix regexp to detect names starting with 'lib' (sample failing case: lilv)
 
 -------------------------------------------------------------------------------
 
