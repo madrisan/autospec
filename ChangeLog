@@ -21,6 +21,10 @@ Changes in version 1.16.3 - Christmas Release
   * plugins/spec-create - Silvan Calarco:
     Fix regexp to detect names starting with 'lib' (sample failing case: lilv)
 
+  * plugins/spec-create - Davide Madrisan:
+    Fix package version detection of source tarballs that have been created by
+    'git.create_tarball'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.2 - Christmas Release

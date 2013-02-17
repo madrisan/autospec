@@ -518,6 +518,7 @@ function specfile.create() {
             --destdir="$source_dir" "$2"
 
          spec_source="$2/${git_branch:-master}/$spec_source"
+         pck_tarball="$source_dir/${spec_source##*/}"
       ;;
       http://*|https://*|ftp://*)
          pck_tarball="${2##*/}"
@@ -546,7 +547,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
       notify.error $"cannot find the package $pck_tarball"
 
    # get the package name from the tarball name
-   [ "$pck_name" ] || pck_name=${3:-`echo $2 | sed -n "\
+   [ "$pck_name" ] || pck_name=${3:-`echo $pck_tarball | sed -n "\
       s/.*\///  # remove directory name, if any
       s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
       /-[0-9]*/{s/-[0-9].*//p;q}  # <pck_name>-<pck_ver>
@@ -560,7 +561,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
    [[ "${pck_newver//[0-9\.]/}" ]] &&
       notify.error $"invalid version number"" -- \`$pck_newver'"
 
-   [ "$pck_version" ] || pck_version=${4:-`echo $2 | sed -n "\
+   [ "$pck_version" ] || pck_version=${4:-`echo $pck_tarball | sed -n "\
       /[0-9]/!q  # return nothing if no number is found in the package name
       s,.*/,,  # remove directory name, if any
       s/\.[^0-9].*//  # remove trailing stuff (.tar.gz, ...)
