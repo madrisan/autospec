@@ -25,6 +25,9 @@ Changes in version 1.16.3 - Christmas Release
     Fix package version detection of source tarballs that have been created by
     'git.create_tarball'.
 
+  * templates/web - Silvan Calarco
+    New template for web application packages
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.2 - Christmas Release
