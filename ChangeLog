@@ -28,6 +28,9 @@ Changes in version 1.16.3 - Christmas Release
   * templates/web - Silvan Calarco
     New template for web application packages
 
+  * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
+    Do not warn if a 'source0' file URL begins by 'git://'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.2 - Christmas Release
