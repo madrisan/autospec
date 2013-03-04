@@ -25,9 +25,11 @@ Mon Mar 04 2013 Madrisan <davide.madrisan(a)gmail.com>
     Fix package version detection of source tarballs that have been created by
     'git.create_tarball'.
 
++ improvement
   * templates/web - Silvan Calarco:
     New template for web application packages.
 
++ bugfix
   * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
     Do not warn if a 'source0' file URL begins by 'git://'.
 
