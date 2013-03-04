@@ -1,3 +1,27 @@
+List of user visible changes in the release 1.16.3
+
+-- Improvement
+
+ * templates/web - Silvan Calarco:
+   New template for web application packages.
+
+-- Bugfix
+
+ * lib/libapse.lib - Silvan Calarco:
+   Fix and simplify update check at sourceforge.net.
+
+ * lib/libspec.lib - Davide Madrisan, Silvan Calarco:
+   Various fixes.
+
+ * plugins/spec-create - Davide Madrisan:
+   Fix package version detection of source tarballs created by cloning a git
+   site.
+
+ * default configuration - Davide Madrisan:
+   Allow URLs beginning by 'git://' in 'source0'.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.2
 
 -- Improvement
