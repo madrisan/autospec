@@ -1070,8 +1070,5 @@ msgid   "${NOTE}Security checks: ${#rpmpkg_name[@]} package(s) checked: "
 msgstr  "${NOTE}Controlli di sicurezza: pacchetti rpm: ${#rpmpkg_name[@]}; "
         "problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
 
-#~ msgid        "use \\`--colors' instead"
-#~ msgstr       "utilizzare \\`--colors'"
-
 #~ msgid        "not an internet address"
 #~ msgstr       "non è un indirizzo internet"
