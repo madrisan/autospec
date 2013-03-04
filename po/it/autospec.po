@@ -558,7 +558,7 @@ msgstr  "output rpm"
 
 msgid   "the error should be here!"
 msgstr  "l'errore dovrebbe essere qui!"
- 
+
 msgid   "release number: unsupported format"
 msgstr  "numero di release: formato non supportato"
 
@@ -823,6 +823,9 @@ msgstr  "specfile per moduli python"
 msgid   "standard specfile for system/network services"
 msgstr  "specfile per servizi di sistema/rete"
 
+msgid   "specfile for web packages"
+msgstr  "specfile per applicazioni web"
+
 msgid   "Redirect the output to the file <outfile>"
 msgstr  "Redirige lo standard output sul file <outfile>"
 
@@ -1066,6 +1069,9 @@ msgid   "${NOTE}Security checks: ${#rpmpkg_name[@]} package(s) checked: "
         "${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
 msgstr  "${NOTE}Controlli di sicurezza: pacchetti rpm: ${#rpmpkg_name[@]}; "
         "problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
+
+#~ msgid        "use \\`--colors' instead"
+#~ msgstr       "utilizzare \\`--colors'"
 
 #~ msgid        "not an internet address"
 #~ msgstr       "non è un indirizzo internet"

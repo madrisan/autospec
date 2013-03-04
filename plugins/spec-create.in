@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-create -- plugin for @package@
-# Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -109,6 +109,7 @@ function usage() {
                       perl            : "$"specfile for single-package perl modules""
                       python          : "$"specfile for python modules""
                       standard-daemon : "$"standard specfile for system/network services""
+                      web             : "$"specfile for web packages""
  -o, --output       "$"Redirect the output to the file <outfile>""
      --changelog    "$"Set change information for the package""
      --git-branch   "$"Specify a git branch""

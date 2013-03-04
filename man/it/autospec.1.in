@@ -24,7 +24,7 @@
 \fBlibtest.lib\fR - libreria con le funzioni del framework di test.
 
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.16.0 di
+Questo documento e' aggiornato alla versione 1.16.3 di
 .B @package@.
 
 .SH DESCRIZIONE
@@ -209,6 +209,8 @@ categoria dello specfile da generare:
 \fIpython\fR : specfile per moduli python
 .br
 \fIstandard-daemon\fR : specfile per servizi di sistema/rete
+.br
+\fIweb\fR : specfile per applicazioni web
 .TP
 \fB\-o\fR, \fB\-\-output\fR
 redirige lo standard output sul file \fIoutfile\fR

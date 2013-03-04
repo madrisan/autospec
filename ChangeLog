@@ -1,5 +1,5 @@
 Changes in version 1.16.3 - Christmas Release
---- Jan -- 2013 Madrisan <davide.madrisan(a)gmail.com>
+Mon Mar 04 2013 Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * lib/libapse.lib - Silvan Calarco:
@@ -26,10 +26,18 @@ Changes in version 1.16.3 - Christmas Release
     'git.create_tarball'.
 
   * templates/web - Silvan Calarco:
-    New template for web application packages
+    New template for web application packages.
 
   * conf/02-specfile-formatting-rules.conf - Davide Madrisan:
     Do not warn if a 'source0' file URL begins by 'git://'.
+
++ update
+  * pck-create, italian manpage - Davide Madrisan:
+    Update the help message and the italian manpage by documenting the new
+    target 'web'.
+
+  * po/it/pck-update.po - Davide Madrisan:
+    Update the italian translation strings.
 
 -------------------------------------------------------------------------------
 
