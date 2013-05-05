@@ -909,14 +909,14 @@ function git.download() {
    notify.debug "$FUNCNAME: token_dirname = \"$token_dirname\""   
    notify.debug "$FUNCNAME: token_basename = \"$token_basename\""
 
-   local git_branch="${token_dirname##*/}"
+   local git_branch="${token_dirname/*.git\/}"
    notify.debug "$FUNCNAME: git_branch = \"$git_branch\""
 
    git.create_tarball \
       --pck-version "$pck_version" \
       --destdir "$destdir" \
       --preserve-dot-git "0" --git-branch "$git_branch" \
-      "${token_dirname%/*}"
+      "${token_dirname/.git*}"
 }
 
 # function git.create_tarball
