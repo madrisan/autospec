@@ -2095,7 +2095,7 @@ It seems good but do not forget to run quality and security tests"\
                "") skipline=1 ;;
                esac
                [ "$skipline" = 1 ] || echo "$line"
-            done < <(LC_ALL=C rpmbuild -bl --nodeps --nobuild \
+            done < <(LC_ALL=C eval rpmbuild -bl $rpmbuild_opts --nodeps --nobuild \
                $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1) | \
                sed -e "$format_unpackaged_file_list" \
                   > $tmpunpackfiles
