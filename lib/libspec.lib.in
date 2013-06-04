@@ -1253,12 +1253,20 @@ $FUNCNAME: SPEC_OBSOLETES = ( ${SPEC_OBSOLETES[*]} )"
          fi
          notify.debug "$FUNCNAME: $var = $SPEC_BUILDROOT"
       ;;
+      SPEC_AUTOUPDATE_OFF)
+         [ "$SPEC_AUTOUPDATE_OFF" ] && continue
+         SPEC_AUTOUPDATE_OFF=($(sed -n "\
+            /^### AUTOUPDATE-OFF:/{
+               s,### AUTOUPDATE-OFF:[ \t]*,,;{p}}" \
+            $specfile))
+         notify.debug "$FUNCNAME: $var = (${SPEC_AUTOUPDATE_OFF[*]})"
+      ;;
       *) notify.error $"(bug)"" -- $FUNCNAME: "$"bad arg \`$var'" ;;
       esac
 
       # note: some entries are not mandatory in a specfile
       case "$var" in
-      "SPEC_SOURCE"|"SPEC_PATCH"|\
+      "SPEC_SOURCE"|"SPEC_PATCH"|"SPEC_AUTOUPDATE_OFF"| \
       "SPEC_OBSOLETES"|"SPEC_BUILDARCH"|"SPEC_BUILDREQUIRES")
       ;;
       *) if [[ "$var" = "SPEC_BUILDROOT" && \

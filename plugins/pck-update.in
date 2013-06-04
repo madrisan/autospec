@@ -1057,13 +1057,17 @@ check if a new version is available""${NORM}"
          unset SPEC_SOURCE0_VERBATIM
          specfile.getvars -s $SRPM_SPECFILE_WITH_PATH --verbatim SPEC_SOURCE0
 
+         unset SPEC_AUTOUPDATE_OFF
+         specfile.getvars -s $SRPM_SPECFILE_WITH_PATH SPEC_AUTOUPDATE_OFF
+
          apse.scrapeversion \
             --pckname "$SPEC_SOURCE0_PCKNAME" \
             --pckurl "${SPEC_SOURCE[0]}" \
             --pckurlverbatim "${SPEC_SOURCE0_VERBATIM}" \
             --specname "$SPEC_NAME" \
             ${proxy:+ --proxy $proxy} \
-            ${proxy_user:+ --proxy-user $proxy_user}
+            ${proxy_user:+ --proxy-user $proxy_user} \
+            --autoupdate-off "${SPEC_AUTOUPDATE_OFF[*]}"
 
          retval=$?
 

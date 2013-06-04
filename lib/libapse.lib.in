@@ -238,6 +238,7 @@ Copyright (C) 2008-2011 Silvan Calarco <silvan.calarco@mambasoft.it>""
    -v, --pckurlverbatim  "$"URL with no variable expansion""
    -p, --proxy           "$"Proxy""
    -u, --proxy-user      "$"Proxy user""
+   -o, --autoupdate-off  "$"Indexes of apse sources to disable""
 
 "$"Operation modes"":
    -h, --help            "$"Print this help, then exit""
@@ -250,9 +251,9 @@ Copyright (C) 2008-2011 Silvan Calarco <silvan.calarco@mambasoft.it>""
  }
 
    local ARGS
-   ARGS=`LC_ALL=C getopt -o han:s:w:p:u: \
+   ARGS=`LC_ALL=C getopt -o han:s:w:p:u:o: \
       --long help,allurl,pckname:,specname:,pckurl:,pckurlverbatim:,\
-proxy:,proxy-user: \
+proxy:,proxy-user:,autoupdate-off: \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"\
 (bug)"" -- $FUNCNAME: "$"\`getopt' error"
@@ -287,6 +288,10 @@ proxy:,proxy-user: \
          proxy_user="$2"; shift
          notify.debug "$FUNCNAME: proxy_user = \"***\""
       ;;
+      -o|--autoupdate-off)
+         autoupdate_off=($2); shift
+         notify.debug "$FUNCNAME: autoupdate_off = ($autoupdate_off)"
+      ;;
       -h|--help)
          usage
          ${EXIT_FUNC:-"exit"}
@@ -316,6 +321,10 @@ proxy:,proxy-user: \
    local curr_curl_url pck_file new_version last_version
    local curr_curl_proxy_opts="\
 ${proxy:+ --proxy $proxy}${proxy_user:+ --proxy-user $proxy_user}"
+
+   for i in `seq 1 ${#autoupdate_off[*]}`; do
+      apse_enabled[${autoupdate_off[$i-1]}]="0"
+   done
 
    # SOURCE0 url based search (only if 'pckurl' is a valid url)
    if [ "${apse_enabled[0]}" = "0" ]; then
