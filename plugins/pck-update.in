@@ -1971,9 +1971,10 @@ rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
 
                case "$fullURL" in
                   git://*|http://*.git|https://*.git)
-                     git.download \
-                        --pck-version "$pck_rpmversion" \
-                        --destdir="$source_dir" "$fullURL"
+                     [ -e "${source_dir}/${fullURL/*\/}" -a "$force_download" != "1" ] || \
+                        git.download \
+                           --pck-version "$pck_rpmversion" \
+                           --destdir="$source_dir" "$fullURL"
                   ;;
                   *) curl.download --options "$curl_options" $sdflag \
 ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
