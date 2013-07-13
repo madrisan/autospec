@@ -147,6 +147,9 @@ msgstr  "Proxy"
 msgid   "Proxy user"
 msgstr  "Utenza proxy"
 
+msgid   "Indexes of apse sources to disable"
+msgstr  "Indici delle sorgenti apse da disabilitare"
+
 msgid   "Report bugs to <stefano.cotta@openmamba.org>."
 msgstr  "Segnalare eventuali bug a <stefano.cotta@openmamba.org>."
 
