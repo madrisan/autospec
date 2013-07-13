@@ -1823,7 +1823,7 @@ the version entered at command line doesn't match the version set in the specfil
 the release entered at command line doesn't match the version set in the specfile"
 
             pck_rpmversion="$SPEC_VERSION"
-            pck_rpmrelease="${SPEC_RELEASE%%[^0-9\.]*}"
+            pck_rpmrelease="$SPEC_RELEASE"
             notify.debug "pck_rpmversion = $pck_rpmversion"
             notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -1835,7 +1835,7 @@ the release entered at command line doesn't match the version set in the specfil
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
                filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                notify.debug "\
 filename = $filename ""\
 $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
@@ -1851,7 +1851,7 @@ $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
 
             # check if the srpm file already exists
             filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm"
             notify.debug "\
 filename = $filename ""\
 $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
@@ -1865,7 +1865,7 @@ $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
          fi
 
          [ -n "$pck_rpmversion" ] || pck_rpmversion="$SPEC_VERSION"
-         [ -n "$pck_rpmrelease" ] || pck_rpmrelease="${SPEC_RELEASE%%[^0-9\.]*}"
+         [ -n "$pck_rpmrelease" ] || pck_rpmrelease="$SPEC_RELEASE"
 
          # nothing to do, we can exit
          if [[ "$norpms" = 1 && "$nosrpm" = 1 ]]; then
@@ -1875,7 +1875,7 @@ ${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
                filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than rpm package(s) (according to modification date)"
@@ -1885,7 +1885,7 @@ specfile is newer than rpm package(s) (according to modification date)"
             notify.note "\
 ${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
             filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm"
             [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than srpm (according to modification date)"
@@ -2036,7 +2036,7 @@ ${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
                filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than rpm package(s) (according to modification date)"
@@ -2049,7 +2049,7 @@ specfile is newer than rpm package(s) (according to modification date)"
 ${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
 
             filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm"
             [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than srpm (according to modification date)"
@@ -2137,7 +2137,7 @@ build the list of the build requirements""${NORM}"
 
          # use the value provided by user via command line if available
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:-$SPEC_RELEASE}"
          notify.debug "pck_rpmversion = $pck_rpmversion"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -2147,10 +2147,10 @@ build the list of the build requirements""${NORM}"
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
             else
                filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
             fi
             [ -e $filename ] ||
                notify.error $"package not found"": \`$filename'"
@@ -2319,7 +2319,7 @@ simulate the installation of the rpm package(s)""${NORM}"
 
          # use the value provided by user via command line if available
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:-$SPEC_RELEASE}"
          notify.debug "pck_rpmversion = $pck_rpmversion"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -2330,10 +2330,10 @@ simulate the installation of the rpm package(s)""${NORM}"
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
             else
                filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
             fi
             notify.note " * $filename"
             [ -e $filename ] ||
@@ -2344,20 +2344,20 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
 $(for pck in ${SPEC_TARGET[*]}; do
      if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
         echo -n "$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm "
      else
         echo -n "$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm "
      fi
 done)"
          rpm -U --test $rpm_root_opts \
          $(for pck in ${SPEC_TARGET[*]}; do
               if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                  echo -n "$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm "
               else
                  echo -n "$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm "
               fi
            done) || notify.error $"rpm exited with error code:"" \`$?'"
       ;;
@@ -2382,7 +2382,7 @@ pck_newver = \"$pck_newver\", pck_newrel = \"$pck_newrel\""
 
          local pck_rpmrelease
          # use the value provided by user via command line when available
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:$SPEC_RELEASE}"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
          local tmpextractdir
@@ -2403,14 +2403,14 @@ pck_newver = \"$pck_newver\", pck_newrel = \"$pck_newrel\""
          for pck in ${SPEC_TARGET[@]}; do
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                pcknew_name="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
                [[ -e $rpms_dir/noarch/$pcknew_name ]] ||
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/noarch/$pcknew_name\"" \
                   >> $tmpextractdir/rpmpkg.info
             else
                pcknew_name="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                [[ -e $rpms_dir/$target_cpu/$pcknew_name ]] ||
                   notify.error $"package not found"": \`$pcknew_name'"
                echo "rpmpkg_name[$i]=\"$rpms_dir/$target_cpu/$pcknew_name\"" \
@@ -2456,7 +2456,7 @@ calculate the md5/sha1 hashing values""${NORM}"
          # use the value provided by user via command line if available
          local pck_rpmversion pck_rpmrelease
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:-$SPEC_RELEASE}"
          notify.debug "pck_rpmversion = $pck_rpmversion"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -2464,7 +2464,7 @@ calculate the md5/sha1 hashing values""${NORM}"
          # ??? command `rpmsign -v --checksig <rpmfile>'      ???
          for tool in md5sum sha1sum; do
             local filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm"
             [[ -e $filename ]] ||
                notify.error $"package not found"": \`$filename'"
 
@@ -2474,10 +2474,10 @@ $srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                   filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
                else
                   filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                fi
                [ -e "$filename" ] ||
                   notify.error $"package not found"": \`$filename'"
@@ -2502,7 +2502,7 @@ $pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
          # use the value provided by user via command line if available
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
          # WARNING: only works if SPEC_RELEASE = [0-9\.]*<distroid>
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:-$SPEC_RELEASE}"
          notify.debug "pck_rpmversion = $pck_rpmversion"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -2699,7 +2699,7 @@ ftp upload has been disabled"" (do_ftp_upload = \"0\")"
                # configuration variable `arch_noarch_upload[]'
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" = "noarch" ]; then
                   filename="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
 
                   for upload_arch in \
                      ${arch_noarch_upload[$ftp_server_upload_num]}; do
@@ -2727,7 +2727,7 @@ $upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
                   done
                else
                   filename="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                   currurl="\
 $(repository.resolveURL "$upload_ftp_rpms_dir" "$target_cpu")"
 
@@ -2746,7 +2746,7 @@ $upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
          # SRPM package...
          if [ "$nosrpm" = "0" ]; then
             filename="\
-$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm"
 
             [ "$do_ftp_upload" = "0" ] || curl.upload \
 $([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
@@ -2756,7 +2756,7 @@ $([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
 --upload-file "$srpms_dir/$filename" \
 $upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/\
 $upload_ftp_srpms_dir/\
-$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm
+$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease.src.rpm
          fi
 
          # do backup or erase old packages...
@@ -2931,7 +2931,7 @@ $backup_ftp_server${backup_ftp_port:+:$backup_ftp_port}
 
          # use the value provided by user via command line if available
          pck_rpmversion=${pck_newver:-$SPEC_VERSION}
-         pck_rpmrelease="${pck_newrel:-"${SPEC_RELEASE%%[^0-9\.]*}"}"
+         pck_rpmrelease="${pck_newrel:-$SPEC_RELEASE}"
          notify.debug "pck_rpmversion = $pck_rpmversion"
          notify.debug "pck_rpmrelease = $pck_rpmrelease"
 
@@ -2944,10 +2944,10 @@ ${NOTE}"$"install the new rpm packages"" ("$"force enabled"")${NORM}..." ||
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
                   filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.noarch.rpm"
                else
                   filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+$pck-$pck_rpmversion-$pck_rpmrelease.$target_cpu.rpm"
                fi
 
                [[ -n "$rpm_install_noinstall_mask" &&
