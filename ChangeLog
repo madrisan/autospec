@@ -1,4 +1,4 @@
-Changes in version 1.16.4 
+Changes in version 1.16.4
 Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
@@ -16,6 +16,24 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
 + update
   * conf/02-specfile-rpm-groups.conf - Davide Madrisan:
     Add specific rpm groups for OCaml libraries and development packages.
+
++ improvement
+  * templates/ocaml-libs, templates/Makefile - Davide Madrisan:
+    New autospec template for OCaml libraries.
+
+  * plugins/spec-create - Davide Madrisan:
+    Add support for the new template ocaml-libs.
+
+  * conf/02-specfile-rpm-macros-ocaml.conf - Davide Madrisan:
+    New configuration file for the OCaml (library) modules.
+
++ update
+
+  * po/it/pck-update.po - Davide Madrisan:
+    Update the italian translation strings.
+
+  * italian manpage - Davide Madrisan:
+    Document the new template ocaml-libs.
 
 -------------------------------------------------------------------------------
 

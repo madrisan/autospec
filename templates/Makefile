@@ -1,5 +1,5 @@
 # Makefile for autospec
-# Copyright (C) 2008,2011 by Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2011,2013 by Davide Madrisan <davide.madrisan@gmail.com>
 
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ srcdir = ..
 
 include $(srcdir)/Makefile.env
 
-pck_templates := gnome kde3 kde4 library perl python standard standard-daemon web
+pck_templates := gnome kde3 kde4 library ocaml-libs perl python standard standard-daemon web
 
 all:
 
