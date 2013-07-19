@@ -93,11 +93,11 @@ can't create temporary directory"": $tmpextractdir/$i"
       pushd $tmpextractdir/$i >/dev/null
       rpm2cpio $pck > rpm_extract_tmp.cpio
       [ $? -eq 0 ] ||
-         notify --error $"cannot extract files from rpm archive"
+         notify.error $"cannot extract files from rpm archive"
 
       cpio --quiet --extract --make-directories < rpm_extract_tmp.cpio
       [ $? -eq 0 ] ||
-         notify --error $"cannot extract files from cpio archive"
+         notify.error $"cannot extract files from cpio archive"
 
       rm -f rpm_extract_tmp.cpio
       popd >/dev/null
