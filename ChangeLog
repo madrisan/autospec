@@ -5,6 +5,9 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
   * lib/libtest.lib - Davide Madrisan:
     Replace 'notify --error' by 'notify.error'.
 
+  * tests/test01_pkgquality - Davide Madrisan:
+    Test fo bad BuildArch tags: modify regexp to catch OCaml library files.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3

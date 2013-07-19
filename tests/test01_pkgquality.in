@@ -423,9 +423,11 @@ $"checking for packages with bad BuildArch tag""${NORM}..."
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      for f in $(find -mindepth 2 -perm +111 -type f \
-         -exec file {} \; | grep -E "( ELF | library )"); do
-         notify.debug "found a ELF file: \`${NOTE}${f/./}${NORM}'"
+      for f in $(LC_ALL=C find -mindepth 2 -type f \
+         -exec file {} \; 2>/dev/null | grep -E "(\
+ ELF | OCaml library | ar archive |\
+ dynamically linked | statically linked )"); do
+         notify.debug "found binary or library file: \`${NOTE}${f/./}${NORM}'"
          let "warning = 1"
          break
       done
