@@ -6,7 +6,12 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
     Replace 'notify --error' by 'notify.error'.
 
   * tests/test01_pkgquality - Davide Madrisan:
-    Test fo bad BuildArch tags: modify regexp to catch OCaml library files.
+    Test for bad BuildArch tags: modify regexp to catch OCaml library files.
+
+  * tests/test01_pkgquality - Davide Madrisan:
+    Check for wrong file attributes in bin and lib directories:
+    Do ignore files with name matching '*.so.owner'. These are text files
+    used by OCaml.
 
 -------------------------------------------------------------------------------
 
