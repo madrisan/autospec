@@ -13,6 +13,10 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
     Do ignore files with name matching '*.so.owner'. These are text files
     used by OCaml.
 
++ update
+  * conf/02-specfile-rpm-groups.conf - Davide Madrisan:
+    Add specific rpm groups for OCaml libraries and development packages.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3
