@@ -35,6 +35,15 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
   * italian manpage - Davide Madrisan:
     Document the new template ocaml-libs.
 
+  * test00_specsyntax - Davide Madrisan:
+    Remove the test about the provided infopages because it's a duplicate of
+    the test implemented in 'test01_pkgquality'.
+
++ improvement
+  * test01_pkgquality - Davide Madrisan:
+    Improve the test for not or badly installed infopages and make a better
+    help message.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3
