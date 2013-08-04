@@ -44,6 +44,20 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
     Improve the test for not or badly installed infopages and make a better
     help message.
 
++ bugfix
+  * pck-update - Silvan Calarco:
+    Don't clone from git repository at every build is source with current
+    version already exists.
+
+  * pck-update - Silvan Calarco:
+    Fix update of git urls starting with and https://
+    Source URLs from git don't just end with '.git', btw they can be detected
+    by searching for '.git/'.
+
+  * lib/libnetwork.lib - Silvan Calarco:
+    Fix necessary and tested with code.google.com
+    Additionally print full 'git clone ..' command line used in debug output.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3
