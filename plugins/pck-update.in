@@ -93,7 +93,8 @@ function usage() {
  @frontend@ -u <pck> -a<lst> [<ver>] [<rel>] [-d v1=r1[,v2=r2,...]] \\
              [-l usr:pswd] [-S <specfile>] [-A <arch>] \\
              [--server-download <int>] [--server-upload <int>] \\
-             [--changelog \"msg\" ] [--nosrpm|--norpm] \\
+             [--changelog \"msg\" ] [--packager-fullname \"Full Name\" ] \\
+             [--packager-email \"email@domain\" ] [--nosrpm|--norpm] \\
              [--force-update] [--force-build] [--force-install] \\
              [--force-download] [--ignore-test t1[,t2,...]] \\
              [-c] [-f] [-L] [-R] [-C <conf_file>]
@@ -133,6 +134,10 @@ function usage() {
  -S, --specfile     "$"Name of the specfile (default: <name>.spec)""
  -A, --arch         "$"Force the architecture to a given value""
      --changelog    "$"Set change information for the package""
+     --packager-fullname
+                    "$"Override packager full name""
+     --packager-email
+                    "$"Override packager email""
      --nosrpm       "$"action"" 5: "$"Only build the rpm packages""
                     "$"action"" 10: "$"Do not upload the srpm package""
      --norpm        "$"action"" 5: "$"Only build the srpm package""
@@ -193,7 +198,8 @@ exec_options=`LC_ALL=C getopt \
    --long \
 update,action:,define:,login:,specfile:,arch:,\
 server-download:,server-upload:,server:,\
-changelog:,nosrpm,norpm,list-check,update-autobuildreq,\
+changelog:,packager-fullname:,packager-email:,\
+nosrpm,norpm,list-check,update-autobuildreq,\
 force-update,force-build,force-install,force-download,force,\
 ignore-test:,clear,format,log,rebuild,root:,\
 frontend_opts:,colors:,config:,\
@@ -240,6 +246,12 @@ while :; do
       --changelog)
          changelog_cmdline="$2"; shift
          notify.debug "changelog_cmdline = \"$changelog_cmdline\"" ;;
+      --packager-fullname)
+         packager_fullname="$2"; shift
+         cmdline_vars[${#cmdline_vars[*]}]="packager_fullname=\"$packager_fullname\"" ;;
+      --packager-email)
+         packager_email="$2"; shift
+         cmdline_vars[${#cmdline_vars[*]}]="packager_email=\"$packager_email\"" ;;
       --nosrpm)
          let "nosrpm = 1" ;;
       --norpm)
