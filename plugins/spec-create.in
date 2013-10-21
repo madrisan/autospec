@@ -94,6 +94,7 @@ function usage() {
 "$"Usage"":
  @frontend@ -s <source-archive> [-n <name>] [-v <ver>] [-t <type>] \\
     [-o <outfile>] [--changelog \""$"message""\"] [<"$"git-opts"">] \\
+    [--packager-fullname \"Full Name\" ] [--packager-email \"email@domain\" ] \\
     [-C <conf_file>]
 
 "$"where the above options mean"":
@@ -113,6 +114,10 @@ function usage() {
                       web             : "$"specfile for web packages""
  -o, --output       "$"Redirect the output to the file <outfile>""
      --changelog    "$"Set change information for the package""
+     --packager-fullname
+                    "$"Override packager full name""
+     --packager-email
+                    "$"Override packager email""
      --git-branch   "$"Specify a git branch""
  --preserve-dot-git "$"Do not remove git files""
      --colors       "$"Select the theme to be used for the colorized output""
@@ -164,6 +169,7 @@ exec_options=`LC_ALL=C getopt \
    -o s:n:v:t:o:C:DqrhV \
    --long \
 source:,pck-name:,pck-version:,type:,output:,changelog:,\
+packager-fullname:,packager-email:,\
 git-branch:,preserve-dot-git,\
 colors:,config:,debug,quiet,help,version,\
 frontend_opts: \
@@ -192,6 +198,12 @@ while :; do
          outfile=$2; shift ;;
       --changelog)
          spec_changelog_comment="$2"; shift ;;
+      --packager-fullname)
+         packager_fullname="$2"; shift
+         cmdline_vars[${#cmdline_vars[*]}]="packager_fullname=\"$packager_fullname\"" ;;
+      --packager-email)
+         packager_email="$2"; shift
+         cmdline_vars[${#cmdline_vars[*]}]="packager_email=\"$packager_email\"" ;;
       --git-branch)
          git_branch=$2; shift ;;
       --preserve-dot-git)
