@@ -24,7 +24,7 @@
 \fBlibtest.lib\fR - libreria con le funzioni del framework di test.
 
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.16.3 di
+Questo documento e' aggiornato alla versione 1.16.4 di
 .B @package@.
 
 .SH DESCRIZIONE
@@ -203,6 +203,8 @@ categoria dello specfile da generare:
 \fIkde4\fR : specfile per pacchetti kde4
 .br
 \fIlibrary\fR : specfile per librerie
+.br
+\fIocaml-libs\fR : specfile per librerie OCaml
 .br
 \fIperl\fR : specfile per singoli moduli perl
 .br

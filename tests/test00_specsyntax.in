@@ -1,6 +1,6 @@
 #!/bin/bash
 # test00_specsyntax -- @package@ test (syntax checks of a specfile)
-# Copyright (C) 2012 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2012-2013 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
@@ -182,62 +182,7 @@ ${NOTE}"$"Hint"":${NORM}
    }
    test_number=$(($test_number + 1))
 
-   # 7. check if the install/uninstall code is present
-   test.skip $test_number || {
-   notify.note "$(test.num2str). ${NOTE}"\
-$"info pages""${NORM}..."
-
-   local infopages errors
-   # FIXME: non LSB compliant systems are unsupported
-   infopages="$(\
-grep "/share/info/\|^[ ]*%_infodir\|^[ ]*%{_infodir}" $specfile | \
-grep -v "^[ ]*#\|^[a-zA-Z]")"
-
-   if [[ "$infopages" ]]; then
-      let "errors = 0"
-      if [ "$rpm_macro_installinfo" ]; then
-         grep -q "$rpm_macro_installinfo" $specfile ||
-          { let "errors += 1"
-            notify.debug "rpm_macro_installinfo check failed"; }
-      fi
-      if [ "$rpm_macro_uninstallinfo" ]; then
-         grep -q "$rpm_macro_uninstallinfoo" $specfile ||
-          { let "errors += 1"
-            notify.debug "rpm_macro_uninstallinfo check failed"; }
-      fi
-      if [ "$rpm_macro_installinfo_binary" ]; then
-         grep -q "\
-Requires(post)[ \t]*:[ \t]*${rpm_macro_installinfo_binary}" $specfile ||
-          { let "errors += 1"
-            notify.debug "rpm_macro_installinfo_binary check failed"; }
-      fi
-
-      [ "$errors" = "0" ] || 
-       { notify.error "\
-"$"info pages are not installed/uninstalled in the correct way""${NORM}
----------------------------------------
-${NOTE}"$"Hint"":${NORM}
-$([[ "$rpm_macro_installinfo_binary" ]] &&
-   echo "Requires(post): $rpm_macro_installinfo_binary" ||
-   echo "Requires(post): ${path_installinfo:-/sbin/install-info}")
-
-%post [<subpackage>]
-$([[ "$rpm_macro_installinfo" ]] &&
-   echo "$rpm_macro_installinfo %{name}.info" ||
-   echo "${path_installinfo:-/sbin/install-info} %{name}.info")
-
-%preun [<subpackage>]
-$([[ "$rpm_macro_uninstallinfo" ]] &&
-   echo "$rpm_macro_uninstallinfo %{name}.info" ||
-   echo "${path_installinfo:-/sbin/install-info} --delete %{name}.info")
-exit 0
----------------------------------------
-"
-         let "total_issues += $errors"; }
-   fi; }
-   test_number=$(($test_number + 1))
-
-   # 8. check for illegal 'Group's (see configuration file)
+   # 7. check for illegal 'Group's (see configuration file)
    test.skip $test_number || {
    if [ "${#rpm_allowed_groups[*]}" = 0 ]; then
       # 'rpm_allowed_groups' unset in the configuration files
@@ -274,7 +219,7 @@ ${NOTE}@package@ --eval=rpm_allowed_groups${NORM}
    fi; }
    test_number=$(($test_number + 1))
 
-   # 9. check for no approved 'License's (see configuration file)
+   # 8. check for no approved 'License's (see configuration file)
    test.skip $test_number || {
    if [ "${#rpm_approved_licenses[*]}" = 0 ]; then
       # 'rpm_approved_licenses' unset in the configuration files

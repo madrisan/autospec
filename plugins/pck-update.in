@@ -2263,7 +2263,7 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
             elif [[ "$req" =~ .*\(.*\) || "$req" =~ .*\.so ]]; then
                # a(b) requirement or *.so library
                rpm -q --qf %{name} --whatprovides "$req" &>/dev/null &&
-                  buildreq="$(rpm -q --qf %{name} --whatprovides "$req")" ||
+                  buildreq="$(rpm -q --qf "%{name}\n" --whatprovides "$req"|head -n1)" ||
                   echo "#$req: unidentified build requirement"
             else
                # other requirements probably coming from static 'Requires:'

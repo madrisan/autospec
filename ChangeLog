@@ -1,4 +1,66 @@
-Changes in version 1.16.3 - Christmas Release
+Changes in version 1.16.4 - "Korbielow" release
+Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
+
++ bugfix
+  * lib/libtest.lib - Davide Madrisan:
+    Replace 'notify --error' by 'notify.error'.
+
+  * tests/test01_pkgquality - Davide Madrisan:
+    Test for bad BuildArch tags: modify regexp to catch OCaml library files.
+
+  * tests/test01_pkgquality - Davide Madrisan:
+    Check for wrong file attributes in bin and lib directories:
+    Do ignore files with name matching '*.so.owner'. These are text files
+    used by OCaml.
+
++ update
+  * conf/02-specfile-rpm-groups.conf - Davide Madrisan:
+    Add specific rpm groups for OCaml libraries and development packages.
+
++ improvement
+  * templates/ocaml-libs, templates/Makefile - Davide Madrisan:
+    New autospec template for OCaml libraries.
+
+  * plugins/spec-create - Davide Madrisan:
+    Add support for the new template ocaml-libs.
+
+  * conf/02-specfile-rpm-macros-ocaml.conf - Davide Madrisan:
+    New configuration file for the OCaml (library) modules.
+
++ update
+
+  * po/it/pck-update.po - Davide Madrisan:
+    Update the italian translation strings.
+
+  * italian manpage - Davide Madrisan:
+    Document the new template ocaml-libs.
+
+  * test00_specsyntax - Davide Madrisan:
+    Remove the test about the provided infopages because it's a duplicate of
+    the test implemented in 'test01_pkgquality'.
+
++ improvement
+  * test01_pkgquality - Davide Madrisan:
+    Improve the test for not or badly installed infopages and make a better
+    help message.
+
++ bugfix
+  * pck-update - Silvan Calarco:
+    Don't clone from git repository at every build is source with current
+    version already exists.
+
+  * pck-update - Silvan Calarco:
+    Fix update of git urls starting with and https://
+    Source URLs from git don't just end with '.git', btw they can be detected
+    by searching for '.git/'.
+
+  * lib/libnetwork.lib - Silvan Calarco:
+    Fix necessary and tested with code.google.com
+    Additionally print full 'git clone ..' command line used in debug output.
+
+-------------------------------------------------------------------------------
+
+Changes in version 1.16.3
 Mon Mar 04 2013 Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix

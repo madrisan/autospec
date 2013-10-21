@@ -1,6 +1,6 @@
 #!/bin/bash
 # test01_pkgquality -- @package@ test (rpm quality checks)
-# Copyright (C) 2008,2012 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2012,2013 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1
@@ -21,7 +21,7 @@ me=("test01_pkgquality" "@version@" "@date@")
 notify.debug $"loading"": \`test01_pkgquality'..."
 
 # check if all the needed tools are available
-for tool in file find getopt grep ls ldd; do
+for tool in file find getopt grep ls ldd wc; do
    [ "$(type -p $tool)" ] ||
       notify.error $"utility not found"": \`$tool'"
 done
@@ -218,8 +218,9 @@ $"checking for wrong file attributes in bin and lib directories""${NORM}..."
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
       for f in $( find . -type f \( \
-         \( -name '*.so.*' -not -perm 755 \) -or \
-         \( -name '*.so' -not -perm 755 \) -or \
+         \( -name '*.so.*' -and -not -name '*.so.owner' \
+               -and -not -perm 755 \) -or \
+         \( -name '*.so' -and -not -perm 755 \) -or \
          \( \( -path './bin/*' -or \
                -path './sbin/*' -or \
                -path './usr/bin/*' -or \
@@ -326,26 +327,36 @@ $"checking if the info catalog is updated when necessary""${NORM}..."
           { let "i += 1"; continue; }   # no info pages found
       #notify.debug "$FUNCNAME: info page(s) found"
 
-      [[ "$(rpm -p -q --scripts $pck | sed -n '
-/postinstall /,${/\/sbin\/install-info \/.*/p}')" ]] || let "error+=1"
+      [[ "$(rpm -p -q --requires $pck 2>/dev/null | sed -n '
+/^[ \t]*\/sbin\/install-info/p')" ]] || let "error+=1"
 
-      [[ "$(rpm -p -q --scripts $pck | sed -n '
-/preuninstall /,${/\/sbin\/install-info.*--[delete\|remove].*/p}')" ]] || \
-         let "error+=1"
+      # note: we just check for at list two occurences of the command
+      #       '/sbin/install-info' in the package scriptlets
+      [[ "$(rpm -p -q --scripts $pck 2>/dev/null | sed -n '
+/^[ \t]*\/sbin\/install-info/p' | wc -l)" -ge 2 ]] || let "error+=1"
 
       [ "$error" = "0" ] ||
        { notify.warning "${NOTE}${pck##*/}${NORM}"
          notify.note $"info pages should be installed/uninstalled""${NORM}
 ---------------------------------------
 ${NOTE}"$"Hint"":${NORM}
-$([[ "$rpm_macro_installinfo_binary" ]] &&
-   echo "Requires(post):$rpm_macro_installinfo_binary" ||
-   echo "Requires(post):${path_installinfo:-/sbin/install-info}")
+%package [<subpackage>]
+...
+$(if [[ "$rpm_macro_installinfo_binary" ]]; then 
+     echo "\
+Requires(post):$rpm_macro_installinfo_binary
+Requires(preun):$rpm_macro_installinfo_binary"
+  else
+     echo "\
+Requires(post):${path_installinfo:-/sbin/install-info}
+Requires(preun):${path_installinfo:-/sbin/install-info}"
+  fi)
 
 %post [<subpackage>]
 $([[ "$rpm_macro_installinfo" ]] &&
    echo "$rpm_macro_installinfo %{name}.info" ||
    echo "${path_installinfo:-/sbin/install-info} %{name}.info")
+exit 0
 
 %preun [<subpackage>]
 $([[ "$rpm_macro_uninstallinfo" ]] &&
@@ -423,9 +434,11 @@ $"checking for packages with bad BuildArch tag""${NORM}..."
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      for f in $(find -mindepth 2 -perm +111 -type f \
-         -exec file {} \; | grep -E "( ELF | library )"); do
-         notify.debug "found a ELF file: \`${NOTE}${f/./}${NORM}'"
+      for f in $(LC_ALL=C find -mindepth 2 -type f \
+         -exec file {} \; 2>/dev/null | grep -E "(\
+ ELF | OCaml library | ar archive |\
+ dynamically linked | statically linked )"); do
+         notify.debug "found binary or library file: \`${NOTE}${f/./}${NORM}'"
          let "warning = 1"
          break
       done

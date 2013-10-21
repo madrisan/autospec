@@ -82,7 +82,7 @@ or FITNESS FOR A PARTICULAR PURPOSE."
 function version() {
    echo "\
 ${me[0]} ${me[1]}
-Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>"
+Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>"
 }
 
 # $1: optional exit code (default is '1')
@@ -106,6 +106,7 @@ function usage() {
                       kde3            : "$"specfile for kde3 packages""
                       kde4            : "$"specfile for kde4 packages""
                       library         : "$"specfile for common library packages""
+                      ocaml-libs      : "$"specfile for OCaml library packages""
                       perl            : "$"specfile for single-package perl modules""
                       python          : "$"specfile for python modules""
                       standard-daemon : "$"standard specfile for system/network services""
@@ -404,6 +405,10 @@ $FUNCNAME: buildrequires_buildtool = \"$buildrequires_buildtool\""
 
    [ -r "$templatefile" ] || notify.error $"file not found"": $templatefile"
 
+   local pck_name_tail="<FIXME>"
+   case "$pck_name" in *-*) pck_name_tail="${pck_name#*-}" ;; esac
+   notify.debug "$FUNCNAME: pck_name_tail = \"$pck_name_tail\""
+
    local currvar line if_value if_level=0
    # FIXME: at most two nested @if statements are supported
    if_value[0]='N/A'; if_value[1]='1'; if_value[2]='1';
@@ -454,6 +459,7 @@ s,@packager_fullname@,${packager_fullname:-?packager_fullname?},
 s,@packager_email@,${packager_email:-?packager_email?},
 s,@rpm_default_buildroot@,${rpm_default_buildroot:-?rpm_default_buildroot?},
 s,@pck_name@,$pck_name,
+s,@pck_name_tail@,$pck_name_tail,
 s,@pck_version@,$pck_version,
 s,@spec_first_release@,${spec_first_release:-1},
 s,@spec_run_ldconfig@,$spec_run_ldconfig,
@@ -592,6 +598,11 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 libraries must have this name structure (use \`-n'):"" \
 \`$library_name_structure'"
    ;;
+   ocaml-libs)
+      [[ "$pck_name" =~ $ocaml_module_name_structure ]] || notify.error $"\
+ocaml modules must have this name structure (use \`-n'):"" \
+\`$ocaml_module_name_structure'"
+   ;;
    perl)
       [[ "$pck_name" =~ $perl_module_name_structure ]] || notify.error $"\
 perl modules must have this name structure (use \`-n'):"" \
@@ -701,7 +712,8 @@ looks like a python module (use \`-t python' if this is true)" ;;
    # 2. set 'spec_summary'
    local spec_summary="$spec_default_summary"
    local perl_pckname_from_makefile=""
-   case "$spec_type" in perl)
+   case "$spec_type" in
+   perl)
       if [ -e $tmpdir/$pck_rootdir/Makefile.PL ]; then
          # look for the variable `NAME' in Makefile.PL inside the
          # 'WriteMakefile(' ... ')' block
@@ -717,6 +729,26 @@ looks like a python module (use \`-t python' if this is true)" ;;
       fi
       [ -n "$perl_pckname_from_makefile" ] &&
          spec_summary="$perl_pckname_from_makefile - ..."
+   ;;
+   ocaml-libs)
+      local metafile
+      metafile=$(find $tmpdir/$pck_rootdir/ -type f -name "META" 2>/dev/null)
+      [ "$metafile" ] || metafile="$(\
+find $tmpdir/$pck_rootdir/ -type f -name "META.in" 2>/dev/null)"
+      if [ "$metafile" ]; then
+        #notify.debug "$FUNCNAME: OCaml META file found"
+         while read line; do
+            if [[ "$line" =~ ^description[\ \t]*=[\ \t]*\".*\"$ ]]; then
+               spec_summary="... $(\
+echo "$line" | sed "s|.*=[\ \t]*\"\(.*\)\"|\1|") ..."  # vim highlight need a "
+               notify.debug "$FUNCNAME: spec_summary = \"$spec_summary\""
+               break
+            fi
+           #if [[ "$line" =~ ^description[\ \t]*=[\ \t]*$ ]]; then
+           #   ... FIXME
+         done < $metafile
+      fi 
+   ;;
    esac
 
    # 3. set 'spec_license'

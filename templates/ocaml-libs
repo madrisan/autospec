@@ -1,0 +1,102 @@
+## this macro only works for packages with name matching the regexp "ocaml-.*"
+%define ocamlpck  @pck_name_tail@
+
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ...
+Group:         System/Libraries/OCaml
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           ...
+Source:        ...
+License:       ...
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+BuildRequires: ocaml
+BuildRequires: ocaml-camlp4-devel
+BuildRequires: ocaml-findlib
+## remove the following build requirement if this package is compiled
+## by using the OCaml native-code compiler (ocamlopt)
+Requires:      ocaml-runtime
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+@if:pck_devel
+## remove the following two blocks if there's no devel files
+%package devel
+Group:         Development/Libraries/OCaml
+Summary:       Development files for %{name}
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+
+%description devel
+This package contains libraries and signature files for developing applications that use %{name}.
+@fi:pck_devel
+
+%prep
+%setup -q
+
+%build
+## remove the unsupported options (no real standard exists...)
+./configure \\
+\   --prefix %{_prefix} \\
+\   --localstatedir %{_localstatedir} \\
+\   --sharedstatedir %{_sharedstatedir} \\
+\   --sysconfdir %{_sysconfdir} \\
+\   --enable-tests \\
+\   --enable-docs \\
+\   --enable-examples \\
+\   --disable-ldconf
+## extra arguments that sometimes can be passed to './configure'
+##  -host %{_host}
+##  -cc "gcc ${RPM_OPT_FLAGS/-fomit-frame-pointer/}"
+##  --destdir %{buildroot}
+
+%make all
+%make opt
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+export OCAMLFIND_DESTDIR=%{buildroot}$(ocamlfind printconf destdir)
+export DLLDIR=$OCAMLFIND_DESTDIR/stublibs
+
+install -d $OCAMLFIND_DESTDIR/%{ocamlpck}
+install -d $OCAMLFIND_DESTDIR/stublibs
+
+make install
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%files
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %dir %{_libdir}/ocaml/%{ocamlpck}
+# %{_libdir}/ocaml/%{ocamlpck}/META
+# %{_libdir}/ocaml/%{ocamlpck}/*.cma
+# %{_libdir}/ocaml/%{ocamlpck}/*.cmi
+# %{_libdir}/ocaml/%{ocamlpck}/*.cmxs
+# %{_libdir}/ocaml/stublibs/*.so*
+# %doc COPYING
+
+@if:pck_devel
+## remove this block if there are no devel files
+## note: this list is just an example; modify as required
+%files devel
+%defattr(-,root,root)
+# %{_libdir}/ocaml/%{ocamlpck}/*.a
+# %{_libdir}/ocaml/%{ocamlpck}/*.cmx
+# %{_libdir}/ocaml/%{ocamlpck}/*.cmxa
+# %{_libdir}/ocaml/%{ocamlpck}/*.mli
+# %doc CHANGES README
+# %doc doc/html/
+# %doc examples/
+@fi:pck_devel
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@
