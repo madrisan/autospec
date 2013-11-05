@@ -58,6 +58,11 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
     Fix necessary and tested with code.google.com
     Additionally print full 'git clone ..' command line used in debug output.
 
++ improvement
+  * pck-update - Davide Madrisan:
+    New function 'package.generate_name()' required for removing duplicated
+    code and fix a long standing issue.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3

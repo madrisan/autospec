@@ -712,6 +712,45 @@ function target_cpu.set_and_check() {
       notify.error $"unsupported architecture"": \`$target_cpu'"
 }
 
+function package.generate_name() {
+   local ARGS
+   ARGS=`LC_ALL=C getopt \
+      -o n:v:r:t:a:p: \
+      --long name:,version:,release:,type:,arch:,path: \
+      -n "$FUNCNAME" -- "$@"`
+   [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
+
+   local rpm_name rpm_version rpm_release \
+         rpm_type rpm_arch rpm_path rpm_ext
+
+   eval set -- "$ARGS"
+   while :; do
+      case "$1" in
+      -n|--name)
+         rpm_name="$2"; shift ;;
+      -v|--version)
+         rpm_version="$2"; shift ;;
+      -r|--release)
+         rpm_release="$2"; shift ;;
+      -t|--type)
+         rpm_type="$2"; shift ;;
+      -a|--arch)
+         rpm_arch="$2"; shift ;;
+      -p|--path)
+         rpm_path="$2"; shift ;;
+      --) shift; break ;;
+      *) notify.error $"\
+(bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
+      esac
+      shift
+   done
+
+   [ "$rpm_type" = "rpm" ] && rpm_ext="${rpm_arch}.rpm" || rpm_ext="src.rpm"
+
+   echo "${rpm_path:+$rpm_path/}$rpm_arch/\
+${rpm_name}-${rpm_version}-${rpm_release}$DISTRO_rpm.${rpm_ext}"
+}
+
 # function package.update()
 #    do all the actions needed to update an rpm package
 # args:
@@ -1834,8 +1873,8 @@ the release entered at command line doesn't match the version set in the specfil
             for pck in ${SPEC_TARGET[*]}; do
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
-               filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               filename="$(package.generate_name -a $target_cpu -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                notify.debug "\
 filename = $filename ""\
 $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
@@ -1850,8 +1889,8 @@ $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
             notify.debug "norpms = $norpms (forced)"
 
             # check if the srpm file already exists
-            filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            filename="$(package.generate_name -t srpm \
+               -p $srpms_dir -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
             notify.debug "\
 filename = $filename ""\
 $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
@@ -1874,18 +1913,19 @@ ${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
             for pck in ${SPEC_TARGET[*]}; do
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
-               filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               filename="$(package.generate_name -a $target_cpu -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+
                [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
-               notify.warning $"\
+                  notify.warning $"\
 specfile is newer than rpm package(s) (according to modification date)"
                break
             done
 
             notify.note "\
 ${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
-            filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            filename="$(package.generate_name -t srpm \
+               -p $srpms_dir -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
             [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than srpm (according to modification date)"
@@ -2035,10 +2075,10 @@ ${NOTE}"$"building the rpm packages""${NORM}... "$"skipped"
             for pck in ${SPEC_TARGET[*]}; do
                # FIXME : we should check and complain if the package has
                # been built for a different architecture
-               filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               filename="$(package.generate_name -a $target_cpu -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
-               notify.warning $"\
+                  notify.warning $"\
 specfile is newer than rpm package(s) (according to modification date)"
                break
             done
@@ -2048,8 +2088,8 @@ specfile is newer than rpm package(s) (according to modification date)"
             notify.note "\
 ${NOTE}"$"building the srpm package""${NORM}... "$"skipped"
 
-            filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            filename="$(package.generate_name -t srpm \
+               -p $srpms_dir -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
             [ -f "$filename" -a "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ] &&
                notify.warning $"\
 specfile is newer than srpm (according to modification date)"
@@ -2146,11 +2186,11 @@ build the list of the build requirements""${NORM}"
             # FIXME : we should check and complain if the package has
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-               filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+               filename="$(package.generate_name -a noarch -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             else
-               filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               filename="$(package.generate_name -a $target_cpu -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             fi
             [ -e $filename ] ||
                notify.error $"package not found"": \`$filename'"
@@ -2325,41 +2365,28 @@ simulate the installation of the rpm package(s)""${NORM}"
 
          notify.debug "SPEC_TARGET = [${SPEC_TARGET[*]}]"
 
+         local filenames=
+
          for pck in ${SPEC_TARGET[*]}; do
             # FIXME : we should check and complain if the package has
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-               filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+               filename="$(package.generate_name -a noarch -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             else
-               filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+               filename="$(package.generate_name -a $target_cpu -t rpm \
+                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             fi
             notify.note " * $filename"
             [ -e $filename ] ||
                notify.error $"package not found"": \`$filename'"
+
+            filenames="$filenames $filename"
          done
 
-         notify.debug "rpm -U --test ${rpm_root_opts:+$rpm_root_opts }\
-$(for pck in ${SPEC_TARGET[*]}; do
-     if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-        echo -n "$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
-     else
-        echo -n "$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
-     fi
-done)"
-         rpm -U --test $rpm_root_opts \
-         $(for pck in ${SPEC_TARGET[*]}; do
-              if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-                 echo -n "$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm "
-              else
-                 echo -n "$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm "
-              fi
-           done) || notify.error $"rpm exited with error code:"" \`$?'"
+         notify.debug "rpm -U --test ${rpm_root_opts:+$rpm_root_opts } $filenames"
+         rpm -U --test $rpm_root_opts $filenames ||
+            notify.error $"rpm exited with error code:"" \`$?'"
       ;;
       8) notify.note "[${NOTE}step $step${NORM}] -- ${NOTE}"$"\
 perform some quality and security checks""${NORM}"
@@ -2463,8 +2490,8 @@ calculate the md5/sha1 hashing values""${NORM}"
          # ??? th md5sum values differ from the output of the ???
          # ??? command `rpmsign -v --checksig <rpmfile>'      ???
          for tool in md5sum sha1sum; do
-            local filename="\
-$srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            local filename="$(package.generate_name -t srpm \
+               -p $srpms_dir -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
             [[ -e $filename ]] ||
                notify.error $"package not found"": \`$filename'"
 
@@ -2473,11 +2500,11 @@ $srpms_dir/$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
             local i=0
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-                  filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+                  filename="$(package.generate_name -a noarch -t rpm \
+                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                else
-                  filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+                  filename="$(package.generate_name -a $target_cpu -t rpm \
+                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                fi
                [ -e "$filename" ] ||
                   notify.error $"package not found"": \`$filename'"
@@ -2698,9 +2725,8 @@ ftp upload has been disabled"" (do_ftp_upload = \"0\")"
                # copy noarch packages to all the repository set in the
                # configuration variable `arch_noarch_upload[]'
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" = "noarch" ]; then
-                  filename="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
-
+                  filename="$(package.generate_name -a noarch -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                   for upload_arch in \
                      ${arch_noarch_upload[$ftp_server_upload_num]}; do
                      if [ "$upload_arch" == "@arch@" ]; then
@@ -2726,8 +2752,8 @@ $([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
 $upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
                   done
                else
-                  filename="\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+                  filename="$(package.generate_name -a $target_cpu -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                   currurl="\
 $(repository.resolveURL "$upload_ftp_rpms_dir" "$target_cpu")"
 
@@ -2745,8 +2771,8 @@ $upload_ftp_server${upload_ftp_port:+:$upload_ftp_port}/$currurl/$filename
 
          # SRPM package...
          if [ "$nosrpm" = "0" ]; then
-            filename="\
-$SPEC_NAME-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.src.rpm"
+            filename="$(package.generate_name -t srpm \
+               -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
 
             [ "$do_ftp_upload" = "0" ] || curl.upload \
 $([ "$debug_print_private_user_infos" = 1 ] && echo -n "--debug-unsecure ") \
@@ -2943,11 +2969,11 @@ ${NOTE}"$"install the new rpm packages"" ("$"force enabled"")${NORM}..." ||
             local pck2install_list=""
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-                  filename="$rpms_dir/noarch/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.noarch.rpm"
+                  filename="$(package.generate_name -a noarch -t rpm \
+                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                else
-                  filename="$rpms_dir/$target_cpu/\
-$pck-$pck_rpmversion-$pck_rpmrelease$DISTRO_rpm.$target_cpu.rpm"
+                  filename="$(package.generate_name -a $target_cpu -t rpm \
+                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                fi
 
                [[ -n "$rpm_install_noinstall_mask" &&
