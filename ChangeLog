@@ -62,6 +62,9 @@ Thu Nov 07 2013 Madrisan <davide.madrisan(a)gmail.com>
     New function 'package.generate_name()' required for removing duplicated
     code and fix a long standing issue.
 
+  * pck-update, spec-create - Silvan Calarco:
+    New options '--packager-fullname' and '--packager-email'.
+
 + bugfix
   * po/it/autospec.po - Davide Madrisan:
     Add missing translation strings.
