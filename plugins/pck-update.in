@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-update -- plugin for @package@
-# Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -80,7 +80,7 @@ or FITNESS FOR A PARTICULAR PURPOSE."
 function version() {
    echo "\
 ${me[0]} ${me[1]}
-Copyright (C) 2004-2012 Davide Madrisan <davide.madrisan@gmail.com>"
+Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>"
 }
 
 # $1: optional exit code (default is '1')

@@ -69,6 +69,10 @@ Thu Nov 07 2013 Madrisan <davide.madrisan(a)gmail.com>
   * po/it/autospec.po - Davide Madrisan:
     Add missing translation strings.
 
++ update
+  * autospec, pck-update - Davide Madrisan:
+    Update the copyleft messages.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3
