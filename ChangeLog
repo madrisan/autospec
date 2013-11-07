@@ -1,5 +1,5 @@
 Changes in version 1.16.4 - "Korbielow" release
-Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
+Thu Nov 07 2013 Madrisan <davide.madrisan(a)gmail.com>
 
 + bugfix
   * lib/libtest.lib - Davide Madrisan:
@@ -28,7 +28,6 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
     New configuration file for the OCaml (library) modules.
 
 + update
-
   * po/it/pck-update.po - Davide Madrisan:
     Update the italian translation strings.
 
@@ -62,6 +61,10 @@ Sat Jul 13 2013 Madrisan <davide.madrisan(a)gmail.com>
   * pck-update - Davide Madrisan:
     New function 'package.generate_name()' required for removing duplicated
     code and fix a long standing issue.
+
++ bugfix
+  * po/it/autospec.po - Davide Madrisan:
+    Add missing translation strings.
 
 -------------------------------------------------------------------------------
 
