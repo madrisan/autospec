@@ -857,7 +857,7 @@ msgid   "Override packager full name"
 msgstr  "Sostituisce il nome completo del packager"
 
 msgid   "Override packager email"
-msgstr  "Sostituisce l'indizizzo mail del packager"
+msgstr  "Ridefinisce l'indirizzo mail del packager"
 
 msgid   "Specify a git branch"
 msgstr  "Specifica un branch git"

@@ -73,6 +73,10 @@ Thu Nov 07 2013 Madrisan <davide.madrisan(a)gmail.com>
   * autospec, pck-update - Davide Madrisan:
     Update the copyleft messages.
 
+  * italian manpage - Davide Madrisan:
+    Update the italian manpage by documenting the new '--packager-fullname'
+    and '--packager-email' options.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3

@@ -180,7 +180,9 @@ Si ricorda che le opzioni indicate tra parentesi quadre sono opzionali.
 [\fB\-t\fR \fItype\fR] \
 [\fB\-o\fR \fIoutfile\fR] \
 [\fB\--changelog\fR \fI"messaggio"\fR] \
-[\fB\<opzioni-git>\fR]
+[\fB\<opzioni-git>\fR] \
+[\fB\-\-packager-fullname\fR \fI"Nome Completo"\fR] \
+[\fB\-\-packager-email\fR \fI"<email@domain>"\fR]
 .TP
 \fB\-s\fR, \fB\-\-source\fR
 cerca di creare uno specfile per l'\fIarchivio\fR indicato
@@ -226,6 +228,12 @@ permette di scegliere un messaggio di ChangeLog diverso da quello di default
 .br
 \fB\-\-preserve\-dot\-git\fR : non rimuove i file git
 .TP
+\fB\-\-packager-fullname\fR \fI"Nome Completo"\fR
+ridefinisce il nome completo del packager
+.TP
+\fB\-\-packager-email\fR \fI"<email@domain>"\fR
+'indirizzo mail del packager
+.TP
 \fIEsempi\fR
 .TP
 .PD 0
@@ -261,7 +269,9 @@ permette di scegliere un messaggio di ChangeLog diverso da quello di default
 [\fB\-\-nosrpm\fR|\fB\-\-norpm\fR] \
 [\fB\-\-force-update\fR] [\fB\-\-force-build\fR] [\fB\-\-force-install\fR] \
 [\fB\-\-ignore-test \fIt1\fR[,\fIt2\fR,...]\fR] \
-[\fB\-c\fR] [\fB\-f\fR] [\fB\-L\fR] [\fB\-R\fR]
+[\fB\-c\fR] [\fB\-f\fR] [\fB\-L\fR] [\fB\-R\fR] \
+[\fB\-\-packager-fullname\fR \fI"Nome Completo"\fR] \
+[\fB\-\-packager-email\fR \fI"<email@domain>"\fR]
 .TP
 \fB\-u\fR, \fB\-\-update\fR
 aggiorna il pacchetto \fIpck\fR, versione \fIver\fR,
@@ -369,6 +379,12 @@ attiva modalita' ed impostazioni di rebuild (azione 4)
 .TP
 \fB\-\-root\fR
 definisce una root directory alternativa per rpm
+.TP
+\fB\-\-packager-fullname\fR \fI"Nome Completo"\fR
+ridefinisce il nome completo del packager
+.TP
+\fB\-\-packager-email\fR \fI"<email@domain>"\fR
+ridefinisce l'indirizzo mail del packager
 .TP
 \fIEsempi\fR
 .TP
