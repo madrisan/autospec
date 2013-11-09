@@ -1,3 +1,35 @@
+List of user visible changes in the release 1.16.4 - "Korbielow" release
+
+-- Improvement
+
+ * templates/ocaml-libs, plugins/spec-create - Davide Madrisan
+   New autospec template for OCaml libraries.
+
+ * conf/02-specfile-rpm-groups.conf - Davide Madrisan:
+   Add specific rpm groups for OCaml libraries and development packages.
+
+ * conf/02-specfile-rpm-macros-ocaml.conf - Davide Madrisan:
+   New configuration file for the OCaml (library) modules.
+
+ * italian manpage - Davide Madrisan:
+   Document the new template ocaml-libs.
+
+ * pck-update, spec-create - Silvan Calarco:
+   New options '--packager-fullname' and '--packager-email'.
+
+-- Bugfix
+
+ * tests/test01_pkgquality - Davide Madrisan:
+   Minor fixes to better support OCaml libraries.
+
+ * pck-update - Silvan Calarco
+   Don't clone from git repository at every build is source with current
+   version already exists.
+
+ * Several minor bugfixes.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.3
 
 -- Improvement
