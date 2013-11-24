@@ -77,6 +77,11 @@ Fri Nov 08 2013 Madrisan <davide.madrisan(a)gmail.com>
     Update the italian manpage by documenting the new '--packager-fullname'
     and '--packager-email' options.
 
++ bugfix
+  * pck-update - Davide Madrisan:
+    Fix the way 'package.generate_name()' return the package path.
+    Bug reported by Silvan Calarco.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.3
