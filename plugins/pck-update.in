@@ -724,16 +724,25 @@ function target_cpu.set_and_check() {
       notify.error $"unsupported architecture"": \`$target_cpu'"
 }
 
+# function target_cpu.set_and_check()
+#    generate the name of the rpm package
+# args:
+#    -n : package name
+#    -v : package version
+#    -r : package release
+#    -t : rpm or srpm
+#    -a . architecture
+#    -p : return the filename with path
 function package.generate_name() {
    local ARGS
    ARGS=`LC_ALL=C getopt \
-      -o n:v:r:t:a:p: \
-      --long name:,version:,release:,type:,arch:,path: \
+      -o n:v:r:t:a:p \
+      --long name:,version:,release:,type:,arch:,path \
       -n "$FUNCNAME" -- "$@"`
    [ $? = 0 ] || notify.error $"(bug)"" -- $FUNCNAME: "$"\`getopt' error"
 
    local rpm_name rpm_version rpm_release \
-         rpm_type rpm_arch rpm_path rpm_ext
+         rpm_type rpm_arch rpm_path rpm_ext with_rpm_path
 
    eval set -- "$ARGS"
    while :; do
@@ -749,7 +758,7 @@ function package.generate_name() {
       -a|--arch)
          rpm_arch="$2"; shift ;;
       -p|--path)
-         rpm_path="$2"; shift ;;
+         with_rpm_path="1" ;;
       --) shift; break ;;
       *) notify.error $"\
 (bug)"" -- $FUNCNAME: "$"\`getopt' error: bad command \`$1'" ;;
@@ -757,9 +766,18 @@ function package.generate_name() {
       shift
    done
 
-   [ "$rpm_type" = "rpm" ] && rpm_ext="${rpm_arch}.rpm" || rpm_ext="src.rpm"
+   if [ "$rpm_type" = "rpm" ]; then
+      rpm_ext="${rpm_arch}.rpm"
+      [ "$with_rpm_path" = 1 ] && rpm_path="$rpms_dir/$rpm_arch"
+   else
+      rpm_ext="src.rpm"
+      [ "$with_rpm_path" = 1 ] && rpm_path="$srpms_dir"
+   fi
 
-   echo "${rpm_path:+$rpm_path/}$rpm_arch/\
+   notify.debug "$FUNCNAME: retval: ${rpm_path:+$rpm_path/}\
+${rpm_name}-${rpm_version}-${rpm_release}$DISTRO_rpm.${rpm_ext}"
+
+   echo "${rpm_path:+$rpm_path/}\
 ${rpm_name}-${rpm_version}-${rpm_release}$DISTRO_rpm.${rpm_ext}"
 }
 
@@ -2198,11 +2216,11 @@ build the list of the build requirements""${NORM}"
             # FIXME : we should check and complain if the package has
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-               filename="$(package.generate_name -a noarch -t rpm \
-                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+               filename="$(package.generate_name -p -a noarch -t rpm \
+                  -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             else
-               filename="$(package.generate_name -a $target_cpu -t rpm \
-                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+               filename="$(package.generate_name -p -a $target_cpu -t rpm \
+                  -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             fi
             [ -e $filename ] ||
                notify.error $"package not found"": \`$filename'"
@@ -2383,11 +2401,11 @@ simulate the installation of the rpm package(s)""${NORM}"
             # FIXME : we should check and complain if the package has
             # been built for a different architecture
             if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-               filename="$(package.generate_name -a noarch -t rpm \
-                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+               filename="$(package.generate_name -p -a noarch -t rpm \
+                  -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             else
-               filename="$(package.generate_name -a $target_cpu -t rpm \
-                  -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+               filename="$(package.generate_name -p -a $target_cpu -t rpm \
+                  -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
             fi
             notify.note " * $filename"
             [ -e $filename ] ||
@@ -2502,8 +2520,8 @@ calculate the md5/sha1 hashing values""${NORM}"
          # ??? th md5sum values differ from the output of the ???
          # ??? command `rpmsign -v --checksig <rpmfile>'      ???
          for tool in md5sum sha1sum; do
-            local filename="$(package.generate_name -t srpm \
-               -p $srpms_dir -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
+            local filename="$(package.generate_name -p -t srpm \
+               -n $SPEC_NAME -v $pck_rpmversion -r $pck_rpmrelease)"
             [[ -e $filename ]] ||
                notify.error $"package not found"": \`$filename'"
 
@@ -2512,11 +2530,11 @@ calculate the md5/sha1 hashing values""${NORM}"
             local i=0
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-                  filename="$(package.generate_name -a noarch -t rpm \
-                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+                  filename="$(package.generate_name -p -a noarch -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                else
-                  filename="$(package.generate_name -a $target_cpu -t rpm \
-                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+                  filename="$(package.generate_name -p -a $target_cpu -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                fi
                [ -e "$filename" ] ||
                   notify.error $"package not found"": \`$filename'"
@@ -2981,11 +2999,11 @@ ${NOTE}"$"install the new rpm packages"" ("$"force enabled"")${NORM}..." ||
             local pck2install_list=""
             for pck in ${SPEC_TARGET[@]}; do
                if [ "${SPEC_BUILDARCH:-$BUILD_ARCH}" == "noarch" ]; then
-                  filename="$(package.generate_name -a noarch -t rpm \
-                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+                  filename="$(package.generate_name -p -a noarch -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                else
-                  filename="$(package.generate_name -a $target_cpu -t rpm \
-                     -p $rpms_dir -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
+                  filename="$(package.generate_name -p -a $target_cpu -t rpm \
+                     -n $pck -v $pck_rpmversion -r $pck_rpmrelease)"
                fi
 
                [[ -n "$rpm_install_noinstall_mask" &&
