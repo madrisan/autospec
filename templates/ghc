@@ -1,0 +1,82 @@
+%define ghc_ver %(ghc --version | sed "s|.*version ||")
+%define pkgname %(echo %name | sed "s|^ghc-||")
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       ...
+Group:         Development/Libraries
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           http://hackage.haskell.org/package/%{pkgname}
+Source:        ...
+License:       BSD
+## AUTOBUILDREQ-BEGIN
+## AUTOBUILDREQ-END
+@if:buildrequires_buildtool
+BuildRequires: @build_tool@
+@fi:buildrequires_buildtool
+@if:infopages
+Requires(post): %{__install_info}
+Requires(preun): %{__install_info}
+@fi:infopages
+BuildRequires: ghc
+BuildRequires: hscolour
+Requires:      ghc = %{ghc_ver}
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+## Remove the following block if there is no binary tool provided
+#%package -n %{pkgname}
+#Group:         Applications/Development
+#Summary:       ...
+#
+#%description -n %{pkgname}
+#...
+
+%prep
+%setup -q -n %{pkgname}-%{version}
+
+%build
+runghc Setup.hs configure \\
+   --prefix=%{_prefix} --libdir=%{_libdir}
+
+runghc Setup.hs build
+runghc Setup.hs haddock --html-location=URL --hyperlink-source
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+runghc Setup.hs copy --destdir=%{buildroot}
+runghc Setup.hs register \\
+   --gen-pkg-config="%{buildroot}%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf"
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%post
+ghc-pkg register %{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf &>/dev/null || true
+:
+
+%preun
+ghc-pkg unregister %{pkgname}-%{version} &>/dev/null || true
+:
+
+%files
+%defattr(-,root,root)
+%dir %{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}
+%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/*
+%dir %{_docdir}/%{pkgname}-%{version}
+%{_docdir}/doc/%{pkgname}-%{version}/LICENSE
+%dir %{_docdir}/%{pkgname}-%{version}/html
+%{_docdir}/%{pkgname}-%{version}/html/*
+
+## Remove the following block if there is no binary tool provided
+#%files -n %{pkgname}
+#%defattr(-,root,root)
+#%{_bindir}/%{pkgname}
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@

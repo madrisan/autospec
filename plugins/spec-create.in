@@ -103,6 +103,7 @@ function usage() {
  -v, --pck-version  "$"Version of the package (default: taken from <source-archive> name)""
  -t, --type         "$"Typology of the specfile to be created""
                       standard        : "$"standard specfile (default)""
+                      ghc             : "$"specfile for ghc packages""
                       gnome           : "$"specfile for gnome packages""
                       kde3            : "$"specfile for kde3 packages""
                       kde4            : "$"specfile for kde4 packages""
@@ -605,6 +606,11 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
  * "$"mode"": ${NOTE}$spec_type${NORM}"
 
    case "$spec_type" in
+   ghc)
+      [[ "$pck_name" =~ $ghc_module_name_structure ]] || notify.error $"\
+ghc modules must have this name structure (use \`-n'):"" \
+\`$ghc_module_name_structure'"
+   ;;
    library)
       [[ "$pck_name" =~ $library_name_structure ]] || notify.error $"\
 libraries must have this name structure (use \`-n'):"" \

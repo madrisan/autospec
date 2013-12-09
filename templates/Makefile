@@ -18,7 +18,7 @@ srcdir = ..
 
 include $(srcdir)/Makefile.env
 
-pck_templates := gnome kde3 kde4 library ocaml-libs perl python standard standard-daemon web
+pck_templates := ghc gnome kde3 kde4 library ocaml-libs perl python standard standard-daemon web
 
 all:
 
