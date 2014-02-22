@@ -1990,7 +1990,7 @@ build requirement found"": \`${NOTE}$f${NORM}' ""\
 
             # remove duplicates
             buildreqs_to_install=(
-$(for f in ${buildreqs_to_install[@]}; do echo $f; done | sort -u))
+$(for f in ${buildreqs_to_install[@]}; do echo $f@$target_cpu; done | sort -u))
 
             # install missing build requirements
             if [[ "${buildreqs_to_install[@]}" ]]; then
