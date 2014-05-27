@@ -19,6 +19,9 @@ msgstr  "Project-Id-Version: autospec 1.16.4\n"
 msgid   "this script requires bash version 2 or better"
 msgstr  "questo script richiede bash versione 2 o superiore"
 
+msgid   "library not found"
+msgstr  "libreria non trovata"
+
 msgid   "This program is free software; you can redistribute it and/or modify "
         "it under\n"
         "the terms of the GNU General Public License version 2 as published "
@@ -86,15 +89,6 @@ msgstr  "Usa '-u -h', '-s -h', '-x -h', '--eval -h' per avere le opzioni a "
 msgid   "Report bugs to <davide.madrisan@gmail.com>."
 msgstr  "Segnalare eventuali bug a <davide.madrisan@gmail.com>."
 
-msgid   "library not found"
-msgstr  "libreria non trovata"
-
-msgid   "deprecated option"
-msgstr  "opzione deprecata"
-
-msgid   "use \\`--colors' instead"
-msgstr  "utilizzare \\`--colors'"
-
 msgid   "version"
 msgstr  "versione"
 
@@ -143,6 +137,9 @@ msgstr  "(bug)"
 
 msgid   "unknown variable type"
 msgstr  "tipo di variabile sconosciuto"
+
+msgid   "loading"
+msgstr  "caricamento di"
 
 msgid   "Find for updates scanning the web."
 msgstr  "Ricerca aggiornamenti cercando nel web."
@@ -195,9 +192,6 @@ msgstr  "source0 in formato non parametrico: impossibile aggiornare"
 msgid   "found version:"
 msgstr  "versione trovata:"
 
-msgid   "assertion failed:"
-msgstr  "asserzione fallita:"
-
 msgid   "last version of \\`${NOTE}$specname${NORM}' found:"
 msgstr  "ultima versione di \\`${NOTE}$specname${NORM}' trovata:"
 
@@ -223,9 +217,6 @@ msgstr  "l'utente \\`$(id -nu)' non appartiene al gruppo \\`$packager_group'"
 
 msgid   "missing variable in the configuration file"
 msgstr  "variabile non inizializzata nel file di configurazione"
-
-msgid   "loading"
-msgstr  "caricamento di"
 
 msgid   "no message"
 msgstr  "nessun messaggio"
@@ -329,6 +320,18 @@ msgstr  "\\`%end' utilizzata; forse si intendeva \\`%endif'"
 
 msgid   "cannot evaluate:"
 msgstr  "impossibile valutare:"
+
+msgid   "assertion failed:"
+msgstr  "asserzione fallita:"
+
+msgid   "the specfile has some syntax errors"
+msgstr  "lo specfile ha degli errori di sintassi"
+
+msgid   "rpm output"
+msgstr  "output rpm"
+
+msgid   "the error should be here!"
+msgstr  "l'errore dovrebbe essere qui!"
 
 msgid   "Get informations from a given specfile."
 msgstr  "Ricava informazioni da un specfile dato."
@@ -508,6 +511,12 @@ msgstr  "Forza un valore per l'architettura"
 msgid   "Set change information for the package"
 msgstr  "Scrive il messaggio indicato nel changelog del pacchetto"
 
+msgid   "Override packager full name"
+msgstr  "Sostituisce il nome completo del packager"
+
+msgid   "Override packager email"
+msgstr  "Ridefinisce l'indirizzo mail del packager"
+
 msgid   "action"
 msgstr  "azione"
 
@@ -570,15 +579,6 @@ msgstr  "specfile con fine linea CR"
 
 msgid   "specfile with an unsupported format"
 msgstr  "specfile in formato non supportato"
-
-msgid   "the specfile has some syntax errors"
-msgstr  "lo specfile ha degli errori di sintassi"
-
-msgid   "rpm output"
-msgstr  "output rpm"
-
-msgid   "the error should be here!"
-msgstr  "l'errore dovrebbe essere qui!"
 
 msgid   "release number: unsupported format"
 msgstr  "numero di release: formato non supportato"
@@ -823,6 +823,9 @@ msgstr  "Categoria dello specfile da generare"
 msgid   "standard specfile (default)"
 msgstr  "specfile standard (default)"
 
+msgid   "specfile for ghc packages"
+msgstr  "specfile per pacchetti ghc"
+
 msgid   "specfile for gnome packages"
 msgstr  "specfile per pacchetti gnome"
 
@@ -852,12 +855,6 @@ msgstr  "specfile per applicazioni web"
 
 msgid   "Redirect the output to the file <outfile>"
 msgstr  "Redirige lo standard output sul file <outfile>"
-
-msgid   "Override packager full name"
-msgstr  "Sostituisce il nome completo del packager"
-
-msgid   "Override packager email"
-msgstr  "Ridefinisce l'indirizzo mail del packager"
 
 msgid   "Specify a git branch"
 msgstr  "Specifica un branch git"
@@ -910,6 +907,9 @@ msgstr  "sorgente"
 msgid   "mode"
 msgstr  "modo"
 
+msgid   "ghc modules must have this name structure (use \\`-n'):"
+msgstr  "i moduli ghc devono avere questa struttura (usare \\`-n'):"
+
 msgid   "libraries must have this name structure (use \\`-n'):"
 msgstr  "i nomi delle librerie devono avere questa struttura (usare \\`-n'):"
 
@@ -953,14 +953,9 @@ msgstr  "manca almeno una direttiva \\`%defattr'"
 msgid   "use rpm macros if possible:"
 msgstr  "utilizzare le macro rpm quando possibile:"
 
+
 msgid   "localization files must be packaged via \\`%find_lang'"
 msgstr  "trovati file di localizzazione non gestiti da \\`%find_lang'"
-
-msgid   "info pages"
-msgstr  "pagine info"
-
-msgid   "info pages are not installed/uninstalled in the correct way"
-msgstr  "le pagine info non vengono installate/disinstallate correttamente"
 
 msgid   "package Groups"
 msgstr  "campi Group dei pacchetti"
@@ -1085,6 +1080,3 @@ msgid   "${NOTE}Security checks: ${#rpmpkg_name[@]} package(s) checked: "
         "${NORM}${WARN}$total_issues${NORM}${NOTE} warning(s).${NORM}"
 msgstr  "${NOTE}Controlli di sicurezza: pacchetti rpm: ${#rpmpkg_name[@]}; "
         "problemi riscontrati: ${NORM}${WARN}$total_issues${NORM}"
-
-#~ msgid        "not an internet address"
-#~ msgstr       "non è un indirizzo internet"
