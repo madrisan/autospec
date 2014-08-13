@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-update -- plugin for @package@
-# Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2014 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -2163,6 +2163,12 @@ It seems good but do not forget to run quality and security tests"\
             notify.debug "tmpunpackfiles = \`${NOTE}$tmpunpackfiles${NORM}'"
 
             local skipline=1
+            local format_unpackaged_file_list_arch="\
+format_unpackaged_file_list_${target_cpu}"
+            [ -n "${!format_unpackaged_file_list_arch}" ] ||
+               notify.warning \
+                  $"no arch-specific pattern translations for unpackaged files"
+
             while read line; do
                case "$line" in
                "error: Installed (but unpackaged) file(s) found:")
@@ -2172,7 +2178,8 @@ It seems good but do not forget to run quality and security tests"\
                [ "$skipline" = 1 ] || echo "$line"
             done < <(LC_ALL=C eval rpmbuild -bl $rpmbuild_opts --nodeps --nobuild \
                $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1) | \
-               sed -e "$format_unpackaged_file_list" \
+               sed -e "$format_unpackaged_file_list_common;\
+${!format_unpackaged_file_list_arch}" \
                   > $tmpunpackfiles
 
             if [ -s "$tmpunpackfiles" ]; then
