@@ -1,3 +1,42 @@
+Changes in version 1.16.5
+Fri Aug 15 2014 Madrisan <davide.madrisan(a)gmail.com>
+
++ improvement
+  * templates/ghc - Silvan Calarco
+    New template for ghc modules.
+
++ bugfix
+  * templates/python - Silvan Calarco
+    Remove unexisting option '--single-version-externally-managed'.
+
+  * pck-update - Davide Madrisan
+    Fix the way 'package.generate_name()' return the package path when the
+    option '-p' has not been specified.
+    Bug reported by Silvan Calarco.
+
++ improvement
+  * pck-update - Silvan Calarco
+    Specify target_cpu when installing build requirements for x86_64 multiarch
+    support.
+
++ bugfix
+  * lib/libnetwork.lib - Silvan Calarco
+    .git suffix is not optional when cloning from http/https urls.
+
+  * conf/04-rpmbuild-format-unpackaged-filelist.conf - Davide Madrisan
+    Split the translation rules for the unpackaged files into a common block
+    ('format_unpackaged_file_list_common') and an architecture-specific file
+    per supported architecture (currently 'i586' and 'x86_64').
+    This solves the problem of some wrongly filenames reported by autospec
+    when running on the x86_64 architecture.
+    Issue pointed out by Silvan Calarco.
+
+  * conf/04-rpmbuild-format-unpackaged-filelist.conf - Davide Madrisan
+    The translation rules for Python 2.7 and Python 3 have been updated
+    to reflect the current support for Python in openmamba.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.16.4 - "Korbielow" release
 Fri Nov 08 2013 Madrisan <davide.madrisan(a)gmail.com>
 

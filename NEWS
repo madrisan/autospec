@@ -1,3 +1,37 @@
+List of user visible changes in the release 1.16.5
+
+-- Improvement
+
+  * templates/ghc - Silvan Calarco
+    New template for ghc modules.
+
+  * pck-update - Silvan Calarco
+    Specify target_cpu when installing build requirements for x86_64
+    multiarch support.
+
+-- Bugfix
+
+  * templates/python - Silvan Calarco
+    Remove unexisting option '--single-version-externally-managed'.
+
+  * lib/libnetwork.lib - Silvan Calarco
+    .git suffix is not optional when cloning from http/https urls.
+
+  * pck-update - Davide Madrisan
+    Fix the way 'package.generate_name()' return the package path when called
+    without the option '-p'.
+    Bug reported by Silvan Calarco.
+
+  * conf/04-rpmbuild-format-unpackaged-filelist.conf - Davide Madrisan
+    The translation rules for the unpackaged files has been reworked for
+    supporting the x86_64 architecture.
+    Issue pointed out by Silvan Calarco.
+
+  * conf/04-rpmbuild-format-unpackaged-filelist.conf - Davide Madrisan
+    The translation rules for Python 2.7 and Python 3 have been updated.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.4 - "Korbielow" release
 
 -- Improvement
