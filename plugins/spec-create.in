@@ -40,6 +40,10 @@ spec_cmd_configure_autotools="%configure"
 spec_cmd_make_autotools="%make"
 spec_cmd_makeinstall_autotools="%makeinstall"
 
+spec_cmd_configure_autogen="./autogen.sh\n%configure"
+spec_cmd_make_autogen="%make"
+spec_cmd_makeinstall_autogen="%makeinstall"
+
 spec_cmd_configure_cmake="%cmake -d build"
 spec_cmd_make_cmake="%make"
 spec_cmd_makeinstall_cmake="%makeinstall -C build"
@@ -391,6 +395,11 @@ shared-libraries:,debug-package:,\
       spec_cmd_configure="$spec_cmd_configure_autotools"
       spec_cmd_make="$spec_cmd_make_autotools"
       spec_cmd_makeinstall="$spec_cmd_makeinstall_autotools"
+   ;;
+   autogen)
+      spec_cmd_configure="$spec_cmd_configure_autogen"
+      spec_cmd_make="$spec_cmd_make_autogen"
+      spec_cmd_makeinstall="$spec_cmd_makeinstall_autogen"
    ;;
    makefile)
       spec_cmd_configure="$spec_cmd_configure_makefileonly"
@@ -869,6 +878,8 @@ ${standard_docs_devel:+$standard_docs_devel }$currdoc"
              -e $tmpdir/$pck_rootdir/makefile -o \
              -e $tmpdir/$pck_rootdir/GNUmakefile ]; then
          build_techology="makefile"
+      elif [ -x $tmpdir/$pck_rootdir/autogen.sh ]; then
+         build_techology="autogen"
       elif [ -e $tmpdir/$pck_rootdir/SConstruct -o \
              -e $tmpdir/$pck_rootdir/Sconstruct -o \
              -e $tmpdir/$pck_rootdir/sconstruct ]; then
