@@ -587,9 +587,6 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
    [ "$pck_name" ] ||
       notify.error $"cannot get the package name, use the \`-n' option"
 
-   [[ "${pck_newver//[0-9\.]/}" ]] &&
-      notify.error $"invalid version number"" -- \`$pck_newver'"
-
    [ "$pck_version" ] || pck_version=${4:-`echo $pck_tarball | sed -n "\
       /[0-9]/!q  # return nothing if no number is found in the package name
       s,.*/,,  # remove directory name, if any
