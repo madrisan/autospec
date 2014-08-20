@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-create -- plugin for @package@
-# Copyright (C) 2004-2013 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2014 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -512,13 +512,14 @@ s,@spec_changelog_comment@,$spec_changelog_comment,
 # specfile.create()
 # Parameters:
 #   $1 : try to create a specfile from this tarball
-#   $2 : package name
-#   $3 : package version
-#   $4 : package tipology (template)
+#   $2 : source (with or without path; can be a remote url)
+#   $3 : package name
+#   $4 : package version
 #   $5 : output file
 # Description:
 #   Create an initial specfile to help packaging activities
 #
+
 function specfile.create() {
    notify.debug "[ ${0}${exec_options} ]\n"
 
@@ -537,11 +538,13 @@ function specfile.create() {
 
    # 'pck_tarball' = absolute path of '$1'
    local pck_tarball
-   local pck_name pck_version
+   local pck_name
+   local pck_version="$4"
 
    case "$2" in
       git://*|http://*.git|https://*.git)
          git.create_tarball \
+            --pck-version="$pck_version" \
             --git-branch="$git_branch" \
             --preserve-dot-git="$preserve_dot_git" \
             --destdir="$source_dir" "$2"

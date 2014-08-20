@@ -41,6 +41,15 @@ Fri Aug 15 2014 Madrisan <davide.madrisan(a)gmail.com>
     that do not provide any 'configure' script but only an 'autogen,sh' one.
     Feature asked by Silvan Calarco.
 
+  * spec-create - Davide Madrisan
+    specfile.create(): always execute 'git.create_tarball()' with the option
+    '--pck-version'. This way a user-provided package version will be used
+    instead of the default one.
+    Feature asked by Silvan Calarco.
+
+  * lib/libnetwork.lib - Davide Madrisan
+    git.download(): document and honour the '--pck-version' when set.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.4 - "Korbielow" release

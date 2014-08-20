@@ -14,6 +14,11 @@ List of user visible changes in the release 1.16.5
     that do not provide any 'configure' script but only an 'autogen,sh' one.
     Feature asked by Silvan Calarco.
 
+  * spec-create - Davide Madrisan
+    Honour the package version set by the user at command line when generating
+    a specfile from a git repository.
+    Feature asked by Silvan Calarco.
+
 -- Bugfix
 
   * templates/python - Silvan Calarco

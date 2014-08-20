@@ -1,6 +1,6 @@
 #!/bin/bash
 # libnetwork.lib -- @package@ library to get info from internet repositories
-# Copyright (C) 2008,2010,2012 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2010,2012,2014 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ "$libnetwork_is_loaded" = 1 ] || {
 libnetwork_is_loaded=1
@@ -924,6 +924,7 @@ function git.download() {
 #    
 # args:
 #    -d,--destdir       : target directory
+#    -v,--pck-version   : package version
 #    --git-branch       : git branch
 #    --preserve-dot-git : do not remove .git files
 #    $@                 : git repository
