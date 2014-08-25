@@ -9,6 +9,11 @@ List of user visible changes in the release 1.16.5
     Specify target_cpu when installing build requirements for x86_64
     multiarch support.
 
+  * spec-create - Davide Madrisan
+    Create a correct %build block in the specfile generated from tarballs
+    that do not provide any 'configure' script but only an 'autogen,sh' one.
+    Feature asked by Silvan Calarco.
+
 -- Bugfix
 
   * templates/python - Silvan Calarco
