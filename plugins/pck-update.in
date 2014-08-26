@@ -2178,9 +2178,8 @@ format_unpackaged_file_list_${target_cpu}"
                [ "$skipline" = 1 ] || echo "$line"
             done < <(LC_ALL=C eval rpmbuild -bl $rpmbuild_opts --nodeps --nobuild \
                $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1) | \
-               sed -e "$format_unpackaged_file_list_common;\
-${!format_unpackaged_file_list_arch}" \
-                  > $tmpunpackfiles
+               sed -e "${!format_unpackaged_file_list_arch};\
+$format_unpackaged_file_list_common" > $tmpunpackfiles
 
             if [ -s "$tmpunpackfiles" ]; then
                notify.error $"\
