@@ -1990,7 +1990,15 @@ build requirement found"": \`${NOTE}$f${NORM}' ""\
 
             # remove duplicates
             buildreqs_to_install=(
-$(for f in ${buildreqs_to_install[@]}; do echo $f@$target_cpu; done | sort -u))
+$(for f in ${buildreqs_to_install[@]}; do
+   if [ "${f/.*}" != "${f}" ]; then
+      # if arch specified convert from spec to smart format: package.arch -> package@arch
+      echo ${f/./@}
+   else
+      # if not add arch (FIXME: smart won't find package if noarch)
+      echo $f@$target_cpu
+   fi
+done | sort -u))
 
             # install missing build requirements
             if [[ "${buildreqs_to_install[@]}" ]]; then
