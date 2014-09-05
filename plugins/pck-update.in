@@ -2092,7 +2092,7 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 
          # check if we are cross-compiling
          [ "$BUILD_ARCH" != "$target_cpu" ] &&
-            rpmbuild_opts="--target $target_cpu $rpmbuild_opts"
+            rpmbuild_opts="$rpmbuild_opts --target $target_cpu"
 
          [ "$cleanup" = "1" ] && rpmbuild_opts="$rpmbuild_opts --clean"
 
