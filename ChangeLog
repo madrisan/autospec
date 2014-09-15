@@ -1,5 +1,5 @@
 Changes in version 1.16.5
-Fri Aug 15 2014 Madrisan <davide.madrisan(a)gmail.com>
+Sat Sep 20 2014 Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
   * templates/ghc - Silvan Calarco
@@ -49,6 +49,17 @@ Fri Aug 15 2014 Madrisan <davide.madrisan(a)gmail.com>
 
   * lib/libnetwork.lib - Davide Madrisan
     git.download(): document and honour the '--pck-version' when set.
+
++ bugfix
+  * pkg-update - Silvan Calarco
+    '--target' needs to be passed as last option to rpmbuild.
+
++ improvement
+  * pck-update - Silvan Calarco
+    Support for package.arch specfile build requirement.
+    When this form of requirement is detected it is converted to package@arch
+    as required by smart.
+    Also add comments and a FIXME about a problem with previous patch of this
 
 -------------------------------------------------------------------------------
 

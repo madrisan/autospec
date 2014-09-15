@@ -19,6 +19,11 @@ List of user visible changes in the release 1.16.5
     a specfile from a git repository.
     Feature asked by Silvan Calarco.
 
+  * pck-update - Silvan Calarco
+    Support for package.arch specfile build requirement.
+    When this form of requirement is detected it is converted to package@arch
+    as required by smart.
+
 -- Bugfix
 
   * templates/python - Silvan Calarco
