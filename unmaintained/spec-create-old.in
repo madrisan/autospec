@@ -860,7 +860,7 @@ This package contains static libraries and header files need for development."
       local pck_configure=`(\
          cd $tmpdir/$pck_rootdir &&
           { [[ -x ./configure ]] && echo -n "./configure"
-            LANG=C find . -mindepth 2 -type f -perm +111 \
+            LANG=C find . -mindepth 2 -type f -perm /111 \
                -name configure -printf "%p "; } )`
       notify.debug "pck_configure = \"$pck_configure\""
 

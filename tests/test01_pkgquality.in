@@ -288,7 +288,7 @@ $"checking for binary files installed in /etc (see FHS)""${NORM}..."
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      for f in $( find ./etc -type f -perm +111 2>/dev/null ); do
+      for f in $( find ./etc -type f -perm /111 2>/dev/null ); do
          case $f in
          ./etc/rc.d/init.d/*) ;;
          *) let "warning = 1" &&

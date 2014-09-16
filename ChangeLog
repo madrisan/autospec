@@ -61,6 +61,10 @@ Sat Sep 20 2014 Madrisan <davide.madrisan(a)gmail.com>
     as required by smart.
     Also add comments and a FIXME about a problem with previous patch of this
 
++ bugfix
+  * tests/{test01_pkgquality,test02_pkgsecurity} - Davide Madrisan
+    Fix an obsolete and now unsupported syntax for 'find -perm'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.4 - "Korbielow" release

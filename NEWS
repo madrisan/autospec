@@ -45,6 +45,10 @@ List of user visible changes in the release 1.16.5
   * conf/04-rpmbuild-format-unpackaged-filelist.conf - Davide Madrisan
     The translation rules for Python 2.7 and Python 3 have been updated.
 
+  * tests/{test01_pkgquality,test02_pkgsecurity} - Davide Madrisan
+    Fix an obsolete and now unsupported syntax for 'find -perm' that made some
+    quality and security tests fail.
+
 -------------------------------------------------------------------------------
 
 List of user visible changes in the release 1.16.4 - "Korbielow" release

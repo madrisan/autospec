@@ -89,7 +89,7 @@ $"checking for RPATH vulnerabilities""${NORM}..."
 
       # find ELF binaries (ELF 32-bit LSB executable)
       # and libs (ELF 32-bit LSB shared object)
-      for f in $(find -mindepth 2 -perm +111 -type f); do
+      for f in $(find -mindepth 2 -perm /111 -type f); do
          if [[ "$(file $f | grep " ELF ")" ]]; then
             rpath="$(security.filecheckrpath $f)"
             if [ "$rpath" ]; then
@@ -111,7 +111,7 @@ $"checking for setuid binaries""${NORM}..."
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      for f in $(find -mindepth 2 -perm +111 -type f 2>/dev/null); do
+      for f in $(find -mindepth 2 -perm /111 -type f 2>/dev/null); do
          if [[ "$(LC_ALL=C file $f | grep " setuid ")" ]]; then
             notify.warning "${NORM}${pck##*/} --> ${f/./}"
             let "total_issues += 1"
@@ -147,7 +147,7 @@ $"checking for unsecure use of \`\$\$' in shell and perl scripts""${NORM}..."
    let "i = 0"
    for pck in ${rpmpkg_name[@]}; do
       pushd $tmpextractdir/$i >/dev/null
-      for f in $(find -mindepth 1 -perm +111 -type f); do
+      for f in $(find -mindepth 1 -perm /111 -type f); do
          # we are interesting only in shell scripts
          [[ "$(file $f | grep "shell script\|perl script")" ]] ||
             continue
