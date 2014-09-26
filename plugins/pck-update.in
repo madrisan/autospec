@@ -1992,11 +1992,14 @@ build requirement found"": \`${NOTE}$f${NORM}' ""\
             buildreqs_to_install=(
 $(for f in ${buildreqs_to_install[@]}; do
    if [ "${f/.*}" != "${f}" ]; then
-      # if arch specified convert from spec to smart format: package.arch -> package@arch
+      # if arch specified convert e.g. package.i586 to package@i586
       echo ${f/./@}
-   else
-      # if not add arch (FIXME: smart won't find package if noarch)
+   elif [ "${BUILD_ARCH}" == "x86_64" ]; then
+      # x86_64: specifying arch is necessary (FIXME: problems with .noarch)
       echo $f@$target_cpu
+   else
+      # classic behaviour
+      echo $f
    fi
 done | sort -u))
 
