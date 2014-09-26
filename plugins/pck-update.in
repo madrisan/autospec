@@ -2334,7 +2334,7 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                   fi
                   if [ "$solibpath_catch" ]; then
                      rpm --qf %{name} -qf $solibpath_catch &>/dev/null &&
-                        buildreq="$(rpm --qf %{name} -qf $solibpath_catch)" ||
+                        buildreq="$(rpm --qf "%{name}\n" -qf $solibpath_catch|head -n1)" ||
                         echo "\
 #$req: $solibpath_catch: file not owned by any package"
                   else
@@ -2358,7 +2358,7 @@ $(echo $solibpath | sed "s|-[0-9.]*\.so|.so|")"
                  -a "${buildreq/%-devel/}" = "$buildreq" ]; then
                # if a -devel exists for this package, use it
                rpm -q ${buildreq}-devel &>/dev/null &&
-                  buildreq="$(rpm -q --qf %{name} ${buildreq}-devel)"
+                  buildreq="$(rpm -q --qf "%{name}\n" ${buildreq}-devel|head -n1)"
             fi
             if [ "$buildreq" ]; then
                # finally print buildrequires block
