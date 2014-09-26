@@ -2095,14 +2095,14 @@ ${proxy:+--proxy $proxy} ${proxy_user:+--proxy-user $proxy_user} \
 
          # check if we are cross-compiling
          [ "$BUILD_ARCH" != "$target_cpu" ] &&
-            rpmbuild_opts="$rpmbuild_opts --target $target_cpu"
+            USER_RPMDEFINE_OPTS="--target $target_cpu $USER_RPMDEFINE_OPTS"
 
          [ "$cleanup" = "1" ] && rpmbuild_opts="$rpmbuild_opts --clean"
 
          # note: exit with error when build requirements are missing
          notify.note "${NOTE}"$"testing out specfile""${NORM}..."
          eval "rpmbuild --nobuild \
-$rpmbuild_opts $rpm_root_opts $USER_RPMDEFINE_OPTS \
+$USER_RPMDEFINE_OPTS $rpmbuild_opts $rpm_root_opts \
 $SRPM_SPECFILE_WITH_PATH 2>&1" ||
             notify.error $"rpmbuild exited with error code":" \`$?'"
 
@@ -2149,18 +2149,18 @@ $SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
             # as the dependencies check is done before, it is safe to pass
             # --nodeps to non-simulated build commands.
             eval "\
-rpmbuild -bs $rpmbuild_opts --nodeps \
-$SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+rpmbuild -bs $USER_RPMDEFINE_OPTS $rpmbuild_opts --nodeps \
+$SRPM_SPECFILE_WITH_PATH 2>&1"
          elif [ "$nosrpm" = 1 ]; then
             notify.note "${NOTE}"$"building the rpm packages""${NORM}..."
             eval "\
-rpmbuild -bb $rpmbuild_opts --nodeps \
-$SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+rpmbuild -bb $USER_RPMDEFINE_OPTS $rpmbuild_opts --nodeps \
+$SRPM_SPECFILE_WITH_PATH 2>&1"
          else
             notify.note "${NOTE}"$"building rpm and srpm packages""${NORM}..."
             eval "\
-rpmbuild -ba $rpmbuild_opts --nodeps \
-$SRPM_SPECFILE_WITH_PATH $USER_RPMDEFINE_OPTS 2>&1"
+rpmbuild -ba $USER_RPMDEFINE_OPTS $rpmbuild_opts --nodeps \
+$SRPM_SPECFILE_WITH_PATH 2>&1"
          fi
          local rpmbuild_retcode="$?"
          if [ $rpmbuild_retcode -eq 0 ]; then
