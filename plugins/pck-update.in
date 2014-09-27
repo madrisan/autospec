@@ -1924,7 +1924,7 @@ $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
             notify.debug "\
 filename = $filename ""\
 $([ -f "$filename" ] && echo "(found)" || echo "(not found)")"
-            [ -f "$filename" ] && nosrpm=1 || nosrpm=0
+            [ -f "$filename" -a "$build_needed" = 0 ] && nosrpm=1
 
             #if [ "$SRPM_SPECFILE_WITH_PATH" -nt "$filename" ]; then
             #   # rebuild the srpm package if the specfile has been modified
