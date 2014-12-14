@@ -1002,7 +1002,7 @@ not the expected package version"" (${NOTE}${today}git${NORM})..."
       notify.debug "$FUNCNAME: pck_version = \"$pck_version\""
    fi
 
-   which git &>/dev/null ||
+   type -p git &>/dev/null ||
       notify.error $"utility not found"": \`git'"
 
    local tmpgitdir=$(mktemp -q -d -t tmpgit.XXXXXXXX)

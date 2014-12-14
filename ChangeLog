@@ -65,6 +65,10 @@ Sat Sep 20 2014 Madrisan <davide.madrisan(a)gmail.com>
   * tests/{test01_pkgquality,test02_pkgsecurity} - Davide Madrisan
     Fix an obsolete and now unsupported syntax for 'find -perm'.
 
++ improvement
+  * lib/libnetwork.lib - Davide Madrisan
+    Do not use the external tool 'which'. Use the bash builtin command 'type'.
+
 -------------------------------------------------------------------------------
 
 Changes in version 1.16.4 - "Korbielow" release
