@@ -151,7 +151,23 @@ Fri Nov 08 2013 Madrisan <davide.madrisan(a)gmail.com>
     and '--packager-email' options.
 
 + bugfix
-  * pck-update - Davide Madrisan:
+  * pck_update - Silvan Calarco
+    More changes on 'rpmbuildopt' parameters ordering to workaround cross-arch
+    builds.  This is still a workaround to allow cross-arch builds with long rpm
+    command lines because it seems that rpmbuild is ignoring extra passed
+    parameters when they exceed a certain number (5 or 6 as far as I remember).
+
+  * pck-update - Silvan Calarco
+    'buildreqs_to_install': keep conservative classic behaviour on archs
+    different from x86_64.
+
+  * pck-update - Silvan Calarco
+    Fix duplicated names in 'BuildRequires' in multiarch systems (x86_64).
+
+  * pck-update - Davide Madrisan
+    Always rebuild srpm when rpms are built unless --nosrpm is passed.
+
+  * pck-update - Davide Madrisan
     Fix the way 'package.generate_name()' return the package path.
     Bug reported by Silvan Calarco.
 
