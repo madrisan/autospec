@@ -1,6 +1,6 @@
 #!/bin/bash
 # test01_pkgquality -- @package@ test (rpm quality checks)
-# Copyright (C) 2008,2012,2013 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2008,2012-2014 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 2 ] &&
    echo $"this script requires bash version 2 or better" >&2 && exit 1

@@ -24,7 +24,7 @@
 \fBlibtest.lib\fR - libreria con le funzioni del framework di test.
 
 .SH VERSIONE
-Questo documento e' aggiornato alla versione 1.16.4 di
+Questo documento e' aggiornato alla versione 1.16.5 di
 .B @package@.
 
 .SH DESCRIZIONE
@@ -546,7 +546,7 @@ cioe' eseguendo:
 \fBLC_ALL=C autospec\fR ...
 
 .SH COPYRIGHT
-Copyright (C) 2004\-2012 Davide Madrisan <davide.madrisan@gmail.com>
+Copyright (C) 2004\-2014 Davide Madrisan <davide.madrisan@gmail.com>
 .br
 .br
 Questo e' software libero. E' possibile redistribuirlo e/o modificarlo nei termini
