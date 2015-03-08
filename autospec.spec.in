@@ -175,6 +175,33 @@ make install DESTDIR=%{buildroot} prefix=%{_prefix}
 * @date@ Davide Madrisan <davide.madrisan@gmail.com> @version@-@release@
 - update to @version@
 
+* Fri Sep 26 2014 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4.92-1mamba
+- update to 1.16.4.92
+
+* Thu Aug 28 2014 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4.91-1mamba
+- update to 1.16.4.91
+
+* Wed Aug 20 2014 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4.90-2mamba
+- add patch to create archives from git using command line passed version
+
+* Tue Aug 19 2014 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4.90-1mamba
+- update to 1.16.4.90
+
+* Tue May 27 2014 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4-2mamba
+- apply patches to sync with current git
+
+* Mon Nov 25 2013 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.4-1mamba
+- update to 1.16.4
+
+* Sun Nov 17 2013 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.3.90-1mamba
+- update to 1.16.3.90
+
+* Sat Jul 13 2013 Silvan Calarco <silvan.calarco@mambasoft.it> 1.16.3.20130713git-1mamba
+- update to 1.16.3.20130713git
+
+* Mon Mar 04 2013 Davide Madrisan <davide.madrisan@gmail.com> 1.16.3-1mamba
+- update to 1.16.3
+
 * Sun Dec 02 2012 Davide Madrisan <davide.madrisan@gmail.com> 1.16.1-1mamba
 - update to 1.16.1
 
