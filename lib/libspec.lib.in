@@ -294,7 +294,7 @@ $FUNCNAME: conditional block (%end) [level#$ifexpr_level]"
          %end)
             notify.warning $"\`%end' found; should perhaps be \`%endif'"
          ;;
-         %define)
+         "%define"|"%global")
             # note: we want to catch %define directives put in conditional blocks
             # example: %define majversion <single_token>
             let "level = 0"
@@ -319,8 +319,8 @@ $FUNCNAME: conditional block (%end) [level#$ifexpr_level]"
             case "${tok[*]}" in
             %\(*\))
                # it's something like:
-               # %define major_ver %(echo %version | cut -d. -f 1-2)
                # %define glibver %(echo `rpm -q --queryformat '%{VERSION}' libglib`)
+               # %global major_ver %(echo %version | cut -d. -f 1-2)
 
 #              rpmvar_value[${#rpmvar_value[*]}]="\
 #$( echo "${tok[*]}" | sed "s|%(\(.*\))|\1|" )"
