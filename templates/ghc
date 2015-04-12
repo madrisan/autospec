@@ -1,15 +1,16 @@
-%define ghc_ver %(ghc --version | sed "s|.*version ||")
+%define ghc_ver %(ghc --numeric-version)
 %define pkgname %(echo %name | sed "s|^ghc-||")
+
 Name:          @pck_name@
 Version:       @pck_version@
 Release:       @spec_first_release@@DISTRO_rpm@
-Summary:       ...
+Summary:       GHC ...
 Group:         Development/Libraries
 Vendor:        @VENDOR@
 Distribution:  @DISTRO@
 Packager:      @packager_fullname@ <@packager_email@>
 URL:           http://hackage.haskell.org/package/%{pkgname}
-Source:        ...
+Source:        http://hackage.haskell.org/package/%{pkgname}-%{version}/%{pkgname}-%{version}.tar.gz
 License:       BSD
 ## AUTOBUILDREQ-BEGIN
 ## AUTOBUILDREQ-END
@@ -40,37 +41,36 @@ BuildRoot:     @rpm_default_buildroot@
 %setup -q -n %{pkgname}-%{version}
 
 %build
-runghc Setup.hs configure \\
-   --prefix=%{_prefix} --libdir=%{_libdir}
+runghc Setup.hs configure -v2 \\
+\   --prefix=%{_prefix} \\
+\   --libdir=%{_libdir} \\
+\   --libexecdir=%{_libexecdir} \\
+\   --docdir=%{_docdir}/%{name}-%{version}
 
 runghc Setup.hs build
-runghc Setup.hs haddock --html-location=URL --hyperlink-source
+runghc Setup.hs haddock --executable --html-location=URL --hyperlink-source
 
 %install
 [ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
 runghc Setup.hs copy --destdir=%{buildroot}
 runghc Setup.hs register \\
-   --gen-pkg-config="%{buildroot}%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf"
+\   --gen-pkg-config="%{buildroot}%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf"
 
 %clean
 [ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
 
 %post
-ghc-pkg register %{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf &>/dev/null || true
-:
+ghc-pkg register %{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/%{pkgname}-%{version}.conf &>/dev/null || :
 
 %preun
-ghc-pkg unregister %{pkgname}-%{version} &>/dev/null || true
-:
+ghc-pkg unregister %{pkgname}-%{version} &>/dev/null || :
 
 %files
 %defattr(-,root,root)
-%dir %{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}
-%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}/*
-%dir %{_docdir}/%{pkgname}-%{version}
-%{_docdir}/doc/%{pkgname}-%{version}/LICENSE
-%dir %{_docdir}/%{pkgname}-%{version}/html
-%{_docdir}/%{pkgname}-%{version}/html/*
+%{_libdir}/ghc-%{ghc_ver}/%{pkgname}-%{version}
+%dir %{_docdir}/%{name}-%{version}
+%{_docdir}/%{name}-%{version}/LICENSE
+%{_docdir}/%{name}-%{version}/html
 
 ## Remove the following block if there is no binary tool provided
 #%files -n %{pkgname}
