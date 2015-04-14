@@ -2,7 +2,7 @@
 # color scheme "web"
 #
 ESC=
-CRIT="<font color=white style=\"background-color:red\">"
+CRIT="<font style=\"color:white;background-color:red;font-weight:600\">"
 NOTE="<font color=gold>"
 WARN="<font color=red>"
 EXIT="$CRIT"
