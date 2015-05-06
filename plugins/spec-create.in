@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-create -- plugin for @package@
-# Copyright (C) 2004-2014 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2015 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -111,6 +111,7 @@ function usage() {
                       gnome           : "$"specfile for gnome packages""
                       kde3            : "$"specfile for kde3 packages""
                       kde4            : "$"specfile for kde4 packages""
+                      kde5            : "$"specfile for kde5 packages""
                       library         : "$"specfile for common library packages""
                       ocaml-libs      : "$"specfile for OCaml library packages""
                       perl            : "$"specfile for single-package perl modules""

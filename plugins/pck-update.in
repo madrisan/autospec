@@ -1,6 +1,6 @@
 #!/bin/bash
 # pck-update -- plugin for @package@
-# Copyright (C) 2004-2014 Davide Madrisan <davide.madrisan@gmail.com>
+# Copyright (C) 2004-2015 Davide Madrisan <davide.madrisan@gmail.com>
 
 [ -z "$BASH" ] || [ ${BASH_VERSION:0:1} -lt 3 ] &&
  { echo $"this script requires bash version 3 or better" >&2 && exit 1; }
@@ -2179,6 +2179,8 @@ format_unpackaged_file_list_${target_cpu}"
             [ -n "${!format_unpackaged_file_list_arch}" ] ||
                notify.warning \
                   $"no arch-specific pattern translations for unpackaged files"
+            notify.debug "\
+format_unpackaged_file_list_arch = $format_unpackaged_file_list_arch"
 
             while read line; do
                case "$line" in

@@ -838,6 +838,9 @@ msgstr  "specfile per pacchetti kde3"
 msgid   "specfile for kde4 packages"
 msgstr  "specfile per pacchetti kde4"
 
+msgid   "specfile for kde5 packages"
+msgstr  "specfile per pacchetti kde5"
+
 msgid   "specfile for common library packages"
 msgstr  "specfile per librerie"
 

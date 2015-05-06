@@ -1,0 +1,111 @@
+%define majver %(echo %version | cut -d. -f1-2)
+
+Name:          @pck_name@
+Version:       @pck_version@
+Release:       @spec_first_release@@DISTRO_rpm@
+Summary:       KDE Frameworks 5 ...
+Group:         ...
+Vendor:        @VENDOR@
+Distribution:  @DISTRO@
+Packager:      @packager_fullname@ <@packager_email@>
+URL:           http://www.kde.org
+Source:        ...
+# Source:        http://download.kde.org/stable/frameworks/%{majver}/...-%{version}.tar.xz
+License:       ...
+## AUTOBUILDREQ-BEGIN
+## note: run 'autospec -u -a6 @pck_name@' to get the list of build requirements.
+## AUTOBUILDREQ-END
+BuildRequires: cmake
+BuildRequires: rpm-macros-kde5
+BuildRequires: extra-cmake-modules
+## note: this list is just an example; modify as required
+# BuildRequires: libQt5Core
+# BuildRequires: libQt5Concurrent
+# BuildRequires: libQt5DBus
+# BuildRequires: libQt5Gui
+# BuildRequires: libQt5Network
+# BuildRequires: libQt5Script
+# BuildRequires: libQt5Svg
+# BuildRequires: libQt5Test
+# BuildRequires: libQt5Widgets
+# BuildRequires: libQt5X11Extras
+# BuildRequires: libQt5Xml
+BuildRoot:     @rpm_default_buildroot@
+
+%description
+...
+
+## remove the devel blocks if this package does not provide development stuff 
+%package devel
+Group:         Development/Libraries
+Summary:       Development files for %{name}
+Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+
+%description devel
+This package contains libraries and header files for developing applications that use %{name}.
+
+@if:debug_package
+%debug_package
+@fi:debug_package
+
+%prep
+%setup -q
+
+%build
+%cmake_kde5 -d build
+%make
+
+%install
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+%makeinstall -C build
+
+@if:i18n
+%find_lang %{name}5_qt --with-qt --all-name || touch %{name}5_qt.lang
+@fi:i18n
+
+%clean
+[ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
+
+%post
+@if:shared_libraries
+## remove the following line if no dynamic libraries are provided by this package
+/sbin/ldconfig
+@fi:shared_libraries
+exit 0
+
+%postun
+@if:shared_libraries
+## remove the following line if no dynamic libraries are provided by this package
+/sbin/ldconfig
+@fi:shared_libraries
+exit 0
+
+@if:i18n
+%files -f %{name}5_qt.lang
+@else:i18n
+%files
+@fi:i18n
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_kde5_bindir}/%{name}
+# %{_kde5_datadir}/%{name}
+# %{_kde5_libdir}/*.so
+## note: "man3" pages normally goes to devel package if any
+# %{_mandir}/man?/%{name}.*
+@standard_docs@
+## note: eventually add the remaining documents (if any)
+# @standard_docs_devel@
+
+## remove this block if the package does not provide development stuff 
+%files devel
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_kde5_includedir}/<KF5Framework>
+# %{_kde5_includedir}/%{name}_version.h
+# %{_kde5_libdir}/cmake/<KF5Framework>
+# %{_kde5_libdir}/*.so
+# %{_kde5_mkspecsdir}/qt_*.pri
+
+%changelog
+* @spec_changelog_date@ @packager_fullname@ <@packager_email@> @pck_version@-@spec_first_release@@DISTRO_rpm@
+- @spec_changelog_comment@
