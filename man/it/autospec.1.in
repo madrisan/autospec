@@ -204,6 +204,8 @@ categoria dello specfile da generare:
 .br
 \fIkde4\fR : specfile per pacchetti kde4
 .br
+\fIkde5\fR : specfile per pacchetti kde5
+.br
 \fIlibrary\fR : specfile per librerie
 .br
 \fIocaml-libs\fR : specfile per librerie OCaml

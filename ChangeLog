@@ -1,9 +1,22 @@
 Changes in version 1.16.6
---- -- -- 2015 Madrisan <davide.madrisan(a)gmail.com>
+Thu May 07 2015 Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
   * lib/libspec.lib - Davide Madrisan
     Accept the rpm token %global which defines macros in global context.
+
+  * templates/ghc - Davide Madrisan
+    Improve the template and fix some indentation issues.
+
+  * conf/color-theme.web - Silvan Calarco
+    Make error text bolder to be more readable on red background
+
+  * templates/kde5, plugins/{spec-create,pck-update} - Davide Madrisan
+    Add a basic support for the KDE Framework 5 packages.
+
++ bugfix
+  * plugins/pck-update
+    Stricter checks on buildreqs with explicit arch.
 
 -------------------------------------------------------------------------------
 

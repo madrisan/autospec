@@ -1,6 +1,19 @@
-List of user visible changes in the release 1.16.6
+List of user visible changes in the release 1.16.6 - "Tuscany" release
 
--- 
+-- Improvement
+
+  * templates/kde5 - Davide Madrisan
+    New template for KDE Framework 5 modules.
+
+  * templates/ghc - Davide Madrisan
+    Improve the template and fix the indentation.
+
+  * Minor improvements - see the ChangeLog.
+
+-- Bugfix
+
+  * plugins/pck-update - Silvan Calarco
+    Stricter checks on buildreqs with explicit arch.
 
 -------------------------------------------------------------------------------
 
