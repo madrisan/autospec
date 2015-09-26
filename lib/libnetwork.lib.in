@@ -909,7 +909,7 @@ function git.download() {
    notify.debug "$FUNCNAME: token_dirname = \"$token_dirname\""   
    notify.debug "$FUNCNAME: token_basename = \"$token_basename\""
 
-   local git_branch="${token_dirname/*.git\/}"
+   local git_branch="${token_dirname/*\/}"
    notify.debug "$FUNCNAME: git_branch = \"$git_branch\""
 
    git.create_tarball \
