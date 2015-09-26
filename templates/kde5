@@ -18,30 +18,26 @@ License:       ...
 BuildRequires: cmake
 BuildRequires: rpm-macros-kde5
 BuildRequires: extra-cmake-modules
-## note: this list is just an example; modify as required
-# BuildRequires: libQt5Core
-# BuildRequires: libQt5Concurrent
-# BuildRequires: libQt5DBus
-# BuildRequires: libQt5Gui
-# BuildRequires: libQt5Network
-# BuildRequires: libQt5Script
-# BuildRequires: libQt5Svg
-# BuildRequires: libQt5Test
-# BuildRequires: libQt5Widgets
-# BuildRequires: libQt5X11Extras
-# BuildRequires: libQt5Xml
+Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
 BuildRoot:     @rpm_default_buildroot@
 
 %description
 ...
 
-## remove the devel blocks if this package does not provide development stuff 
-%package devel
+## remove the library block if this package does not provide library and development stuff
+%package -n lib%{name}
+Group:         System/Libraries
+Summary:       Shared libraries for %{name}
+
+%description -n lib%{name}
+This package contains shared libraries for %{name}.
+
+%package -n lib%{name}-devel
 Group:         Development/Libraries
 Summary:       Development files for %{name}
-Requires:      %{name} = %{?epoch:%epoch:}%{version}-%{release}
+Requires:      lib%{name} = %{?epoch:%epoch:}%{version}-%{release}
 
-%description devel
+%description -n lib%{name}-devel
 This package contains libraries and header files for developing applications that use %{name}.
 
 @if:debug_package
@@ -66,14 +62,14 @@ This package contains libraries and header files for developing applications tha
 %clean
 [ "%{buildroot}" != / ] && rm -rf "%{buildroot}"
 
-%post
+%post -n lib%{name}
 @if:shared_libraries
 ## remove the following line if no dynamic libraries are provided by this package
 /sbin/ldconfig
 @fi:shared_libraries
 exit 0
 
-%postun
+%postun -n lib%{name}
 @if:shared_libraries
 ## remove the following line if no dynamic libraries are provided by this package
 /sbin/ldconfig
@@ -89,15 +85,19 @@ exit 0
 ## note: this list is just an example; modify as required
 # %{_kde5_bindir}/%{name}
 # %{_kde5_datadir}/%{name}
-# %{_kde5_libdir}/*.so
 ## note: "man3" pages normally goes to devel package if any
 # %{_mandir}/man?/%{name}.*
 @standard_docs@
 ## note: eventually add the remaining documents (if any)
 # @standard_docs_devel@
 
-## remove this block if the package does not provide development stuff 
-%files devel
+## remove this block if the package does not provide library and development stuff 
+%files -n lib%{name}
+%defattr(-,root,root)
+## note: this list is just an example; modify as required
+# %{_kde5_libdir}/*.so
+
+%files -n lib%{name}-devel
 %defattr(-,root,root)
 ## note: this list is just an example; modify as required
 # %{_kde5_includedir}/<KF5Framework>
