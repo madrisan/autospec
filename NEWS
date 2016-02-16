@@ -1,3 +1,21 @@
+List of user visible changes in the release 1.16.7
+
+-- Improvement
+
+  * templates/kde5 - Silvan Calarco
+    templates/python - Davide Madrisan
+    Update to templates.
+
+  * conf files - Silvan Calarco
+    Minor improvements.
+
+-- Bugfix
+
+  * lib/libnetwork.lib - Silvan Calarco
+    Support for git repositories which don't have '.git' in their url.
+
+-------------------------------------------------------------------------------
+
 List of user visible changes in the release 1.16.6 - "Tuscany" release
 
 -- Improvement

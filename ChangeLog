@@ -2,9 +2,22 @@ Changes in version 1.16.7
 --- --- -- 2016 Madrisan <davide.madrisan(a)gmail.com>
 
 + improvement
+  * templates/kde5 - Silvan Calarco
+    (Not very recent) updates to template.
+
+  * conf/04-rpmbuild-format-unpackaged-filelist.conf - Silvan Calarco
+    moving KDE4 icons to /usr/share/icons to share them with KF5.
+
+  * conf/03-apse.conf - Silvan Calarco
+    use a mirror for distrowatch or they will ban your IP.
+
   * templates/python - Davide Madrisan
     Add the rpm macros required for building both Python2 and Python3 packages
     with a single specfile.
+
++ bugfix
+  * lib/libnetwork.lib - Silvan Calarco
+    Support for git repositories which don't have '.git' in their url.
 
 -------------------------------------------------------------------------------
 
