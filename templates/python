@@ -19,6 +19,10 @@ BuildRoot:     @rpm_default_buildroot@
 %description
 %{summary}.
 
+%if 0%{?with_pyver}
+%pyver_package
+%endif
+
 %prep
 %setup -q
 
@@ -30,13 +34,13 @@ CFLAGS="%{optflags}" %{__python} setup.py build
 %{__python} setup.py install \\
 \   -O1 --skip-build \\
 \   --root="%{buildroot}" \\
-\   --install-headers=%{_includedir}/python \\
+\   --install-headers=%{python_inc} \\
 \   --install-lib=%{python_sitearch} \\
 \   --record=%{name}.filelist
 
 sed -i "\\,\\.egg-info/,d;s,.*/man/.*,&.gz," %{name}.filelist
 
-%files -f %{name}.filelist
+%files %{?pyappend} -f %{name}.filelist
 %defattr(-,root,root)
 ## note: this list is just an example; modify as required
 # %{python_sitearch}/%{name}.py*

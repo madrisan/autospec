@@ -1,3 +1,13 @@
+Changes in version 1.16.7
+--- --- -- 2016 Madrisan <davide.madrisan(a)gmail.com>
+
++ improvement
+  * templates/python - Davide Madrisan
+    Add the rpm macros required for building both Python2 and Python3 packages
+    with a single specfile.
+
+-------------------------------------------------------------------------------
+
 Changes in version 1.16.6
 Thu May 07 2015 Madrisan <davide.madrisan(a)gmail.com>
 
