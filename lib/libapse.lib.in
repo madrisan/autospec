@@ -565,7 +565,7 @@ apse.cmpversion \"$last_version\" \"$new_version\""
    unset APSE_LAST_VERSION
 
    if [ "$last_version" ]; then
-      APSE_LAST_VERSION="${last_version/-/.}"
+      APSE_LAST_VERSION="${last_version/-*}"
       notify.note $"\
 last version of \`${NOTE}$specname${NORM}' found:"" \
 \`${NOTE}${APSE_LAST_VERSION}${NORM}'"
