@@ -916,7 +916,7 @@ function git.download() {
       --pck-version "$pck_version" \
       --destdir "$destdir" \
       --preserve-dot-git "0" --git-branch "$git_branch" \
-      "${token_dirname/.git*}.git"
+      "${token_dirname/\/$git_branch*}"
 }
 
 # function git.create_tarball
