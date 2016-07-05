@@ -1204,7 +1204,8 @@ rpmvars.solve "$fullURL_new" "$SRPM_SPECFILE_WITH_PATH")
             notify.debug "fullURL_new = $fullURL_new"
 
             case "$fullURL_new" in
-               git://*|http://*.git/*|https://*.git/*)
+               git://*|http://*.git/*|https://*.git/*|http+git://*|https+git://*)
+                  fullURL_new="${fullURL_new/+git}"
                   git.download \
                      --pck-version "$pck_newver" \
                      --destdir="$source_dir" "$fullURL_new"
@@ -2051,7 +2052,8 @@ rpmvars.solve "$fullURL" "$SRPM_SPECFILE_WITH_PATH")
                notify.debug "fullURL = $fullURL"
 
                case "$fullURL" in
-                  git://*|http://*.git/*|https://*.git/*)
+                  git://*|http://*.git/*|https://*.git/*|http+git://*|https+git://*)
+                     fullURL="${fullURL/+git}"
                      [ -e "${source_dir}/${fullURL/*\/}" -a "$force_download" != "1" ] || \
                         git.download \
                            --pck-version "$pck_rpmversion" \
