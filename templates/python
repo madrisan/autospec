@@ -46,7 +46,7 @@ sed -i "\\,\\.egg-info/,d;s,.*/man/.*,&.gz," %{name}.filelist
 # %{python_sitearch}/%{name}.py*
 # %{python_sitearch}/%{name}.so
 @standard_docs@
-## note: eventually add the remaining documents (if any)
+## note: add extra documentation (if any)
 # @standard_docs_devel@
 
 %changelog
