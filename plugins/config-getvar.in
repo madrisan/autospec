@@ -66,6 +66,7 @@ function usage() {
 "$"Samples"":
  @frontend@ -q -C ${default_cfg_list[0]} --eval=\"logging_dir\"
  @frontend@ --eval rpm_allowed_groups
+ @frontend@ --eval rpm_approved_licenses
 
 "$"Report bugs to <davide.madrisan@gmail.com>."
 
