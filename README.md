@@ -24,6 +24,7 @@ Autospec was created for the `QiLinux` distribution and is now used by the [open
  * libapse.lib - Autospec Package Search Engine library
  * libcfg.lib - Load the configuration files
  * libmsgmng.lib - Manage debug/warning/error messages
+ * libnetwork.lib - Get informations from internet repositories
  * libspec.lib - Specfiles parser
  * libtest.lib - Autospec library used by the test framework
  * libtranslate.lib - Autospec library used to setup translations
