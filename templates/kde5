@@ -56,7 +56,7 @@ This package contains libraries and header files for developing applications tha
 %makeinstall -C build
 
 @if:i18n
-%find_lang %{name}5_qt --with-qt --all-name || touch %{name}5_qt.lang
+%find_lang %{name}5_qt --with-qt --with-man --all-name || touch %{name}5_qt.lang
 @fi:i18n
 
 %clean
