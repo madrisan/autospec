@@ -1017,11 +1017,11 @@ not the expected package version"" (${NOTE}${today}git${NORM})..."
       "${NOTE}"$"cloning git repository""\
  <$git_repository> ${git_branch:+($git_branch)}${NORM}""..."
    if [ "$preserve_dot_git" = "0" -a "${git_repository:0:4}" != "http" ]; then
-      notify.debug "$FUNCNAME: git clone --depth=1 ${git_branch:+-b $git_branch} \"$git_repository\""
-      git clone --depth=1 ${git_branch:+-b $git_branch} "$git_repository"
+      notify.debug "$FUNCNAME: git clone --recursive --depth=1 ${git_branch:+-b $git_branch} \"$git_repository\""
+      git clone --recursive --depth=1 ${git_branch:+-b $git_branch} "$git_repository"
    else
-      notify.debug "$FUNCNAME: git clone ${git_branch:+-b $git_branch} \"$git_repository\""
-      git clone ${git_branch:+-b $git_branch} "$git_repository"   
+      notify.debug "$FUNCNAME: git clone --recursive ${git_branch:+-b $git_branch} \"$git_repository\""
+      git clone --recursive ${git_branch:+-b $git_branch} "$git_repository"
    fi
    [ $? -eq 0 ] ||
     { popd &>/dev/null
