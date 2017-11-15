@@ -38,7 +38,7 @@ CFLAGS="%{optflags}" %{__python} setup.py build
 \   --install-lib=%{python_sitearch} \\
 \   --record=%{name}.filelist
 
-sed -i "\\,\\.egg-info/,d;s,.*/man/.*,&.gz," %{name}.filelist
+sed -i "s,.*/man/.*,&.gz," %{name}.filelist
 
 %files %{?pyappend} -f %{name}.filelist
 %defattr(-,root,root)
